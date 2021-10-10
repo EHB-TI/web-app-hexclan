@@ -10,6 +10,10 @@ That information will have to be sent securely. The personal data entered on the
 Imagine an association, chiro, scouts or petanque club that wishes to organise a fundraising event such as a BBQ or a party. Usually, we work with meal and drinking vouchers sold at the cash register at the entrance. We want to get rid of all the hassles due to working with cash money and the potential fraud.
 Let's digitize this burdensome process during these fun events. 
 
+- Idea3
+
+The use case is that of a ticketing system used to improve the quality of the course material provided in the bachelor toegepaste informatica organised by the EhB. The objective is to enable users (students) to raise issues linked with the course material, such as typos in syllabi, outdated software components, dead links,...
+
 # Acceptance criteria
 *how do we know that the goals have been reached?*
 
@@ -26,6 +30,12 @@ Example:
   Purchase: drankkaart van 10 bonnetjes
 That generates a QR code that can be read by Payconiq.
 Feedback message to confirm payment is complete
+
+- Idea3
+  - Regular users are able to generate tickets linked to a particular course and assign a priority level. Fields should be present to upload and share screenshots and source code. Users have access to an overview of the tickets they have generated.
+  - Privileged users (professors) should get access to an admin panel containing an overview of the ticket queues paired with the courses they are teaching. This implies that tickets should be routed to the correct privileged account. Professors should be able to communicate with students wrt a particular ticket in a forum-like interface. Professors should be able to update the status of a given ticket (open, in treatment, closed).
+  - From a security perspective, only students and professors of the relevant domain (ehb.be) should be granted access to the tool. 
+    - Optional: the authentication system should leverage the existing AD of the EhB.
 
 # Threat model
 *describe your threat model. One or more architectural diagram expected. Also a list of the principal threats and what you will do about them*
