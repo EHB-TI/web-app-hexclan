@@ -1,20 +1,20 @@
 # Goal
 *describe how this web app will (evantually) earn money or make the world a better place*
 
-Idea1
+### Idea1
 * Use case: a fun(draising) event organised by students of EhB.
 * Student events tend to organize the financial part of the story with food and drink vouchers sold at the cash register at the entrance. At the bar, vouchers are exchanged for drinks or snacks.
 * We want to get rid of the hassles of the cash registry at the entrance; we want to eliminate cash money and any potential fraud.
 * *Let's digitize this burdensome cash registry process and focus on the fun during these events!*
 * Value proposition: efficient cash register digitizing all payments.
 
-Idea2
+### Idea2
 * The use case is that of a ticketing system used to improve the quality of the course material provided in the bachelor toegepaste informatica organised by the EhB. The objective is to enable users (students) to raise issues linked with the course material, such as typos in syllabi, outdated software components, dead links,...
 
 # Acceptance criteria
 *how do we know that the goals have been reached?*
 
-Idea1
+### Idea1
 *   We want a generic website in order to use it for several events 
 *   Admin users can enter the name of the event, beneficiary bank account and products (simple catalogue with 3 or 4 options).
     Example: 
@@ -29,7 +29,7 @@ Idea1
 - We want to avoid commercial initiatives such as Payconiq and iDeal. Those initiatives imply high barriers of entry: registry of the association (which often don't even exist), registry administration, a cost per transaction, etc.
 
 
-Idea2
+### Idea2
   - Regular users are able to generate tickets linked to a particular course and assign a priority level. Fields should be present to upload and share screenshots and source code. Users have access to an overview of the tickets they have generated.
   - Privileged users (professors) should get access to an admin panel containing an overview of the ticket queues paired with the courses they are teaching. This implies that tickets should be routed to the correct privileged account. Professors should be able to communicate with students wrt a particular ticket in a forum-like interface. Professors should be able to update the status of a given ticket (open, in treatment, closed).
   - From a security perspective, only students and professors of the relevant domain (ehb.be) should be granted access to the tool. 
