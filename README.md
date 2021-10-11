@@ -35,7 +35,7 @@ Feedback message to confirm payment is complete
   - Regular users are able to generate tickets linked to a particular course and assign a priority level. Fields should be present to upload and share screenshots and source code. Users have access to an overview of the tickets they have generated.
   - Privileged users (professors) should get access to an admin panel containing an overview of the ticket queues paired with the courses they are teaching. This implies that tickets should be routed to the correct privileged account. Professors should be able to communicate with students wrt a particular ticket in a forum-like interface. Professors should be able to update the status of a given ticket (open, in treatment, closed).
   - From a security perspective, only students and professors of the relevant domain (ehb.be) should be granted access to the tool. 
-    - Optional: the authentication system should leverage the existing AD of the EhB.test
+    - Optional: the authentication system should leverage the existing AD of the EhB.
 
 # Threat model
 *describe your threat model. One or more architectural diagram expected. Also a list of the principal threats and what you will do about them*
