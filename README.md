@@ -2,25 +2,26 @@
 *describe how this web app will (evantually) earn money or make the world a better place*
 
 - Idea1
-We want to optimise and digitize the way parents approach a children's day care centre from the moment their child is born until the child goes to kindergarten.
-For that, we foresee a website with some static webpages, but also a web page that allows the parents to raise questions, ask supplementary information on the website.
-That information will have to be sent securely. The personal data entered on the form will have to be kept securely following GDPR requirements.
+Use case: a fun(draising) event organised by students of EhB.
+Student events tend to organize the financial part of the story with food and drink vouchers sold at the cash register at the entrance. At the bar, vouchers are exchanged for drinks or snacks.
+We want to get rid of the hassles of the cash registry at the entrance; we want to eliminate cash money and any potential fraud.
+Let's digitize this burdensome cash registry process and focus on the fun during these events!
+Value proposition: efficient cash register digitizing all payments.
 
 - Idea2
-Imagine an association, chiro, scouts or petanque club that wishes to organise a fundraising event such as a BBQ or a party. Usually, we work with meal and drinking vouchers sold at the cash register at the entrance. We want to get rid of all the hassles due to working with cash money and the potential fraud.
-Let's digitize this burdensome process during these fun events. 
-
-- Idea3
-
 The use case is that of a ticketing system used to improve the quality of the course material provided in the bachelor toegepaste informatica organised by the EhB. The objective is to enable users (students) to raise issues linked with the course material, such as typos in syllabi, outdated software components, dead links,...
 
 # Acceptance criteria
 *how do we know that the goals have been reached?*
 
-- Idea1
-The website is securely hosted on a cloud server.
-Messages can be sent by visitors of the website. It should not be possible to send hundreds of messages at once (email bomb).
-The personal data entered should be stored on a contacts database to be able to respond to the message.
+Generic website 
+- Guest users can choose the products (entrance fee, drink/food vouchers, ...)
+- Admin user can change the product catalogue and the prices (admin should login with credentials, preferably with double authentication)
+- The website calculates the amount to pay and generates a QR code. The QR code should follow the specs of the European Payments Council (EPC) - see attached.
+students scan the QR code, pay with the bank app and show proof of payment with their cell phone.
+
+We don't necessarily need Payconiq. A QR code generator might be sufficient. See http://phpqrcode.sourceforge.net/ and official documentation of the European Payments Council to generate a QR code: 
+https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC069-12%20v2.1%20Quick%20Response%20Code%20-%20Guidelines%20to%20Enable%20the%20Data%20Capture%20for%20the%20Initiation%20of%20a%20SCT.pdf
 
 - Idea2
 The administrator can enter the name of the event, bank account and what the customer wishes to purchase (simple catalogue with 3 or 4 options).
@@ -36,6 +37,7 @@ Feedback message to confirm payment is complete
   - Privileged users (professors) should get access to an admin panel containing an overview of the ticket queues paired with the courses they are teaching. This implies that tickets should be routed to the correct privileged account. Professors should be able to communicate with students wrt a particular ticket in a forum-like interface. Professors should be able to update the status of a given ticket (open, in treatment, closed).
   - From a security perspective, only students and professors of the relevant domain (ehb.be) should be granted access to the tool. 
     - Optional: the authentication system should leverage the existing AD of the EhB.
+
 
 # Threat model
 *describe your threat model. One or more architectural diagram expected. Also a list of the principal threats and what you will do about them*
