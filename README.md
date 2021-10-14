@@ -18,7 +18,7 @@
     *   Purchase: drankkaart van 10 bonnetjes
 *   Admin user can change the product catalogue and the prices (admin should login with credentials, preferably with 2fa) - nice to have: log file of changes applied by the admin.
 *   Guest users can choose their products (entrance fee, drink/food vouchers, ...)
-*   The website calculates the amount to pay and generates a QR code for payment. The QR code should follow the specs of the [European Payments Council (EPC)](https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC069-12%20v2) for them to be able to be read by bank apps (see also pdf in resources folder).
+*   The website calculates the amount to pay and generates a QR code for payment. The QR code should follow the specs of the [European Payments Council (EPC)](https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC069-12%20v2) for them to be able to be read by bank apps (see also pdf in drive).
 - Guest users can in turn scan the QR code with their bank app (ING, KBC, BNP Paribas Fortis, ...), and show proof of payment with their cell phone.
 - Once proof of payment is confirmed, the guests get their vouchers.
 - We want to avoid commercial initiatives such as Payconiq and iDeal. Those initiatives imply high barriers of entry: registry of the association (which often don't even exist), registry administration, a cost per transaction, etc...
