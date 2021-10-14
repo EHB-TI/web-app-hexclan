@@ -1,0 +1,8 @@
+.env
+.phpunit.result.cache
+/.idea
+/.vscode
+/vendor
+composer.lock
+Homestead.json
+Homestead.yaml
