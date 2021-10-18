@@ -25,6 +25,9 @@
 
 # Threat model
 *describe your threat model. One or more architectural diagram expected. Also a list of the principal threats and what you will do about them*
+
+This section is handled in the [repo's wiki](https://github.com/EHB-TI/web-app-hexclan/wiki). 
+
 # Deployment
 *minimally, this section contains a public URL of the app. A description of how your software is deployed is a bonus. Do you do this manually, or did you manage to automate? Have you taken into account the security of your deployment process?*
 # *you may want further sections*
