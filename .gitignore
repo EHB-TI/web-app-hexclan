@@ -15,5 +15,5 @@ docker-compose.override.yml
 Homestead.json
 Homestead.yaml
 npm-debug.log
-package-lock.json
 yarn-error.log
+docker-compose.yml
