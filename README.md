@@ -6,6 +6,8 @@
 * We want to get rid of the hassles of the cash registry at the entrance; we want to eliminate cash money and any potential fraud.
 * *Let's digitize this burdensome cash registry process and focus on the fun during these events!*
 * Value proposition: efficient cash register digitizing all payments.
+* We want to avoid commercial initiatives such as Payconiq and iDeal. Those initiatives imply high barriers of entry: registry of the association (which often don't even exist), registry administration, a cost per transaction, etc...
+* Each organiser of an event shares the same application and shares a single database. However, the event's data is isolated.
 
 # Acceptance criteria
 *how do we know that the goals have been reached?*
@@ -21,7 +23,7 @@
 *   The website calculates the amount to pay and generates a QR code for payment. The QR code should follow the specs of the [European Payments Council (EPC)](https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC069-12%20v2) for them to be able to be read by bank apps (see also pdf in drive).
 - Guest users can in turn scan the QR code with their bank app (ING, KBC, BNP Paribas Fortis, ...), and show proof of payment with their cell phone.
 - Once proof of payment is confirmed, the guests get their vouchers.
-- We want to avoid commercial initiatives such as Payconiq and iDeal. Those initiatives imply high barriers of entry: registry of the association (which often don't even exist), registry administration, a cost per transaction, etc...
+- Multitenant platform. The instances (tenants) are logically isolated (data of each event remains invisible to other tenants), but physically integrated.
 
 # Threat model
 *describe your threat model. One or more architectural diagram expected. Also a list of the principal threats and what you will do about them*
