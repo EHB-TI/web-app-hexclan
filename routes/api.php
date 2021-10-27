@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Central domain API routes come here.
+
+Route::middleware([
+    'api',
+])->group(function () {
+    Route::get('/', function () {
+        return 'This is your central application.';
+    });
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
