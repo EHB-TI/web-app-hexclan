@@ -32,14 +32,11 @@ This section is handled in the [repo's wiki](https://github.com/EHB-TI/web-app-h
 
 # Deployment
 *minimally, this section contains a public URL of the app. A description of how your software is deployed is a bonus. Do you do this manually, or did you manage to automate? Have you taken into account the security of your deployment process?*
-# *you may want further sections*
-*especially if the use of your application is not self-evident*
 
-# *Threat Modeling Report*
 <!DOCTYPE html>
-<html lang="en-US" xmlns="http://www.w3.org/TR/xhtml1/strict"><head><title>Threat Modeling Report</title><meta http-equiv="X-UA-Compatible" content="IE=edge" /></head><body><h1 class="title" tabindex="0">Threat Modeling Report</h1><span tabindex="0">
-          Created on 17/10/2021 18:41:35</span><p tabindex="0"><strong>Threat Model Name: </strong></p><p tabindex="0"><strong>Owner: </strong></p><p tabindex="0"><strong>Reviewer: </strong></p><p tabindex="0"><strong>Contributors: </strong></p><p tabindex="0"><strong>Description: </strong></p><p tabindex="0"><strong>Assumptions: </strong></p><p tabindex="0"><strong>External Dependencies: </strong></p><br /><h3 tabindex="0">Threat Model Summary:</h3><table><tr tabindex="0" role="row"><td>Not Started</td><td>0</td></tr><tr tabindex="0" role="row"><td>Not Applicable</td><td>0</td></tr><tr tabindex="0" role="row"><td>Needs Investigation</td><td>19</td></tr><tr tabindex="0" role="row"><td>Mitigation Implemented</td><td>45</td></tr><tr tabindex="0" role="row"><td>Total</td><td>64</td></tr><tr tabindex="0" role="row"><td>Total Migrated</td><td>0</td></tr></table><p class="bugtrack" /><hr /><h2 tabindex="0">
-            Diagram: Data Flow Diagram</h2><img tabindex="0" src="" alt="Data Flow Diagram diagram screenshot&#xA;            " /><h3 tabindex="0">Data Flow Diagram Diagram Summary:
+<html lang="en-US" xmlns="http://www.w3.org/TR/xhtml1/strict"><head><meta http-equiv="X-UA-Compatible" content="IE=edge" /></head><body><h1 class="title" tabindex="0">Threat Modeling Report</h1><span tabindex="0">
+          Created on 17/10/2021 18:41:35</span><br /><h3 tabindex="0">Threat Model Summary:</h3><table><tr tabindex="0" role="row"><td>Not Started</td><td>0</td></tr><tr tabindex="0" role="row"><td>Not Applicable</td><td>0</td></tr><tr tabindex="0" role="row"><td>Needs Investigation</td><td>19</td></tr><tr tabindex="0" role="row"><td>Mitigation Implemented</td><td>45</td></tr><tr tabindex="0" role="row"><td>Total</td><td>64</td></tr><tr tabindex="0" role="row"><td>Total Migrated</td><td>0</td></tr></table><p class="bugtrack" /><hr /><h2 tabindex="0">
+            Diagram: Data Flow Diagram</h2><img tabindex="0" src="{{URL('/DataFlowDiagram.jpg')}}" alt="Data Flow Diagram diagram screenshot&#xA;            " /><h3 tabindex="0">Data Flow Diagram Diagram Summary:
           </h3><table><tr tabindex="0" role="row"><td>Not Started</td><td>0</td></tr><tr tabindex="0" role="row"><td>Not Applicable</td><td>0</td></tr><tr tabindex="0" role="row"><td>Needs Investigation</td><td>19</td></tr><tr tabindex="0" role="row"><td>Mitigation Implemented</td><td>45</td></tr><tr tabindex="0" role="row"><td>Total</td><td>64</td></tr><tr tabindex="0" role="row"><td>Total Migrated</td><td>0</td></tr></table><h3 tabindex="0">
       Interaction: Authentication 
 confirmation
