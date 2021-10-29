@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * This class was created with php artisan make:controller UserController --api
+     * This class was created with php artisan make:controller UserController --model User --api
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -33,44 +33,43 @@ class UserController extends Controller
         // Returns an array of the data that was validated.
         $validatedAttributes = $request->validated();
 
-        return User::create($validatedAttributes);
+        return new UserResource(User::create($validatedAttributes));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        return User::findOrFail($id);
+        return new UserResource(User::findOrFail($user->id));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(UserRequest $request, $id)
+    public function update(UserRequest $request, User $user)
     {
-        $user = User::findOrFail($id);
         $validatedAttributes = $request->validated();
         $user->update($validatedAttributes);
 
-        return $user; //to be verified
+        return new UserResource($user);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        return User::destroy($id);
+        return User::destroy($user->id);
     }
 }
