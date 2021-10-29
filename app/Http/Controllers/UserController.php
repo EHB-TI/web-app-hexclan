@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,12 +25,13 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
-        //TODO: implement validation logic
-
-        // Returns an array of the data that was validated.
-        $validatedAttributes = $request->validated();
+        $validatedAttributes = $request->validate([
+            'name' => 'required|max: 255',
+            'email' => 'required|email|max: 255',
+            'password' => 'required'
+        ]);
 
         return new UserResource(User::create($validatedAttributes));
     }
@@ -54,9 +54,13 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(UserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
-        $validatedAttributes = $request->validated();
+        $validatedAttributes = $request->validate([
+            'name' => 'required|max: 255',
+            'email' => 'required|email|max: 255',
+            'password' => 'required'
+        ]);
         $user->update($validatedAttributes);
 
         return new UserResource($user);

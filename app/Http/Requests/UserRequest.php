@@ -24,9 +24,7 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|max: 255',
-            'email' => 'required|email|max: 255',
-            'password' => 'required' //TODO - https://laravel.com/docs/8.x/validation#validating-passwords
+            //TODO - https://laravel.com/docs/8.x/validation#validating-passwords
         ];
     }
 }
