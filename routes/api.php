@@ -1,10 +1,8 @@
 <?php
 
 use App\Http\Controllers\TenantController;
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +19,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 Route::middleware([
     'api',
+    'auth:sanctum'
 ])->group(function () {
     Route::apiResource('tenants', TenantController::class);
 });

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -29,7 +30,9 @@ Route::prefix(
     'universal',
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Route::apiResource('users', UserController::class);
+    Route::apiResource('users', UserController::class)->except('store');
+
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

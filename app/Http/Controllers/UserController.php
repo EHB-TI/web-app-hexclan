@@ -20,23 +20,6 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $validatedAttributes = $request->validate([
-            'name' => 'required|max: 255',
-            'email' => 'required|email|max: 255',
-            'password' => 'required'
-        ]);
-
-        return new UserResource(User::create($validatedAttributes));
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  \App\Models\User  $user

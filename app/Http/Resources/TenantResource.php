@@ -16,7 +16,6 @@ class TenantResource extends JsonResource
     {
         //return parent::toArray($request); // Default value.
         return [
-            //dd($this),
             'id' => $this->id,
             'name' => $this->name,
             'created_at' => $this->created_at,
