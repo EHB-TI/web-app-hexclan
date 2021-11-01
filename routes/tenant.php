@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -18,16 +19,30 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-// Tenant domains API routes come here.
 
-Route::prefix('api')
-    ->middleware([
-        'api',
-        InitializeTenancyByDomain::class,
-        PreventAccessFromCentralDomains::class,
-    ])->group(function () {
-        Route::get('/', function () {
-            //dd(\App\Models\User::all());
-            return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-        });
+// Universal routes.
+
+Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    'universal',
+    InitializeTenancyByDomain::class,
+])->group(function () {
+    Route::apiResource('users', UserController::class);
+});
+
+// Tenant domains API-only routes come here.
+
+Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::get('/', function () {
+        //dd(\App\Models\User::all());
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
+});

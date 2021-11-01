@@ -4,6 +4,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,16 +17,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Central domain API routes come here.
+// Central domain API-only routes come here.
 
 Route::middleware([
     'api',
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your central application.';
-    });
-
-    Route::apiResource('users', UserController::class);
     Route::apiResource('tenants', TenantController::class);
 });
 
