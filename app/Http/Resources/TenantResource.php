@@ -14,6 +14,15 @@ class TenantResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        //return parent::toArray($request); // Default value.
+        return [
+            //dd($this),
+            'id' => $this->id,
+            'name' => $this->name,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'data' => array('tenancy_db_name' => $this->tenancy_db_name),
+            'domains' => DomainResource::collection($this->domains)
+        ];
     }
 }
