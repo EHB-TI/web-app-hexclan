@@ -32,6 +32,10 @@ Route::prefix(
     Route::apiResource('users', UserController::class);
 });
 
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
 // Tenant domains API-only routes come here.
 
 Route::prefix(

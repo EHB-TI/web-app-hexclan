@@ -24,7 +24,3 @@ Route::middleware([
 ])->group(function () {
     Route::apiResource('tenants', TenantController::class);
 });
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
