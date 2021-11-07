@@ -37,23 +37,9 @@ Route::prefix(
 });
 
 // Universal API routes - protected
- Route::prefix(
-    'api'
-)->middleware([
-    'api',
-    'universal',
-    InitializeTenancyByDomain::class,
-    'auth',
-    'signed'
-])->group(function () {
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-    
-        return response()->setStatusCode(Response::HTTP_OK);// Redirect should bring user to login screen on app.
-    })->name('verification.verify');
-});
 
-// Universal routes - protected via sanctum middleware
+
+// Universal routes - protected via sanctum
 Route::prefix(
     'api'
 )->middleware([
@@ -65,7 +51,7 @@ Route::prefix(
     Route::apiResource('users', UserController::class)->except('store');
 });
 
-// Tenant API routes.
+// Tenant API routes - protected via sanctum
 
 Route::prefix(
     'api'
