@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Central domain API-only routes come here.
+// Central API routes.
 
 Route::middleware([
     'api',

@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Response;
 
-class AuthController extends Controller
+class RegisterController extends Controller
 {
     public function register(Request $request)
     {
@@ -22,14 +24,12 @@ class AuthController extends Controller
             'email' => $validatedAttributes['email'],
             'password' => bcrypt($validatedAttributes['password'])
         ]);
-
-        $token = $user->createToken('hexclan_token')->plainTextToken;
+        
+        //Dispatches Registered event upon succesful registration.
+        event(new Registered($user));
+    
         return (new UserResource($user))
-            ->additional(['token' => $token]);
-    }
-
-    public function login(Request $request)
-    {
-        // TODO
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 }

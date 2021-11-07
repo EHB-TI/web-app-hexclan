@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -20,8 +23,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-
-// Universal routes.
+// Universal API routes - public.
 
 Route::prefix(
     'api'
@@ -30,16 +32,40 @@ Route::prefix(
     'universal',
     InitializeTenancyByDomain::class,
 ])->group(function () {
+    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/login', [LoginController::class, 'login']);
+});
+
+// Universal API routes - protected
+ Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    'universal',
+    InitializeTenancyByDomain::class,
+    'auth',
+    'signed'
+])->group(function () {
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+    
+        return response()->setStatusCode(Response::HTTP_OK);// Redirect should bring user to login screen on app.
+    })->name('verification.verify');
+});
+
+// Universal routes - protected via sanctum middleware
+Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    'universal',
+    InitializeTenancyByDomain::class,
+    'auth:sanctum'
+])->group(function () {
     Route::apiResource('users', UserController::class)->except('store');
-
-    Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// Tenant domains API-only routes come here.
+// Tenant API routes.
 
 Route::prefix(
     'api'
