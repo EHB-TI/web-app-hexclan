@@ -28,5 +28,9 @@ class SendPINCodeNotification
     public function handle(Registered $event)
     {
         $event->user->notify(new PINCodeNotification());
+
+        if(tenant('id') == null) {
+            return false;
+        }
     }
 }

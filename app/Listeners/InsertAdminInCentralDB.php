@@ -2,9 +2,10 @@
 
 namespace App\Listeners;
 
-use App\Events\Registered;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\DB;
 
 class InsertAdminInCentralDB
 {
@@ -26,6 +27,9 @@ class InsertAdminInCentralDB
      */
     public function handle(Registered $event)
     {
-        //
+        DB::connection(config('tenancy.database.central_connection'))
+            ->table('tenants')
+            ->where('id', tenant('id'))
+            ->update(['tenancy_admin_email' => $event->user->email]);
     }
 }

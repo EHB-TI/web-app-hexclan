@@ -22,7 +22,8 @@ class TenantFactory extends Factory
     public function definition()
     {
         return [
-            'name' => 'demo'
+            'name' => 'demo',
+            'tenancy_admin_email' => 'admin@demo.test'
         ];
     }
 }

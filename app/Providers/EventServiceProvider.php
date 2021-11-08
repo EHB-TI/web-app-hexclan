@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\InsertAdminInCentralDB;
 use App\Listeners\SendPINCodeNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -17,7 +18,8 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendPINCodeNotification::class
+            SendPINCodeNotification::class,
+            InsertAdminInCentralDB::class
             //SendEmailVerificationNotification::class,
         ],
     ];

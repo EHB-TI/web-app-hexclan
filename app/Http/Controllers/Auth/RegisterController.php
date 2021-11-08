@@ -22,12 +22,13 @@ class RegisterController extends Controller
         ]);
 
         $count = DB::table('users')->count();
-
+        
         // Close registration at central level after 1 user.
-
         if(tenant('id') == null && $count >= 1) {
             return response()->json(['error' => "The maximum number of users has been reached."], Response::HTTP_FORBIDDEN);
-        } else if (!$count = 0) {
+        }
+        // At tenant level, first registered user is only admin.
+        else if ($count < 1) {
             $firstUser = true;
         } else {
             $firstUser = false;
@@ -38,7 +39,7 @@ class RegisterController extends Controller
             'email' => $validatedAttributes['email'],
             'password' => bcrypt($validatedAttributes['password']),
             'is_admin' => $firstUser,
-            'pin_code' => random_int( 10 ** ( 6 - 1 ), ( 10 ** 6 ) - 1),// Generates random 6-digits integer
+            'pin_code' => random_int( 10 ** ( 6 - 1 ), ( 10 ** 6 ) - 1),// Generates random 6-digits integer.
             'pin_code_timestamp' => Carbon::now()
         ]);
         
