@@ -19,6 +19,7 @@ class CreateCentralUsersTable extends Migration
             $table->string('email')->unique();
             //$table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin');
             //$table->rememberToken();
             $table->integer('pin_code');
             $table->timestamp('pin_code_timestamp');

@@ -9,6 +9,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RegisterController extends Controller
 {
@@ -20,10 +21,23 @@ class RegisterController extends Controller
             'password' => 'required',
         ]);
 
+        $count = DB::table('users')->count();
+
+        // Close registration at central level after 1 user.
+
+        if(tenant('id') == null && $count >= 1) {
+            return response()->json(['error' => "The maximum number of users has been reached."], Response::HTTP_FORBIDDEN);
+        } else if (!$count = 0) {
+            $firstUser = true;
+        } else {
+            $firstUser = false;
+        }
+
         $user = User::create([
             'name' => $validatedAttributes['name'],
             'email' => $validatedAttributes['email'],
             'password' => bcrypt($validatedAttributes['password']),
+            'is_admin' => $firstUser,
             'pin_code' => random_int( 10 ** ( 6 - 1 ), ( 10 ** 6 ) - 1),// Generates random 6-digits integer
             'pin_code_timestamp' => Carbon::now()
         ]);
