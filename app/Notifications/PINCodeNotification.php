@@ -41,9 +41,11 @@ class PINCodeNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Thank you for registering on the Hexclan platform.')
-                    ->line('Please provide the PIN code hereunder together with your credentials during your first login on the app. The first login should occur within 1 minute of receiving this e-mail.')
-                    ->line("PIN code: {$notifiable->pin_code}");
+                    ->subject('Hexclan PIN code')
+                    ->line('Please provide the PIN code hereunder together with your credentials during your first login on the app. The first login should occur within 5 minutes of receiving this e-mail.')
+                    ->line("PIN code: {$notifiable->pin_code}")
+                    ->line("Use this number to request a new PIN code: {$notifiable->id}");
+
     }
 
     /**
