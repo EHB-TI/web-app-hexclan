@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -39,11 +41,18 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $validatedAttributes = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|max: 255',
             'email' => 'required|email|max: 255',
             'password' => 'required'
         ]);
+        
+        if($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $validatedAttributes = $validator->validated();
+        
         $user->update($validatedAttributes);
 
         return new UserResource($user);

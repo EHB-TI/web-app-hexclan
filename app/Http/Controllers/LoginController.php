@@ -1,27 +1,31 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    public function login(Request $request)
+    public function __invoke(Request $request)
     {
-        $validatedAttributes = $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
             'password' => 'required',
             'pin_code' => 'required|integer|digits:6'
             //'device_name' => 'required'
         ]);
+        
+        if($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
+        $validatedAttributes = $validator->validated();
+        
         $user = User::where('email', $validatedAttributes['email'])->first();
 
         if(! $user || ! Hash::check($validatedAttributes['password'], $user->password)) {

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -33,8 +33,8 @@ Route::prefix(
     'universal',
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Route::post('/register', [RegisterController::class, 'register']);
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/register', RegisterController::class);
+    Route::post('/login', LoginController::class);
     // Route used to update pin code
     Route::put('/pincode/{uuid}', PINCodeController::class);
 });

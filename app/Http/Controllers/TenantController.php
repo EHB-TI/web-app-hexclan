@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TenantResource;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class TenantController extends Controller
 {
@@ -57,10 +59,16 @@ class TenantController extends Controller
      */
     public function update(Request $request, Tenant $tenant)
     {
-        $validatedAttributes = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
             'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
         ]);
+        
+        if($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $validatedAttributes = $validator->validated();
 
         $tenant->update($validatedAttributes['name']);
         $tenant->update($validatedAttributes['domain']);
