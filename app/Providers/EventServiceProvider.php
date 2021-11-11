@@ -18,8 +18,7 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendPINCodeNotification::class,
-            InsertAdminInCentralDB::class
+            SendPINCodeNotification::class
             //SendEmailVerificationNotification::class,
         ],
     ];

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -20,6 +21,8 @@ class UserController extends Controller
     {
         return UserResource::collection(User::all());
     }
+
+
 
     /**
      * Display the specified resource.
@@ -42,17 +45,21 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max: 255',
-            'email' => 'required|email|max: 255',
-            'password' => 'required'
+            'id' => 'required',
+            'name' => 'required|max:255',
+            'email' => 'required|email|max:255',
+            'password' => 'required',
+            'is_active' => 'required',
+            'pin_code' => 'required',
+            "pin_code_timestamp" => 'required'
         ]);
-        
-        if($validator->fails()) {
+
+        if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $validatedAttributes = $validator->validated();
-        
+
         $user->update($validatedAttributes);
 
         return new UserResource($user);
@@ -67,5 +74,38 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         return User::destroy($user->id);
+    }
+
+    // Seeds the email of a user in the db. The email existence will be tested during registration.
+    public function seed(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => (string) Str::uuid(),
+            'email' => 'required|email|max:255',
+            'is_admin' => 'required|boolean',
+            'event' => 'required',
+            'role' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $validatedAttributes = $validator->validated();
+
+        $user = User::create([
+            'id' => (string) Str::uuid(),
+            'email' => $validatedAttributes['email'],
+            'is_admin' => false
+        ]);
+
+        $event = $validatedAttributes['event'];
+
+        //To be tested
+        if (/*TODO check whether event already exists.*/true) {
+            $event->users()->attach($validatedAttributes['role']);
+        }
+
+        return new UserResource($user); //TODO nest events under users.
     }
 }

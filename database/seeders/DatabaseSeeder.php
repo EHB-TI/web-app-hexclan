@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,7 +16,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::factory(1)->create();
+        //User::factory(1)->create();
+        User::create([
+            'id' => (string) Str::uuid(),
+            'email' => 'mathieu.developer@protonmail.com']);
         Tenant::factory()->create()->domains()->create(['domain' => 'demo.hexclan.test']);
     }
 }

@@ -21,17 +21,20 @@ class RegisterController extends Controller
             'email' => 'required|email|max:255',
             'password' => 'required',
         ]);
-        
-        if($validator->fails()) {
+
+        if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $validatedAttributes = $validator->validated();
 
+        $emails = User::all(['email']);
+
+
         $count = DB::table('users')->count();
-        
+
         // Close registration at central level after 1 user.
-        if(tenant('id') == null && $count > 0) {
+        if (tenant('id') == null && $count > 0) {
             return response()->json(['error' => 'The maximum number of users has been reached.'], Response::HTTP_FORBIDDEN);
         }
         // At tenant level, first registered user is sole admin.
@@ -48,13 +51,13 @@ class RegisterController extends Controller
             'password' => bcrypt($validatedAttributes['password']),
             'is_active' => false,
             'is_admin' => $firstUser,
-            'pin_code' => random_int( 10 ** ( 6 - 1 ), ( 10 ** 6 ) - 1),// Generates random 6-digits integer.
+            'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
             'pin_code_timestamp' => Carbon::now()
         ]);
-        
+
         //Dispatches Registered event upon succesful registration.
         event(new Registered($user));
-    
+
         return (new UserResource($user))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);

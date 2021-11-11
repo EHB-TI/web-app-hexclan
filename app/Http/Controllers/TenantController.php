@@ -28,12 +28,22 @@ class TenantController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedAttributes = $request->validate([
+         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
+            'tenancy_admin_email' => 'required|email|max:255',
             'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
         ]);
+        
+        if($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        $tenant = Tenant::create(['name' => $validatedAttributes['name']]);
+        $validatedAttributes = $validator->validated();
+
+        $tenant = Tenant::create([
+            'name' => $validatedAttributes['name'],
+            'tenancy_admin_email' => $validatedAttributes['tenancy_admin_email']
+        ]);
         $tenant->domains()->create(['domain' => $validatedAttributes['domain']]);
 
         return new TenantResource($tenant); //TODO: nested resource

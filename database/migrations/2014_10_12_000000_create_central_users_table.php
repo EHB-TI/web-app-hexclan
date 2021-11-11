@@ -14,16 +14,15 @@ class CreateCentralUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->string('name');
+            $table->uuid('id')->primary();
+            $table->string('name')->nullable();
             $table->string('email')->unique();
             //$table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->boolean('is_active');
-            $table->boolean('is_admin');
+            $table->string('password')->nullable();
+            $table->boolean('is_active')->default(false)->nullable();
             //$table->rememberToken();
-            $table->integer('pin_code');
-            $table->timestamp('pin_code_timestamp');
+            $table->integer('pin_code')->nullable();
+            $table->timestamp('pin_code_timestamp')->nullable();
             $table->timestamps();
         });
     }

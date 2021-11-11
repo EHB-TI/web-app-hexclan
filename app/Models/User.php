@@ -13,12 +13,12 @@ class User extends Authenticatable
 
     // Required because primary key is uuid.
     public $incrementing = false;
-    
+
     /**
      * The attributes that aren't mass assignable.
      *
      * @var array
-    */
+     */
     protected $guarded = [];
 
     /**
@@ -28,6 +28,10 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'is_active',
+        'is_admin',
+        'pin_code',
+        'pin_code_timestamp'
         //'remember_token',
     ];
 
@@ -43,4 +47,10 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
         'pin_code_timestamp' => 'datetime'
     ];
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class)
+            ->withPivot('role');
+    }
 }
