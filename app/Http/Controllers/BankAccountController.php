@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
+use App\Models\BankAccount;
 use Illuminate\Http\Request;
 
-class EventController extends Controller
+class BankAccountController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,16 +25,16 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //Make sure that event name is lowercase when stored in db. Event names should be unique. Perhaps best to store banking details in separate table.
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Event  $event
+     * @param  \App\Models\BankAccount  $bankAccount
      * @return \Illuminate\Http\Response
      */
-    public function show(Event $event)
+    public function show(BankAccount $bankAccount)
     {
         //
     }
@@ -43,10 +43,10 @@ class EventController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Event  $event
+     * @param  \App\Models\BankAccount  $bankAccount
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Event $event)
+    public function update(Request $request, BankAccount $bankAccount)
     {
         //
     }
@@ -54,10 +54,10 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Event  $event
+     * @param  \App\Models\BankAccount  $bankAccount
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Event $event)
+    public function destroy(BankAccount $bankAccount)
     {
         //
     }

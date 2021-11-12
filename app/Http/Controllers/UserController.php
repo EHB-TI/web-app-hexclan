@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -82,7 +83,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => (string) Str::uuid(),
             'email' => 'required|email|max:255',
-            'is_admin' => 'required|boolean',
             'event' => 'required',
             'role' => 'required'
         ]);
@@ -99,12 +99,11 @@ class UserController extends Controller
             'is_admin' => false
         ]);
 
-        $event = $validatedAttributes['event'];
+        $eventName = $validatedAttributes['event'];
+        $eventNameCleaned = strtolower($eventName);
+        $event = Event::where('name', '=', $eventNameCleaned)->firstOrFail();
 
-        //To be tested
-        if (/*TODO check whether event already exists.*/true) {
-            $event->users()->attach($validatedAttributes['role']);
-        }
+        $event->users()->attach($user->id, $validatedAttributes['role']);
 
         return new UserResource($user); //TODO nest events under users.
     }

@@ -50,7 +50,6 @@ class RegisterController extends Controller
             'email' => $validatedAttributes['email'],
             'password' => bcrypt($validatedAttributes['password']),
             'is_active' => false,
-            'is_admin' => $firstUser,
             'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
             'pin_code_timestamp' => Carbon::now()
         ]);

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEventsTable extends Migration
+class CreateBankAccountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateEventsTable extends Migration
      */
     public function up()
     {
-        Schema::create('events', function (Blueprint $table) {
+        Schema::create('bank_accounts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
-            $table->date('date');
-            $table->foreignUuid('bank_account_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('beneficiary_name');
+            $table->string('bic');
+            $table->string('iban');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ class CreateEventsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('events');
+        Schema::dropIfExists('bank_accounts');
     }
 }

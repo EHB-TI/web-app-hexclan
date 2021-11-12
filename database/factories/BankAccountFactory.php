@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\Event;
+use App\Models\BankAccount;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 
-class EventFactory extends Factory
+class BankAccountFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Event::class;
+    protected $model = BankAccount::class;
 
     /**
      * Define the model's default state.
@@ -22,7 +22,6 @@ class EventFactory extends Factory
      */
     public function definition()
     {
-        static $count = 1;
         $collection = DB::connection(config('tenancy.database.central_connection'))
             ->table('tenants')
             ->select('name')
@@ -30,14 +29,12 @@ class EventFactory extends Factory
             ->get();
 
         $array = $collection->pluck('name');
-        $pluckedName = $array[0];
-        $name = "{$pluckedName}_event_{$count}";
-        $count++;
-
+        $name = $array[0];
         return [
             'id' => $this->faker->uuid(),
-            'name' => $name,
-            'date' => $this->faker->date('Y-m-d'),
+            'beneficiary_name' => $name,
+            'bic' => $this->faker->swiftBicNumber(),
+            'iban' => $this->faker->iban('BE', '', 16)
         ];
     }
 }

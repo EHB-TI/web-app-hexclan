@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BankAccount;
 use App\Models\Event;
 use App\Models\Tenant;
 use App\Models\User;
@@ -20,16 +21,18 @@ class TenantDatabaseSeeder extends Seeder
         $collection = Tenant::select('tenancy_admin_email')
             ->where('id', tenant('id'))
             ->get();
-        $array = $collection->first()->pluck('tenancy_admin_email');
+        $array = $collection->pluck('tenancy_admin_email');
         $adminEmail = $array[0];
         User::create([
             'id' => (string) Str::uuid(),
             'email' => $adminEmail,
-            'is_admin' => true
         ]);
 
-        Event::factory(1)
+        $bankAccount = BankAccount::factory()->create();
+
+        Event::factory(2)
             ->has(User::factory()->count(1))
+            ->for($bankAccount)
             ->create();
     }
 }
