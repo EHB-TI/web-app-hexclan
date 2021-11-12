@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             'is_active' => $this->is_active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'events' => EventResource::collection($this->events)
+            'events' => EventResource::collection($this->whenLoaded('events'))
         ];
     }
 }

@@ -67,7 +67,7 @@ Route::prefix(
     PreventAccessFromCentralDomains::class,
     //'auth:sanctum'
 ])->group(function () {
-    Route::post('users', [EventController::class, 'seed']);
+    Route::post('users', [UserController::class, 'seed']);
 
     Route::get('events', [EventController::class, 'index']);
     Route::post('events', [EventController::class, 'store']);

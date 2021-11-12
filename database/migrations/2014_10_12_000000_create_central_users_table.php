@@ -21,8 +21,8 @@ class CreateCentralUsersTable extends Migration
             $table->string('password')->default('placeholder');
             $table->boolean('is_active')->default(false);
             //$table->rememberToken();
-            $table->integer('pin_code')->default(-1);
-            $table->timestamp('pin_code_timestamp')->useCurrent();
+            $table->integer('pin_code')->nullable();
+            $table->timestamp('pin_code_timestamp')->nullable();
             $table->timestamps();
         });
     }

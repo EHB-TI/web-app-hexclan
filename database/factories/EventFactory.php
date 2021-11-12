@@ -35,7 +35,7 @@ class EventFactory extends Factory
         $count++;
 
         return [
-            'id' => $this->faker->uuid(),
+            //'id' => $this->faker->uuid(),
             'name' => $name,
             'date' => $this->faker->date('Y-m-d'),
         ];

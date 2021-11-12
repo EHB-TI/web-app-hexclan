@@ -14,7 +14,7 @@ class CreateBankAccountsTable extends Migration
     public function up()
     {
         Schema::create('bank_accounts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('beneficiary_name');
             $table->string('bic');
             $table->string('iban');

@@ -10,7 +10,7 @@ class BankAccount extends Model
     use HasFactory;
 
     // Required because primary key is uuid.
-    public $incrementing = false;
+    //public $incrementing = false;
 
     protected $hidden = [
         'beneficiary_name',

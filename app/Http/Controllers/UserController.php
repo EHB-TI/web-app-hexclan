@@ -23,8 +23,6 @@ class UserController extends Controller
         return UserResource::collection(User::all());
     }
 
-
-
     /**
      * Display the specified resource.
      *
@@ -81,7 +79,6 @@ class UserController extends Controller
     public function seed(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => (string) Str::uuid(),
             'email' => 'required|email|max:255',
             'event' => 'required',
             'role' => 'required'
@@ -94,17 +91,18 @@ class UserController extends Controller
         $validatedAttributes = $validator->validated();
 
         $user = User::create([
-            'id' => (string) Str::uuid(),
+            //'id' => (string) Str::uuid(),
             'email' => $validatedAttributes['email'],
-            'is_admin' => false
         ]);
 
         $eventName = $validatedAttributes['event'];
         $eventNameCleaned = strtolower($eventName);
         $event = Event::where('name', '=', $eventNameCleaned)->firstOrFail();
 
-        $event->users()->attach($user->id, $validatedAttributes['role']);
+        $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 
-        return new UserResource($user); //TODO nest events under users.
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 }

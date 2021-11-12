@@ -31,7 +31,7 @@ class BankAccountFactory extends Factory
         $array = $collection->pluck('name');
         $name = $array[0];
         return [
-            'id' => $this->faker->uuid(),
+            //'id' => $this->faker->uuid(),
             'beneficiary_name' => $name,
             'bic' => $this->faker->swiftBicNumber(),
             'iban' => $this->faker->iban('BE', '', 16)
