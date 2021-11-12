@@ -41,8 +41,11 @@ class RegisterController extends Controller
                 'pin_code_timestamp' => Carbon::now()
             ]);
 
-            // Creates token with admin ability
+            // Creates token with admin ability.
             $token = $user->createToken('hexclan_token', ['admin']);
+
+            // Activate admin user.
+            $user->is_active = true;
 
             // Dispatches Registered event upon succesful registration.
             event(new Registered($user));
@@ -61,21 +64,24 @@ class RegisterController extends Controller
                 'pin_code_timestamp' => Carbon::now()
             ]);
 
+            // Creates token with admin ability for tenant admin.
             $token = null;
             if ($users->count() == 1) {
                 $token = $user->createToken('hexclan_token', ['admin']);
             }
 
+            // Activate admin user.
+            $user->is_active = true;
+
             event(new Registered($user));
 
-            // If user is tenant admin.
             if ($token != null) {
                 return (new UserResource($user))
                     ->additional(['token' => $token->plainTextToken])
                     ->response()
                     ->setStatusCode(Response::HTTP_OK);
             }
-            // Token is assigned at login based on event selection.
+            // Token will be assigned at login based on event selection.
             else {
                 return (new UserResource($user))
                     ->response()

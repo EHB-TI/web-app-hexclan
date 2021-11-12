@@ -91,7 +91,7 @@ class UserController extends Controller
         $validatedAttributes = $validator->validated();
 
         $user = User::create([
-            //'id' => (string) Str::uuid(),
+            'id' => (string) Str::uuid(),
             'email' => $validatedAttributes['email'],
         ]);
 
