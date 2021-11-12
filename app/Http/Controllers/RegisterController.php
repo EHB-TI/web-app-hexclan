@@ -27,7 +27,7 @@ class RegisterController extends Controller
         $validatedAttributes = $validator->validated();
 
         $users = User::all();
-        $user = $users->where('email', $validatedAttributes['email'])->first();
+        $user = $users->firstWhere('email', $validatedAttributes['email']);
         if ($user == null) {
             return response()->json(['error' => 'Unkwown user.'], Response::HTTP_UNAUTHORIZED);
         }
@@ -62,7 +62,7 @@ class RegisterController extends Controller
             ]);
 
             $token = null;
-            if ($users->count == 1) {
+            if ($users->count() == 1) {
                 $token = $user->createToken('hexclan_token', ['admin']);
             }
 
