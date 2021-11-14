@@ -18,11 +18,13 @@ class Event extends Model
         'bank_account_id'
     ];
 
+    // The users that belong to the event.
     public function users()
     {
-        return $this->belongsToMany(User::class); //define pivot here too?
+        return $this->belongsToMany(User::class);
     }
 
+    // The bank account that belongs to the event.
     public function bankAccount()
     {
         return $this->belongsTo(BankAccount::class);

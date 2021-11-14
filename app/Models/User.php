@@ -22,18 +22,11 @@ class User extends Authenticatable
     protected $guarded = [];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * The relationships that should always be loaded.
      *
      * @var array
      */
-    protected $hidden = [
-        'password',
-        'is_active',
-        'is_admin',
-        'pin_code',
-        'pin_code_timestamp'
-        //'remember_token',
-    ];
+    protected $with = ['events'];
 
     /**
      * The attributes that should be cast.
@@ -48,6 +41,21 @@ class User extends Authenticatable
         'pin_code_timestamp' => 'datetime'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'is_active',
+        'is_admin',
+        'pin_code',
+        'pin_code_timestamp'
+    ];
+
+
+    // The events that belong to the user.
     public function events()
     {
         return $this->belongsToMany(Event::class)

@@ -12,6 +12,8 @@ class BankAccount extends Model
     // Required because primary key is uuid.
     //public $incrementing = false;
 
+    protected $guarded = [];
+
     protected $hidden = [
         'beneficiary_name',
         'bic',

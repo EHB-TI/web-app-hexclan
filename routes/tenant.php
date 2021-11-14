@@ -7,7 +7,8 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\TestGetController;
+use App\Http\Controllers\TestPostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Response;
@@ -27,7 +28,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-// Universal API routes - public.
+// Universal API routes.
 
 Route::prefix(
     'api'
@@ -36,29 +37,19 @@ Route::prefix(
     'universal',
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Route::get('/test', TestController::class); // To be used for debugging purposes. 
-    Route::post('/register', RegisterController::class);
-    Route::post('/login', LoginController::class);
-    // Route used to update pin code
-    Route::put('/pincode/{uuid}', PINCodeController::class);
-});
+    Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
+    Route::post('/test', TestPostController::class); // To be used for debugging purposes.
+    Route::post('/register', RegisterController::class); //->withoutMiddleware('auth:sanctum');
+    Route::post('/login', LoginController::class); //->withoutMiddleware('auth:sanctum');
+    Route::put('/pincode/{uuid}', PINCodeController::class); //->withoutMiddleware('auth:sanctum');// Route used to update pin code
 
-// Universal routes - protected via sanctum.
-Route::prefix(
-    'api'
-)->middleware([
-    'api',
-    'universal',
-    InitializeTenancyByDomain::class,
-    //'auth:sanctum'
-])->group(function () {
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::delete('users/{user}', [UserController::class, 'delete']);
 });
 
-// Tenant API routes - protected via sanctum.
+// Tenant API routes.
 
 Route::prefix(
     'api'
@@ -69,7 +60,6 @@ Route::prefix(
     //'auth:sanctum'
 ])->group(function () {
     Route::post('users', [UserController::class, 'seed']);
-
     Route::get('events', [EventController::class, 'index']);
     Route::post('events', [EventController::class, 'store']);
     Route::get('events/{event}', [EventController::class, 'show']);
