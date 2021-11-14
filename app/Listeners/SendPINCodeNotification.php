@@ -27,10 +27,6 @@ class SendPINCodeNotification
      */
     public function handle(Registered $event)
     {
-        // Send PIN code only to unprivileged users.
-
-        if (!$event->user->is_active) {
-            $event->user->notify(new PINCodeNotification());
-        }
+        $event->user->notify(new PINCodeNotification());
     }
 }

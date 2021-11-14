@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
     {
         User::create([
             'id' => (string) Str::uuid(),
-            'email' => 'mathieu.developer@protonmail.com'
+            'email' => 'mathieu.developer@protonmail.com',
+            'is_admin' => true
         ]);
         Tenant::factory()->create()->domains()->create(['domain' => 'demo.hexclan.test']);
     }

@@ -43,6 +43,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+
         $validator = Validator::make($request->all(), [
             'id' => 'required',
             'name' => 'required|max:255',
@@ -80,7 +81,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
-            'event' => 'required',
+            'event_name' => 'required',
             'role' => 'required'
         ]);
 
@@ -95,9 +96,8 @@ class UserController extends Controller
             'email' => $validatedAttributes['email'],
         ]);
 
-        $eventName = $validatedAttributes['event'];
-        $eventNameCleaned = strtolower($eventName);
-        $event = Event::where('name', '=', $eventNameCleaned)->firstOrFail();
+        $eventName = Str::lower($validatedAttributes['event_name']);
+        $event = Event::where('name', '=', $eventName)->firstOrFail();
 
         $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 

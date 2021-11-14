@@ -34,7 +34,6 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        //'email_verified_at' => 'datetime',
         'id' => 'string',
         'is_active' => 'boolean',
         'is_admin' => 'boolean',

@@ -17,7 +17,7 @@ class TestPostController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $event = Event::findOrFail(1);
+        $event = Event::all()->first();
 
         // Set a user role with respect to an event.
         $event->users()->attach($request->user_id);

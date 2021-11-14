@@ -22,10 +22,12 @@ class TestGetController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $user = User::findOrFail('e0581848-8375-329d-b8ab-759bf590a9a4');
-        $event = Event::findOrFail(1);
+        $user = User::all()->first();
+        $event = Event::all()->first();
         $events = $user->events;
         $users = $event->users;
+
+        return new UserResource($user);
 
         // Test UserResource collections.
         //return UserResource::collection(User::all());

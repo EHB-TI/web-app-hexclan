@@ -41,52 +41,12 @@ class RegisterController extends Controller
                 'pin_code_timestamp' => Carbon::now()
             ]);
 
-            // Creates token with admin ability.
-            $token = $user->createToken('hexclan_token', ['admin']);
-
-            // Activate admin user.
-            $user->is_active = true;
-
             // Dispatches Registered event upon succesful registration.
             event(new Registered($user));
 
             return (new UserResource($user))
-                ->additional(['token' => $token->plainTextToken])
                 ->response()
                 ->setStatusCode(Response::HTTP_OK);
-        }
-        // Tenant context.
-        else {
-            $user->update([
-                'name' => $validatedAttributes['name'],
-                'password' => bcrypt($validatedAttributes['password']),
-                'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
-                'pin_code_timestamp' => Carbon::now()
-            ]);
-
-            // Creates token with admin ability for tenant admin.
-            $token = null;
-            if ($users->count() == 1) {
-                $token = $user->createToken('hexclan_token', ['admin']);
-            }
-
-            // Activate admin user.
-            $user->is_active = true;
-
-            event(new Registered($user));
-
-            if ($token != null) {
-                return (new UserResource($user))
-                    ->additional(['token' => $token->plainTextToken])
-                    ->response()
-                    ->setStatusCode(Response::HTTP_OK);
-            }
-            // Token will be assigned at login based on event selection.
-            else {
-                return (new UserResource($user))
-                    ->response()
-                    ->setStatusCode(Response::HTTP_OK);
-            }
         }
     }
 }

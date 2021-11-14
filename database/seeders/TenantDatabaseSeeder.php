@@ -26,6 +26,7 @@ class TenantDatabaseSeeder extends Seeder
         User::create([
             'id' => (string) Str::uuid(),
             'email' => $adminEmail,
+            'is_admin' => true
         ]);
 
         $bankAccount = BankAccount::factory()->create();

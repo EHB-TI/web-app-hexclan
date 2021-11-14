@@ -28,13 +28,13 @@ class TenantController extends Controller
      */
     public function store(Request $request)
     {
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
             'tenancy_admin_email' => 'required|email|max:255',
             'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
         ]);
-        
-        if($validator->fails()) {
+
+        if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -73,8 +73,8 @@ class TenantController extends Controller
             'name' => 'required|unique:tenants|max: 30',
             'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
         ]);
-        
-        if($validator->fails()) {
+
+        if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

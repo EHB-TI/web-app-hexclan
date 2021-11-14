@@ -36,9 +36,11 @@ Route::prefix(
     'api',
     'universal',
     InitializeTenancyByDomain::class,
+    //'auth:sanctum'
 ])->group(function () {
     Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
     Route::post('/test', TestPostController::class); // To be used for debugging purposes.
+
     Route::post('/register', RegisterController::class); //->withoutMiddleware('auth:sanctum');
     Route::post('/login', LoginController::class); //->withoutMiddleware('auth:sanctum');
     Route::put('/pincode/{uuid}', PINCodeController::class); //->withoutMiddleware('auth:sanctum');// Route used to update pin code
