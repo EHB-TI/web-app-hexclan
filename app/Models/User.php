@@ -53,6 +53,10 @@ class User extends Authenticatable
         'pin_code_timestamp'
     ];
 
+    /**
+     * This method returns a collection of pivot model instances.
+     * @return mixed
+     */
     public function roles()
     {
         return $this->hasMany(EventUser::class);
@@ -62,10 +66,14 @@ class User extends Authenticatable
     public function events()
     {
         return $this->belongsToMany(Event::class)
-            ->withPivot('role')
-            ->using(EventUser::class);
+            ->using(EventUser::class)
+            ->withPivot('role');
     }
 
+    /**
+     * Accessor method which returns the roles that belong to the user. Use $event->pivot->role to access user role with respect to specific event.
+     * @return array
+     */
     public function getRoles()
     {
         return $this->roles()->pluck('role');

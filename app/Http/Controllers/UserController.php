@@ -81,8 +81,6 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
-            'event_name' => 'required',
-            'role' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -96,10 +94,11 @@ class UserController extends Controller
             'email' => $validatedAttributes['email'],
         ]);
 
-        $eventName = Str::lower($validatedAttributes['event_name']);
-        $event = Event::where('name', '=', $eventName)->firstOrFail();
+        // To be moved.
+        //$eventName = Str::lower($validatedAttributes['event_name']);
+        //$event = Event::where('name', '=', $eventName)->firstOrFail();
 
-        $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
+        //$event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 
         return (new UserResource($user))
             ->response()

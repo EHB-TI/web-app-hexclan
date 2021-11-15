@@ -18,27 +18,17 @@ class Event extends Model
         'bank_account_id',
     ];
 
-    public function members()
-    {
-        return $this->hasMany(EventUser::class);
-    }
-
     // The users that belong to the event.
     public function users()
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('role')
-            ->using(EventUser::class);
+            ->using(EventUser::class)
+            ->withPivot('role');
     }
 
     // The bank account that belongs to the event.
     public function bankAccount()
     {
         return $this->belongsTo(BankAccount::class);
-    }
-
-    public function getMembers()
-    {
-        return $this->members()->pluck('user_id');
     }
 }

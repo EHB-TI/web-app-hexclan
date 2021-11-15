@@ -32,21 +32,18 @@ class RegisterController extends Controller
             return response()->json(['error' => 'Unkwown user.'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Central context.
-        if (tenant('id') == null) {
-            $user->update([
-                'name' => $validatedAttributes['name'],
-                'password' => bcrypt($validatedAttributes['password']),
-                'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
-                'pin_code_timestamp' => Carbon::now()
-            ]);
+        $user->update([
+            'name' => $validatedAttributes['name'],
+            'password' => bcrypt($validatedAttributes['password']),
+            'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
+            'pin_code_timestamp' => Carbon::now()
+        ]);
 
-            // Dispatches Registered event upon succesful registration.
-            event(new Registered($user));
+        // Dispatches Registered event upon succesful registration.
+        event(new Registered($user));
 
-            return (new UserResource($user))
-                ->response()
-                ->setStatusCode(Response::HTTP_OK);
-        }
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 }

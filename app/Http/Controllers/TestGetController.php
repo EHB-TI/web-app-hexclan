@@ -45,9 +45,9 @@ class TestGetController extends Controller
         // return response()->json($roles, Response::HTTP_OK);
 
         // Retrieves all users linked to an event.
-        $members['members'] = $event->getMembers();
+        // $members['members'] = $event->getMembers();
 
-        return response()->json($members, Response::HTTP_OK);
+        // return response()->json($members, Response::HTTP_OK);
 
 
         // Retrieves ass. array with event id and user role.
@@ -61,7 +61,7 @@ class TestGetController extends Controller
         //Retrieves role with respect to specific event.
         // $targetEvent = $events->find($event->id);
         // $role = $targetEvent->pivot->role;
-        // $user = $users->find($user->id);// Does not work. Pivot only accessible from one direction.
+        // $user = $users->find($user->id);
         // $role = $user->pivot->role;
 
         // return response()->json(['role' => $role]);
