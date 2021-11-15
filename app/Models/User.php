@@ -53,11 +53,21 @@ class User extends Authenticatable
         'pin_code_timestamp'
     ];
 
+    public function roles()
+    {
+        return $this->hasMany(EventUser::class);
+    }
 
     // The events that belong to the user.
     public function events()
     {
         return $this->belongsToMany(Event::class)
-            ->withPivot('role');
+            ->withPivot('role')
+            ->using(EventUser::class);
+    }
+
+    public function getRoles()
+    {
+        return $this->roles()->pluck('role');
     }
 }

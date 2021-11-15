@@ -22,12 +22,10 @@ class TestGetController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $user = User::all()->first();
+        $user = User::where('is_admin', '=', false)->first();
         $event = Event::all()->first();
         $events = $user->events;
         $users = $event->users;
-
-        return new UserResource($user);
 
         // Test UserResource collections.
         //return UserResource::collection(User::all());
@@ -40,6 +38,17 @@ class TestGetController extends Controller
         // $roles['roles'] = $values;
 
         // return response()->json($roles, Response::HTTP_OK);
+
+        // Alternative
+        // $roles['roles'] = $user->getRoles();
+
+        // return response()->json($roles, Response::HTTP_OK);
+
+        // Retrieves all users linked to an event.
+        $members['members'] = $event->getMembers();
+
+        return response()->json($members, Response::HTTP_OK);
+
 
         // Retrieves ass. array with event id and user role.
         // $roles = [];
