@@ -17,10 +17,10 @@ class EventResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'is_active' => $this->is_active,
+            'date' => $this->date,
+            'bank_account_id' => $this->bank_account_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'members' => $this->members
         ];
     }
 }

@@ -71,7 +71,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor method which returns the roles that belong to the user. Use $event->pivot->role to access user role with respect to specific event.
+     * Accessor method which returns all roles that belong to the user. Use $event->pivot->role / $user->pivot->role to access role with respect to specific event / user.
      * @return array
      */
     public function getRoles()
