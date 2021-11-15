@@ -27,8 +27,10 @@ class TestGetController extends Controller
         $events = $user->events;
         $users = $event->users;
 
+
+        return response()->json($users);
         // Test UserResource collections.
-        return UserResource::collection(User::all());
+        //return UserResource::collection(User::all());
 
         // Retrieves all roles of user.
         // $values = [];

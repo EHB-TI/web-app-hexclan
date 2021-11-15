@@ -18,6 +18,15 @@ class Event extends Model
         'bank_account_id',
     ];
 
+    /**
+     * This method returns a collection of pivot model instances.
+     * @return mixed
+     */
+    public function members()
+    {
+        return $this->hasMany(EventUser::class);
+    }
+
     // The users that belong to the event.
     public function users()
     {
@@ -30,5 +39,14 @@ class Event extends Model
     public function bankAccount()
     {
         return $this->belongsTo(BankAccount::class);
+    }
+
+    /**
+     * Accessor method which returns all users that belong to the event.
+     * @return array
+     */
+    public function getMembers()
+    {
+        return $this->roles()->pluck('user_id');
     }
 }

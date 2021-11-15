@@ -62,7 +62,9 @@ class UserController extends Controller
 
         $user->update($validatedAttributes);
 
-        return new UserResource($user);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -73,7 +75,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        return User::destroy($user->id);
+        User::destroy($user->id);
+
+        return response()->noContent();
     }
 
     // Seeds the email of a user in the db. The email existence will be tested during registration.
@@ -93,12 +97,6 @@ class UserController extends Controller
             'id' => (string) Str::uuid(),
             'email' => $validatedAttributes['email'],
         ]);
-
-        // To be moved.
-        //$eventName = Str::lower($validatedAttributes['event_name']);
-        //$event = Event::where('name', '=', $eventName)->firstOrFail();
-
-        //$event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 
         return (new UserResource($user))
             ->response()

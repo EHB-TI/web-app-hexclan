@@ -46,7 +46,9 @@ class TenantController extends Controller
         ]);
         $tenant->domains()->create(['domain' => $validatedAttributes['domain']]);
 
-        return new TenantResource($tenant); //TODO: nested resource
+        return (new TenantResource($tenant))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -83,7 +85,9 @@ class TenantController extends Controller
         $tenant->update($validatedAttributes['name']);
         $tenant->update($validatedAttributes['domain']);
 
-        return new TenantResource($tenant);
+        return (new TenantResource($tenant))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -94,6 +98,8 @@ class TenantController extends Controller
      */
     public function destroy(Tenant $tenant)
     {
-        return Tenant::destroy($tenant->id);
+        Tenant::destroy($tenant->id);
+
+        return response()->noContent();
     }
 }

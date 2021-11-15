@@ -18,10 +18,10 @@ class PINCodeController extends Controller
     public function __invoke(Request $request)
     {
         $user = User::findOrFail($request->uuid);
-        $user->pin_code = random_int( 10 ** ( 6 - 1 ), ( 10 ** 6 ) - 1);
+        $user->pin_code = random_int(10 ** (6 - 1), (10 ** 6) - 1);
         $user->save();
         $user->notify(new PINCodeNotification());
 
-        return Response::HTTP_OK;
+        return response()->noContent();
     }
 }

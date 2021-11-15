@@ -22,13 +22,6 @@ class User extends Authenticatable
     protected $guarded = [];
 
     /**
-     * The relationships that should always be loaded.
-     *
-     * @var array
-     */
-    protected $with = ['events'];
-
-    /**
      * The attributes that should be cast.
      *
      * @var array
