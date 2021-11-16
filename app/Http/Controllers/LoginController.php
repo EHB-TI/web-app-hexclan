@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
-
+use stdClass;
 
 // Stateless authentication based on sanctum tokens. 1 token is issued per user per event.
 class LoginController extends Controller
@@ -35,10 +35,8 @@ class LoginController extends Controller
             return response()->json(['error' => 'Resource not found.'], Response::HTTP_NOT_FOUND);
         } else if (!Hash::check($validatedAttributes['password'], $user->password)) {
             return response()->json(['error' => 'The provided credentials are incorrect'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        // Reject first login if pin code timestamp is older than 5 minutes.
-        if (!$user->is_active) {
+        } else {
+            // Rejects login if pin code timestamp is older than 5 minutes.
             $diff = $user->pin_code_timestamp->diff(Carbon::now());
             if (!$user->is_active && ($diff->i > 5 && $diff->s > 0)) {
                 return response()->json(['error' => 'The pin code has expired. Please request a new one.'], Response::HTTP_UNAUTHORIZED);
@@ -49,20 +47,39 @@ class LoginController extends Controller
                 $user->save();
             }
         }
+
         // User is active
-        else {
-            // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here.
-            if ($user->is_admin) {
+        if ($user->is_active) {
+            // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
+            if ($user->is_admin && $user->tokens->isEmpty()) {
                 $token = $user->createToken($validatedAttributes['device_name'], ['admin']);
-                return response()->json(['data' => $token, "plaintext" => $token->plaintext], Response::HTTP_OK);
+
+                // This manipulation is required to return an array of objects instead of an object of objects.
+                $tokenObject = new stdClass();
+                $tokenObject->id = $user->id;
+                $tokenObject->token = $token->plainTextToken;
+                $tokenObjects[] = $tokenObject;
+
+                return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
             }
-            // Tenant context only. Managers and sellers.
-            else {
-                // Put tokens in array
+            // Tenant context only. Managers and sellers. Users obtain 1 token per event.
+            else if (!$user->is_admin) { // Tokens should be synced with user current roles.
+                $tokens = [];
                 foreach ($user->events as $event) {
-                    $token = $user->createToken($validatedAttributes['device_name'], ["{$event->id}:{$event->pivot->role}"]);
-                    return response()->json(['data' => $token, "plaintext" => $token->plaintext], Response::HTTP_OK);
+                    $token = $user->createToken($validatedAttributes['device_name'], ["{$event->pivot->role}"]);
+                    $tokens += [$event->id => $token->plainTextToken];
                 }
+
+                foreach ($tokens as $key => $value) {
+                    $tokenObject = new stdClass();
+                    $tokenObject->id = $key;
+                    $tokenObject->token = $value;
+                    $tokenObjects[] = $tokenObject;
+                }
+
+                return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
+            } else {
+                return response()->json(['error' => 'The token(s) are set and should not be refreshed.'], Response::HTTP_FORBIDDEN);
             }
         }
     }
