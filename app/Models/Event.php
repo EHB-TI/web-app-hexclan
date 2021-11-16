@@ -22,7 +22,7 @@ class Event extends Model
      * This method returns a collection of pivot model instances.
      * @return mixed
      */
-    public function members()
+    public function roles()
     {
         return $this->hasMany(EventUser::class);
     }
@@ -45,8 +45,8 @@ class Event extends Model
      * Accessor method which returns all users that belong to the event.
      * @return array
      */
-    public function getMembers()
+    public function getUsers()
     {
-        return $this->roles()->pluck('user_id');
+        return $this->users()->pluck('user_id');
     }
 }

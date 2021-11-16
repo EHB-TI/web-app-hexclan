@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class RoleController extends Controller
+class EventUserController extends Controller
 {
     /**
      * Attaches a role to a user by inserting record in the pivot table.
@@ -35,7 +35,7 @@ class RoleController extends Controller
 
         $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 
-        return response()->json(['data' => $event->members], Response::HTTP_CREATED);
+        return response()->json(['data' => $event->roles], Response::HTTP_CREATED);
     }
 
     /**
@@ -62,7 +62,7 @@ class RoleController extends Controller
 
         $event->users()->updateExistingPivot($user->id, ['role' => $validatedAttributes['role']]);
 
-        return response()->json(['data' => $event->members], Response::HTTP_OK);
+        return response()->json(['data' => $event->roles], Response::HTTP_OK);
     }
 
     /**

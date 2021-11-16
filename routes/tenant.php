@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
-use App\Http\Controllers\RoleController;
+
 use App\Http\Controllers\TestGetController;
 use App\Http\Controllers\TestPostController;
 use App\Http\Controllers\UserController;
@@ -63,11 +64,12 @@ Route::prefix(
     //'auth:sanctum'
 ])->group(function () {
     Route::post('users', [UserController::class, 'seed']);
+    //Route::post('users/{user}', [UserController::class, 'toggleIsActive']);
 
     // There routes are used to attach, update, and detach roles on the pivot table.
-    Route::post('events/{event}/users', [RoleController::class, 'store']);
-    Route::put('events/{event}/users/{user}', [RoleController::class, 'update']);
-    Route::delete('events/{event}/users/{user}', [RoleController::class, 'destroy']);
+    Route::post('events/{event}/users', [EventUserController::class, 'store']);
+    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update']);
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy']);
 
     Route::get('events', [EventController::class, 'index']);
     Route::post('events', [EventController::class, 'store']);
