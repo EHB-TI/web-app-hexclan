@@ -6,7 +6,11 @@ use Illuminate\Http\Request;
 
 class TokenController extends Controller
 {
-    public function __invoke()
+    public function refresh()
+    {
+    }
+
+    public function sync()
     {
     }
 }

@@ -19,7 +19,6 @@ class LoginController extends Controller
             'email' => 'required|email|max:255',
             'password' => 'required',
             'pin_code' => 'required|integer|digits:6',
-            'device_name' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -51,9 +50,8 @@ class LoginController extends Controller
         // User is active
         if ($user->is_active) {
             // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
-            if ($user->is_admin && $user->tokens->isEmpty()) {
-                $token = $user->createToken($validatedAttributes['device_name'], ['admin']);
-
+            if ($user->is_admin) {
+                $token = $user->createToken($validatedAttributes['user_token'], ['admin']);
                 // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
                 $tokenObject = new stdClass();
                 $tokenObject->id = $user->id;
@@ -62,24 +60,31 @@ class LoginController extends Controller
 
                 return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
             }
-            // Tenant context only. Managers and sellers. Users obtain 1 token per event, with 1 ability set with the role on that event.
-            else if (!$user->is_admin) { // Tokens should be synced with user current roles.
+            // Tenant context only. Managers and sellers. Users obtain 1 user token without abilities. Users also obtain 1 token per event, with 1 ability set with the role on that event.
+            else { // Tokens should be synced with user current roles.
                 $tokens = [];
-                foreach ($user->roles as $role) {
-                    $token = $user->createToken($validatedAttributes['device_name'], ["{$role->role}"]);
-                    $tokens += [$role->id => $token->plainTextToken];
-                }
+                $userToken = $user->createToken('user_token', []);
+                $tokenObject = new stdClass();
+                $tokenObject->id = $user->id;
+                $tokenObject->token = $userToken->plainTextToken;
+                // tokenObjects[0] is user token.
+                $tokenObjects[] = $tokenObject;
 
-                foreach ($tokens as $key => $value) {
-                    $tokenObject = new stdClass();
-                    $tokenObject->id = $key;
-                    $tokenObject->token = $value;
-                    $tokenObjects[] = $tokenObject;
+                if ($user->roles()->exists()) {
+                    foreach ($user->roles as $role) {
+                        $token = $user->createToken("role_{$role->id}_token", ["{$role->role}"]);
+                        $tokens += [$role->id => $token->plainTextToken];
+                    }
+
+                    foreach ($tokens as $key => $value) {
+                        $tokenObject = new stdClass();
+                        $tokenObject->id = $key;
+                        $tokenObject->token = $value;
+                        $tokenObjects[] = $tokenObject;
+                    }
                 }
 
                 return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
-            } else {
-                return response()->json(['error' => 'The token(s) are set and should not be refreshed.'], Response::HTTP_FORBIDDEN);
             }
         }
     }

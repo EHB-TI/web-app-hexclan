@@ -42,10 +42,9 @@ Route::prefix(
     Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
     Route::post('/test', TestPostController::class); // To be used for debugging purposes.
 
-    Route::post('/register', RegisterController::class); //->withoutMiddleware('auth:sanctum');
-    Route::post('/login', LoginController::class); //->withoutMiddleware('auth:sanctum');
-    Route::put('/pincode/{uuid}', PINCodeController::class); //->withoutMiddleware('auth:sanctum');// Route used to update pin code
-    Route::post('/sanctum/sync', TokenController::class);
+    Route::post('/register', RegisterController::class);
+    Route::post('/login', LoginController::class);
+    Route::put('/pincode/{uuid}', PINCodeController::class); // Route used to update pin code
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
@@ -63,6 +62,8 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     //'auth:sanctum'
 ])->group(function () {
+    Route::get('/sanctum/token/refresh', [TokenController::class, 'refresh']);
+
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
     Route::put('users/{user}', [UserController::class, 'update']);
@@ -79,6 +80,8 @@ Route::prefix(
     PreventAccessFromCentralDomains::class,
     //'auth:sanctum'
 ])->group(function () {
+    Route::post('/sanctum/token/sync', [TokenController::class, 'sync']);
+
     Route::post('users', [UserController::class, 'seed']);
     //Route::post('users/{user}', [UserController::class, 'toggleIsActive']);
 
