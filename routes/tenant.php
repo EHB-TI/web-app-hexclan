@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventUserController;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
-
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TestGetController;
 use App\Http\Controllers\TestPostController;
+use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Response;
@@ -30,7 +30,30 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-// Universal API routes.
+// Universal API routes - no auth.
+
+Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    'universal',
+    InitializeTenancyByDomain::class,
+])->group(function () {
+    Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
+    Route::post('/test', TestPostController::class); // To be used for debugging purposes.
+
+    Route::post('/register', RegisterController::class); //->withoutMiddleware('auth:sanctum');
+    Route::post('/login', LoginController::class); //->withoutMiddleware('auth:sanctum');
+    Route::put('/pincode/{uuid}', PINCodeController::class); //->withoutMiddleware('auth:sanctum');// Route used to update pin code
+    Route::post('/sanctum/sync', TokenController::class);
+
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{user}', [UserController::class, 'show']);
+    Route::put('users/{user}', [UserController::class, 'update']);
+    Route::delete('users/{user}', [UserController::class, 'destroy']);
+});
+
+// Universal API routes - auth.
 
 Route::prefix(
     'api'
@@ -40,20 +63,13 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     //'auth:sanctum'
 ])->group(function () {
-    Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
-    Route::post('/test', TestPostController::class); // To be used for debugging purposes.
-
-    Route::post('/register', RegisterController::class); //->withoutMiddleware('auth:sanctum');
-    Route::post('/login', LoginController::class); //->withoutMiddleware('auth:sanctum');
-    Route::put('/pincode/{uuid}', PINCodeController::class); //->withoutMiddleware('auth:sanctum');// Route used to update pin code
-
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::delete('users/{user}', [UserController::class, 'destroy']);
 });
 
-// Tenant API routes.
+// Tenant API routes - auth.
 
 Route::prefix(
     'api'

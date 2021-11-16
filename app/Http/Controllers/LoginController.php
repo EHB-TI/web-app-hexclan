@@ -54,7 +54,7 @@ class LoginController extends Controller
             if ($user->is_admin && $user->tokens->isEmpty()) {
                 $token = $user->createToken($validatedAttributes['device_name'], ['admin']);
 
-                // This manipulation is required to return an array of objects instead of an object of objects.
+                // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
                 $tokenObject = new stdClass();
                 $tokenObject->id = $user->id;
                 $tokenObject->token = $token->plainTextToken;
@@ -62,12 +62,12 @@ class LoginController extends Controller
 
                 return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
             }
-            // Tenant context only. Managers and sellers. Users obtain 1 token per event.
+            // Tenant context only. Managers and sellers. Users obtain 1 token per event, with 1 ability set with the role on that event.
             else if (!$user->is_admin) { // Tokens should be synced with user current roles.
                 $tokens = [];
-                foreach ($user->events as $event) {
-                    $token = $user->createToken($validatedAttributes['device_name'], ["{$event->pivot->role}"]);
-                    $tokens += [$event->id => $token->plainTextToken];
+                foreach ($user->roles as $role) {
+                    $token = $user->createToken($validatedAttributes['device_name'], ["{$role->role}"]);
+                    $tokens += [$role->id => $token->plainTextToken];
                 }
 
                 foreach ($tokens as $key => $value) {
