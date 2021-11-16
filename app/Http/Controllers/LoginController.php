@@ -60,7 +60,7 @@ class LoginController extends Controller
 
                 return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
             }
-            // Tenant context only. Managers and sellers. Users obtain 1 user token without abilities. Users also obtain 1 token per event, with 1 ability set with the role on that event.
+            // Tenant context. Managers and sellers. Users obtain 1 user token without abilities. Users also obtain 1 token per role, with 1 ability set with that role.
             else { // Tokens should be synced with user current roles.
                 $tokens = [];
                 $userToken = $user->createToken('user_token', []);
