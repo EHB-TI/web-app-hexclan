@@ -44,7 +44,7 @@ Route::prefix(
 
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
-    Route::put('/pincode/{uuid}', PINCodeController::class); // Route used to update pin code
+    Route::put('/pincode/{user}', PINCodeController::class); // Route used to update pin code
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
@@ -62,7 +62,7 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     //'auth:sanctum'
 ])->group(function () {
-    Route::get('/sanctum/token/refresh', [TokenController::class, 'refresh']);
+    //Route::get('/token/refresh', [TokenController::class, 'refresh']);
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
@@ -80,10 +80,12 @@ Route::prefix(
     PreventAccessFromCentralDomains::class,
     //'auth:sanctum'
 ])->group(function () {
-    Route::post('/sanctum/token/sync', [TokenController::class, 'sync']);
+    Route::post('/token/sync', [TokenController::class, 'sync']);
 
+    // This route is used to seed a new non-admin user in the database.
     Route::post('users', [UserController::class, 'seed']);
-    //Route::post('users/{user}', [UserController::class, 'toggleIsActive']);
+    // This route is to activate or deactivate a user. The user's tokens are revoked upon deactivation.
+    Route::post('users/{user}', [UserController::class, 'deactivate']);
 
     // There routes are used to attach, update, and detach roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store']);

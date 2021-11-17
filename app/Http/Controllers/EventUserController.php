@@ -17,7 +17,7 @@ class EventUserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Event $event, User $user)
+    public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
@@ -31,7 +31,9 @@ class EventUserController extends Controller
         $validatedAttributes = $validator->validated();
 
         $user = User::firstWhere('email', $validatedAttributes['email']);
-        $event = Event::findOrFail($event->id);
+        if ($user == null) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
 
         $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
 
@@ -57,9 +59,6 @@ class EventUserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $user = User::findOrFail($user->id);
-        $event = Event::findOrFail($event->id);
-
         $event->users()->updateExistingPivot($user->id, ['role' => $validatedAttributes['role']]);
 
         return response()->json(['data' => $event->roles], Response::HTTP_OK);
@@ -73,9 +72,6 @@ class EventUserController extends Controller
      */
     public function destroy(Event $event, User $user)
     {
-        $user = User::findOrFail($user->id);
-        $event = Event::findOrFail($event->id);
-
         $event->users()->detach($user->id);
 
         return response()->noContent();

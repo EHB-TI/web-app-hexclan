@@ -16,9 +16,10 @@ class LoginController extends Controller
     public function __invoke(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'is_first_login' => 'required|boolean',
             'email' => 'required|email|max:255',
             'password' => 'required',
-            'pin_code' => 'required|integer|digits:6',
+            'pin_code' => 'exclude_unless:is_first_login,true|required|integer|digits:6', // Pin code is required on first login only.
         ]);
 
         if ($validator->fails()) {
@@ -29,12 +30,18 @@ class LoginController extends Controller
 
         $user = User::firstWhere('email', $validatedAttributes['email']);
 
+        if (!$validatedAttributes['is_first_login'] && $user->tokens->isEmpty()) {
+            return response()->json(['error' => 'The account is deactivated.']);
+        }
+
         // Checking user credentials should be done every time this route is visited.
         if ($user == null) {
-            return response()->json(['error' => 'Resource not found.'], Response::HTTP_NOT_FOUND);
+            abort(Response::HTTP_NOT_FOUND);
         } else if (!Hash::check($validatedAttributes['password'], $user->password)) {
             return response()->json(['error' => 'The provided credentials are incorrect'], Response::HTTP_UNAUTHORIZED);
-        } else {
+        }
+
+        if ($validatedAttributes['is_first_login']) {
             // Rejects login if pin code timestamp is older than 5 minutes.
             $diff = $user->pin_code_timestamp->diff(Carbon::now());
             if (!$user->is_active && ($diff->i > 5 && $diff->s > 0)) {
@@ -51,7 +58,8 @@ class LoginController extends Controller
         if ($user->is_active) {
             // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
             if ($user->is_admin) {
-                $token = $user->createToken($validatedAttributes['user_token'], ['admin']);
+                // Not passing any argument in abilities parameter will grant all abilities: ['*'].
+                $token = $user->createToken($validatedAttributes['user_token']);
                 // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
                 $tokenObject = new stdClass();
                 $tokenObject->id = $user->id;

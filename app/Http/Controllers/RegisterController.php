@@ -29,7 +29,7 @@ class RegisterController extends Controller
         $users = User::all();
         $user = $users->firstWhere('email', $validatedAttributes['email']);
         if ($user == null) {
-            return response()->json(['error' => 'Unkwown user.'], Response::HTTP_UNAUTHORIZED);
+            abort(Response::HTTP_NOT_FOUND);
         }
 
         $user->update([

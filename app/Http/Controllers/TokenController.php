@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 
 class TokenController extends Controller
 {
-    public function refresh()
-    {
-    }
+    // public function refresh()
+    // {
+    // }
 
     public function sync()
     {
