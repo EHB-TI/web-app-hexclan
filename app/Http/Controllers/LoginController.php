@@ -30,8 +30,8 @@ class LoginController extends Controller
 
         $user = User::firstWhere('email', $validatedAttributes['email']);
 
-        if (!$validatedAttributes['is_first_login'] && $user->tokens->isEmpty()) {
-            return response()->json(['error' => 'The account is deactivated.']);
+        if (!$validatedAttributes['is_first_login'] && $user->tokens->isEmpty() && !$user->is_active) {
+            return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_UNAUTHORIZED);
         }
 
         // Checking user credentials should be done every time this route is visited.
@@ -59,7 +59,7 @@ class LoginController extends Controller
             // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
             if ($user->is_admin) {
                 // Not passing any argument in abilities parameter will grant all abilities: ['*'].
-                $token = $user->createToken($validatedAttributes['user_token']);
+                $token = $user->createToken('user_token');
                 // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
                 $tokenObject = new stdClass();
                 $tokenObject->id = $user->id;

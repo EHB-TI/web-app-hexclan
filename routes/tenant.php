@@ -45,11 +45,6 @@ Route::prefix(
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
     Route::put('/pincode/{user}', PINCodeController::class); // Route used to update pin code
-
-    Route::get('users', [UserController::class, 'index']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    Route::put('users/{user}', [UserController::class, 'update']);
-    Route::delete('users/{user}', [UserController::class, 'destroy']);
 });
 
 // Universal API routes - auth.
@@ -60,14 +55,14 @@ Route::prefix(
     'api',
     'universal',
     InitializeTenancyByDomain::class,
-    //'auth:sanctum'
+    'auth:sanctum'
 ])->group(function () {
     //Route::get('/token/refresh', [TokenController::class, 'refresh']);
 
-    Route::get('users', [UserController::class, 'index']);
-    Route::get('users/{user}', [UserController::class, 'show']);
-    Route::put('users/{user}', [UserController::class, 'update']);
-    Route::delete('users/{user}', [UserController::class, 'destroy']);
+    Route::get('users', [UserController::class, 'index'])->middleware('ability:*');
+    Route::get('users/{user}', [UserController::class, 'show'])->middleware('ability:*');
+    Route::put('users/{user}', [UserController::class, 'update'])->middleware('ability:*');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('ability:*');
 });
 
 // Tenant API routes - auth.
@@ -85,7 +80,7 @@ Route::prefix(
     // This route is used to seed a new non-admin user in the database.
     Route::post('users', [UserController::class, 'seed']);
     // This route is to activate or deactivate a user. The user's tokens are revoked upon deactivation.
-    Route::post('users/{user}', [UserController::class, 'deactivate']);
+    Route::post('users/{user}', [UserController::class, 'toggleIsActive']);
 
     // There routes are used to attach, update, and detach roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store']);

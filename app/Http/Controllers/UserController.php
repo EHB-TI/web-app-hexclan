@@ -103,13 +103,20 @@ class UserController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function deactivate(User $user)
+    public function toggleIsActive(User $user)
     {
         if ($user->is_active) {
             $user->is_active = false;
             $user->roles()->detach();
             $user->tokens()->delete();
             $user->save();
+
+            return response()->noContent();
+        } else {
+            $user->is_active = true;
+            $user->save();
+
+            return response()->noContent();
         }
     }
 }
