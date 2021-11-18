@@ -107,9 +107,9 @@ class UserController extends Controller
     {
         if ($user->is_active) {
             $user->is_active = false;
-            $user->roles()->detach();
-            $user->tokens()->delete();
             $user->save();
+            $user->events()->detach();
+            $user->tokens()->delete();
 
             return response()->noContent();
         } else {
