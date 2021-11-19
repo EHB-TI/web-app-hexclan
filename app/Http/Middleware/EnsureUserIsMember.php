@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class EnsureUserIsEventMember
+class EnsureUserIsMember
 {
     /**
      * Handle an incoming request.
@@ -16,6 +16,8 @@ class EnsureUserIsEventMember
      */
     public function handle(Request $request, Closure $next)
     {
+        $request->route('parameter_name')
+        if(!)
         return $next($request);
     }
 }
