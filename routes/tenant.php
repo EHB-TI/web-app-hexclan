@@ -31,7 +31,6 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 */
 
 // Universal API routes - no auth.
-
 Route::prefix(
     'api'
 )->middleware([
@@ -48,7 +47,6 @@ Route::prefix(
 });
 
 // Universal API routes - auth.
-
 Route::prefix(
     'api'
 )->middleware([
@@ -65,37 +63,47 @@ Route::prefix(
     Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('ability:*');
 });
 
-// Tenant API routes - auth.
-
+// Tenant API routes - auth - not event specific.
 Route::prefix(
     'api'
 )->middleware([
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    //'auth:sanctum'
+    'auth:sanctum'
 ])->group(function () {
+    // This route is used to sync the user's role tokens between the server and the client.
     Route::post('/token/sync', [TokenController::class, 'sync']);
 
-    // This route is used to seed a new non-admin user in the database.
-    Route::post('users', [UserController::class, 'seed']);
+    // This route is used to seed a new unprivileged user in the database.
+    Route::post('users', [UserController::class, 'seed'])->middleware('ability:*, manager');
     // This route is to activate or deactivate a user. The user's tokens are revoked upon deactivation.
-    Route::post('users/{user}', [UserController::class, 'toggleIsActive']);
+    Route::post('users/{user}', [UserController::class, 'toggleIsActive'])->middleware('ability:*, manager');
 
-    // There routes are used to attach, update, and detach roles on the pivot table.
-    Route::post('events/{event}/users', [EventUserController::class, 'store']);
-    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update']);
-    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy']);
-
-    Route::get('events', [EventController::class, 'index']);
-    Route::post('events', [EventController::class, 'store']);
-    Route::get('events/{event}', [EventController::class, 'show']);
-    Route::put('events/{event}', [EventController::class, 'update']);
-    Route::delete('events/{event}', [EventController::class, 'destroy']);
+    Route::get('events', [EventController::class, 'index'])->middleware('ability:*, manager');
+    Route::post('events', [EventController::class, 'store'])->middleware('ability:*, manager');
+    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, manager');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
 
     Route::get('bankaccounts', [BankAccountController::class, 'index']);
     Route::post('bankaccounts', [BankAccountController::class, 'store']);
     Route::get('bankaccounts/{bankaccount}', [BankAccountController::class, 'show']);
     Route::put('bankaccounts/{bankaccount}', [BankAccountController::class, 'update']);
     Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy']);
+});
+
+// Tenant API routes - auth - event specific.
+Route::prefix(
+    'api'
+)->middleware([
+    'api',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    'auth:sanctum'
+])->group(function () {
+    // There routes are used to attach, update, and detach roles on the pivot table.
+    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
+    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager');
 });

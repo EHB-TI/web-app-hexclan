@@ -14,7 +14,7 @@ class BankAccountController extends Controller
      */
     public function index()
     {
-        //
+        return BankAccountResource::collection(BankAccount::all());
     }
 
     /**
@@ -25,7 +25,27 @@ class BankAccountController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'beneficiary_name' => 'required|max: 255',
+            'bic' => 'required|alpha_num|max: 8', // Could be improved with regex.
+            'iban' => 'required|alphanum|max: 16' // Could be improved with regex.
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $validatedAttributes = $validator->validated();
+
+        $bankAccount = BankAccount::create([
+            'beneficiary_name' => $validatedAttributes['beneficiary_name'],
+            'bic' => $validatedAttributes['bic'],
+            'iban' => $validatedAttributes['iban'],
+        ]);
+
+        return (new BankAccountResource($bankAccount))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -36,10 +56,11 @@ class BankAccountController extends Controller
      */
     public function show(BankAccount $bankAccount)
     {
-        //
+        return new BankAccountResource(BankAccount::findOrFail($bankAccount->id));
     }
 
     /**
+     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -48,7 +69,27 @@ class BankAccountController extends Controller
      */
     public function update(Request $request, BankAccount $bankAccount)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'beneficiary_name' => 'required|max: 255',
+            'bic' => 'required|alpha_num|max: 8', // Could be improved with regex.
+            'iban' => 'required|alphanum|max: 16' // Could be improved with regex.
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $validatedAttributes = $validator->validated();
+
+        $bankAccount = BankAccount::update([
+            'beneficiary_name' => $validatedAttributes['beneficiary_name'],
+            'bic' => $validatedAttributes['bic'],
+            'iban' => $validatedAttributes['iban'],
+        ]);
+
+        return (new BankAccountResource($bankAccount))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -59,6 +100,8 @@ class BankAccountController extends Controller
      */
     public function destroy(BankAccount $bankAccount)
     {
-        //
+        BankAccount::destroy($bankAccount->id);
+
+        return response()->noContent();
     }
 }

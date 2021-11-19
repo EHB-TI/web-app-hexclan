@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Token;
 use App\Models\User;
+use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
@@ -20,6 +22,7 @@ class LoginController extends Controller
             'email' => 'required|email|max:255',
             'password' => 'required',
             'pin_code' => 'exclude_unless:is_first_login,true|required|integer|digits:6', // Pin code is required on first login only.
+            'device_name' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -28,9 +31,9 @@ class LoginController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $user = User::firstWhere('email', $validatedAttributes['email']);
+        $user = User::with(['tokens'])->firstWhere('email', $validatedAttributes['email']);
 
-        if (!$validatedAttributes['is_first_login'] && $user->tokens->isEmpty() && !$user->is_active) {
+        if (!$validatedAttributes['is_first_login'] && !$user->is_active && $user->tokens->isEmpty()) {
             return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -58,41 +61,29 @@ class LoginController extends Controller
         if ($user->is_active) {
             // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
             if ($user->is_admin) {
-                // Not passing any argument in abilities parameter will grant all abilities: ['*'].
-                $token = $user->createToken('user_token');
+                $userToken = $user->createToken($validatedAttributes['device_name']); // Not passing any argument in abilities parameter will grant all abilities: ['*'].
                 // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
-                $tokenObject = new stdClass();
-                $tokenObject->id = $user->id;
-                $tokenObject->token = $token->plainTextToken;
-                $tokenObjects[] = $tokenObject;
+                $token = new Token('user_token', $userToken->plainTextToken);
+                $tokens[] = $token;
 
-                return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
+                return response()->json(['data' => $token], Response::HTTP_OK);
             }
             // Tenant context. Managers and sellers. Users obtain 1 user token without abilities. Users also obtain 1 token per role, with 1 ability set with that role.
-            else { // Tokens should be synced with user current roles.
+            else {
                 $tokens = [];
-                $userToken = $user->createToken('user_token', []);
-                $tokenObject = new stdClass();
-                $tokenObject->id = $user->id;
-                $tokenObject->token = $userToken->plainTextToken;
-                // tokenObjects[0] is user token.
-                $tokenObjects[] = $tokenObject;
+                $userToken = $user->createToken($validatedAttributes['device_name'], []);
+                $token = new Token('user_token', $userToken->plainTextToken);
+                array_push($tokens, $token); // tokenObjects[0] is user token.
 
                 if ($user->roles()->exists()) {
+                    $user->load('roles'); // Lazy eager loading.
                     foreach ($user->roles as $role) {
-                        $token = $user->createToken("role_{$role->id}_token", ["{$role->role}"]);
-                        $tokens += [$role->id => $token->plainTextToken];
-                    }
-
-                    foreach ($tokens as $key => $value) {
-                        $tokenObject = new stdClass();
-                        $tokenObject->id = $key;
-                        $tokenObject->token = $value;
-                        $tokenObjects[] = $tokenObject;
+                        $eventToken = $user->createToken($validatedAttributes['device_name'], ["{$role->role}"]);
+                        $token = new Token("role_{$role->id}_token", $eventToken->plainTextToken);
+                        array_push($tokens, $token);
                     }
                 }
-
-                return response()->json(['data' => $tokenObjects], Response::HTTP_OK);
+                return response()->json(['data' => $tokens], Response::HTTP_OK);
             }
         }
     }

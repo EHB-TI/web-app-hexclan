@@ -17,7 +17,6 @@ class CreatePersonalAccessTokensTable extends Migration
             $table->id();
             $table->uuidMorphs('tokenable'); // Default value: morphs().
             $table->string('name');
-            $table->unique(['tokenable_id', 'name']); // Does not exist in default.
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();

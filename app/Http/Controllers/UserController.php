@@ -35,6 +35,7 @@ class UserController extends Controller
     }
 
     /**
+     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -45,13 +46,8 @@ class UserController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'id' => 'required',
             'name' => 'required|max:255',
             'email' => 'required|email|max:255',
-            'password' => 'required',
-            'is_active' => 'required',
-            'pin_code' => 'required',
-            "pin_code_timestamp" => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -93,6 +89,7 @@ class UserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
+        // Seeded users are unprivileged by default.
         $user = User::create([
             'id' => (string) Str::uuid(),
             'email' => $validatedAttributes['email'],

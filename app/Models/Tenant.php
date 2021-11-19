@@ -12,6 +12,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains, HasFactory;
 
+    // Domains relationship will always be loaded.
     protected $with = ['domains'];
 
     protected $fillable = ['name', 'tenancy_admin_email'];

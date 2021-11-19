@@ -63,6 +63,7 @@ class TenantController extends Controller
     }
 
     /**
+     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -73,7 +74,7 @@ class TenantController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
-            'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
+            'domain' => 'required|unique:domains|max: 30' //TODO: regex - should be subdomain of hexclan.test
         ]);
 
         if ($validator->fails()) {
@@ -83,7 +84,6 @@ class TenantController extends Controller
         $validatedAttributes = $validator->validated();
 
         $tenant->update($validatedAttributes['name']);
-        $tenant->update($validatedAttributes['domain']);
 
         return (new TenantResource($tenant))
             ->response()

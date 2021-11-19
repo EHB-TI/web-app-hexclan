@@ -10,6 +10,7 @@ class TokenController extends Controller
     // {
     // }
 
+    // This method is idempotent.
     public function sync()
     {
     }
