@@ -82,9 +82,6 @@ Route::prefix(
 
     Route::get('events', [EventController::class, 'index'])->middleware('ability:*, manager');
     Route::post('events', [EventController::class, 'store'])->middleware('ability:*, manager');
-    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, manager');
-    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, manager');
-    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
 
     Route::get('bankaccounts', [BankAccountController::class, 'index']);
     Route::post('bankaccounts', [BankAccountController::class, 'store']);
@@ -100,8 +97,13 @@ Route::prefix(
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    'auth:sanctum'
+    'auth:sanctum',
+    'member'
 ])->group(function () {
+    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, manager');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
+
     // There routes are used to attach, update, and detach roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');

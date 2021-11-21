@@ -15,12 +15,14 @@ class CreateTenantPersonalAccessTokensTable extends Migration
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
-            $table->uuidMorphs('tokenable'); // Default value: morphs()
+            $table->uuidMorphs('tokenable'); // Default value: morphs().
             $table->string('name');
+            $table->string('identifier')->nullable(); // Custom column.
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
+            $table->index(['tokenable_id', 'name', 'identifier']); // Custom index.
         });
     }
 

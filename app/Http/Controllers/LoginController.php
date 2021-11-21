@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Token;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
@@ -10,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
-use stdClass;
 
 // Stateless authentication based on sanctum tokens. 1 token is issued per user per event.
 class LoginController extends Controller
@@ -61,9 +59,9 @@ class LoginController extends Controller
         if ($user->is_active) {
             // All requests addressed to central context should be handled here given absence of unprivileged users. Tenant admin will also be handled here. Admin user receives 1 token. There is no scenario where admin token should be renewed.
             if ($user->is_admin) {
-                $userToken = $user->createToken($validatedAttributes['device_name']); // Not passing any argument in abilities parameter will grant all abilities: ['*'].
+                $userToken = $user->createToken($validatedAttributes['device_name'], $user->id); // Not passing any argument in abilities parameter will grant all abilities: ['*'].
                 // This manipulation is required to return an array of objects instead of a hierarchy of nested objects.
-                $token = new Token('user_token', $userToken->plainTextToken);
+                $token = new Token($user->id, 'user_token', $userToken->plainTextToken);
                 $tokens[] = $token;
 
                 return response()->json(['data' => $token], Response::HTTP_OK);
@@ -71,15 +69,15 @@ class LoginController extends Controller
             // Tenant context. Managers and sellers. Users obtain 1 user token without abilities. Users also obtain 1 token per role, with 1 ability set with that role.
             else {
                 $tokens = [];
-                $userToken = $user->createToken($validatedAttributes['device_name'], []);
-                $token = new Token('user_token', $userToken->plainTextToken);
+                $userToken = $user->createToken($validatedAttributes['device_name'], $user->id, []);
+                $token = new Token($user->id, 'user_token', $userToken->plainTextToken);
                 array_push($tokens, $token); // tokenObjects[0] is user token.
 
-                if ($user->roles()->exists()) {
-                    $user->load('roles'); // Lazy eager loading.
-                    foreach ($user->roles as $role) {
-                        $eventToken = $user->createToken($validatedAttributes['device_name'], ["{$role->role}"]);
-                        $token = new Token("role_{$role->id}_token", $eventToken->plainTextToken);
+                if ($user->events()->exists()) {
+                    $user->load('events'); // Lazy eager loading.
+                    foreach ($user->events as $event) {
+                        $eventToken = $user->createToken($validatedAttributes['device_name'], $event->id, ["{$event->pivot->role}"]);
+                        $token = new Token($event->id, "role_token", $eventToken->plainTextToken);
                         array_push($tokens, $token);
                     }
                 }

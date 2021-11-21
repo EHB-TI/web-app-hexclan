@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
@@ -70,5 +72,27 @@ class User extends Authenticatable
     public function getRoles()
     {
         return $this->roles()->pluck('role');
+    }
+
+    /**
+     * Accessor method which returns all events that belong to the user.
+     * @return array
+     */
+    public function getEvents()
+    {
+        return $this->events()->pluck('event_id');
+    }
+
+    // Overrides createToken method from laravel/sanctum.
+    public function createToken(string $name, $identifier, array $abilities = ['*'])
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'identifier' => $identifier,
+            'token' => hash('sha256', $plainTextToken = Str::random(40)),
+            'abilities' => $abilities,
+        ]);
+
+        return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
     }
 }
