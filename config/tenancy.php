@@ -9,7 +9,7 @@ return [
     'tenant_model' => \App\Models\Tenant::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
 
-    'domain_model' => Domain::class,
+    'domain_model' => \App\Models\Domain::class,
 
     /**
      * The list of domains hosting your central app.
@@ -163,7 +163,7 @@ return [
     'features' => [
         // Stancl\Tenancy\Features\UserImpersonation::class,
         // Stancl\Tenancy\Features\TelescopeTags::class,
-        // Stancl\Tenancy\Features\UniversalRoutes::class,
+        Stancl\Tenancy\Features\UniversalRoutes::class,
         // Stancl\Tenancy\Features\TenantConfig::class, // https://tenancyforlaravel.com/docs/v3/features/tenant-config
         // Stancl\Tenancy\Features\CrossDomainRedirect::class, // https://tenancyforlaravel.com/docs/v3/features/cross-domain-redirect
     ],
@@ -190,7 +190,7 @@ return [
      * Parameters used by the tenants:seed command.
      */
     'seeder_parameters' => [
-        '--class' => 'DatabaseSeeder', // root seeder class
+        '--class' => 'TenantDatabaseSeeder', // root seeder class. Default value was DatabaseSeeder.
         // '--force' => true,
     ],
 ];

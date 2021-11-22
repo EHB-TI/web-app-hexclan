@@ -14,8 +14,9 @@
         "stancl/tenancy": "^3.4"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.10",
         "facade/ignition": "^2.5",
-        "fakerphp/faker": "^1.9.1",
+        "fakerphp/faker": "^1.16",
         "laravel/sail": "^1.12",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^5.10",

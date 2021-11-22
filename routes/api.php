@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TenantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,16 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Central domain API routes come here.
+// Central API routes -auth.
 
 Route::middleware([
     'api',
+    'auth:sanctum',
+    'ability:*'
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your central application.';
-    });
-});
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    Route::apiResource('tenants', TenantController::class);
 });
