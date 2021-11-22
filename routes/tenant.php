@@ -83,6 +83,9 @@ Route::prefix(
 
     Route::get('events', [EventController::class, 'index'])->middleware('ability:*, write');
     Route::post('events', [EventController::class, 'store'])->middleware('ability:*, write');
+    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, write');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, write');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
 
     Route::get('bankaccounts', [BankAccountController::class, 'index'])->middleware('ability:*, write');
     Route::post('bankaccounts', [BankAccountController::class, 'store'])->middleware('ability:*, write');
@@ -102,10 +105,6 @@ Route::prefix(
 ])->group(function () {
     // This route should be visited prior to a sync with all the event tokens possessed by the client. 
     Route::post('/token/purge', [EventTokenController::class, 'purge']);
-
-    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, write');
-    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, write');
-    Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
 
     // There routes are used to attach, update, and detach roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, write');
