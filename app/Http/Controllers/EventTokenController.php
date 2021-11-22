@@ -13,9 +13,9 @@ class EventTokenController extends Controller
     // {
     // }
 
-    public function purge()
+    public function purge(Request $request)
     {
-        $request->event()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->noContent();
     }
