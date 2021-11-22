@@ -33,8 +33,8 @@ class EventUserController extends Controller
         $user = User::firstWhere('email', $validatedAttributes['email']);
         if ($user == null) {
             abort(Response::HTTP_NOT_FOUND);
-        } else if ($user->is_admin) {
-            return response()->json(['error' => 'User cannot be assigned a ability'], Response::HTTP_UNAUTHORIZED);
+        } else if ($user->ability == '*') {
+            return response()->json(['error' => 'User cannot be assigned an ability'], Response::HTTP_UNAUTHORIZED);
         }
 
         $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
