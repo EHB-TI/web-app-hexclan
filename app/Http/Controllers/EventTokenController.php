@@ -13,13 +13,18 @@ class EventTokenController extends Controller
     // {
     // }
 
+    public function purge()
+    {
+        $request->event()->currentAccessToken()->delete();
+
+        return response()->noContent();
+    }
+
     // An event token is created per event to which the user belongs. This route should be accessed after first login.
     public function sync(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'is_first_sync' => 'required|boolean',
             'device_name' => 'required',
-            'ids' => 'exclude_if:is_first_sync,true|required|array'
         ]);
 
         if ($validator->fails()) {
@@ -33,11 +38,8 @@ class EventTokenController extends Controller
         if ($user->events()->exists()) {
             $user->load('events'); // Lazy eager loading.
             foreach ($user->events as $event) {
-                if (!$validatedAttributes['is_first_sync']) {
-                    $event->tokens()->whereIn('id', $validatedAttributes['ids'])->delete(); // Purge all event tokens of the user.
-                }
                 $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
-                $token = new Token("event_token", $event->id, $eventToken->plainTextToken, $eventToken->accessToken->id);
+                $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
                 array_push($tokens, $token);
             }
 

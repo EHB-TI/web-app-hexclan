@@ -64,7 +64,7 @@ Route::prefix(
     Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('ability:*');
 });
 
-// Tenant API routes - auth - global actions expect user tokens.
+// Tenant API routes - auth - actions expecting user tokens.
 Route::prefix(
     'api'
 )->middleware([
@@ -91,7 +91,7 @@ Route::prefix(
     Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
 });
 
-// Tenant API routes - auth - event actions expect event tokens.
+// Tenant API routes - auth - actions expecting event tokens.
 Route::prefix(
     'api'
 )->middleware([
@@ -100,6 +100,9 @@ Route::prefix(
     PreventAccessFromCentralDomains::class,
     'auth:sanctum',
 ])->group(function () {
+    // This route should be visited prior to a sync with all the event tokens possessed by the client. 
+    Route::post('/token/purge', [EventTokenController::class, 'purge']);
+
     Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, write');
     Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, write');
     Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
