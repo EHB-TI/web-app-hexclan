@@ -76,11 +76,12 @@ class UserController extends Controller
         return response()->noContent();
     }
 
-    // Seeds the email of a user in the db. The email existence will be tested during registration.
+    // Seeds the email of a user in the db. The email existence is tested during registration.
     public function seed(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
+            'ability' => ['required', Rule::in(['write', 'read'])]
         ]);
 
         if ($validator->fails()) {
@@ -89,10 +90,10 @@ class UserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        // Seeded users are unprivileged by default.
         $user = User::create([
             'id' => (string) Str::uuid(),
             'email' => $validatedAttributes['email'],
+            'ability' => $validatedAttributes['ability']
         ]);
 
         return (new UserResource($user))

@@ -31,7 +31,6 @@ class User extends Authenticatable
     protected $casts = [
         'id' => 'string',
         'is_active' => 'boolean',
-        'is_admin' => 'boolean',
         'pin_code_timestamp' => 'datetime'
     ];
 
@@ -43,7 +42,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'is_active',
-        'is_admin',
+        'ability',
         'pin_code',
         'pin_code_timestamp'
     ];
@@ -62,16 +61,16 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Event::class)
             ->using(EventUser::class)
-            ->withPivot('role');
+            ->withPivot('ability');
     }
 
     /**
-     * Accessor method which returns all roles that belong to the user. Use $event->pivot->role / $user->pivot->role to access role with respect to specific event / user.
+     * Accessor method which returns all roles that belong to the user. A role is an ability with respect to an event. Use $event->pivot->ability / $user->pivot->ability to access ability with respect to specific event / user.
      * @return array
      */
     public function getRoles()
     {
-        return $this->roles()->pluck('role');
+        return $this->roles()->pluck('ability');
     }
 
     /**
@@ -81,18 +80,5 @@ class User extends Authenticatable
     public function getEvents()
     {
         return $this->events()->pluck('event_id');
-    }
-
-    // Overrides createToken method from laravel/sanctum.
-    public function createToken(string $name, $identifier, array $abilities = ['*'])
-    {
-        $token = $this->tokens()->create([
-            'name' => $name,
-            'identifier' => $identifier,
-            'token' => hash('sha256', $plainTextToken = Str::random(40)),
-            'abilities' => $abilities,
-        ]);
-
-        return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
     }
 }

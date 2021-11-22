@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 class EventUserController extends Controller
 {
     /**
-     * Attaches a role to a user by inserting record in the pivot table.
+     * Attaches an ability to a user by inserting record in the pivot table.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -21,7 +21,7 @@ class EventUserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
-            'role' => ['required', Rule::in(['manager', 'seller'])],
+            'ability' => ['required', Rule::in(['write', 'read'])],
         ]);
 
         if ($validator->fails()) {
@@ -34,12 +34,12 @@ class EventUserController extends Controller
         if ($user == null) {
             abort(Response::HTTP_NOT_FOUND);
         } else if ($user->is_admin) {
-            return response()->json(['error' => 'User cannot be assigned a role'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'User cannot be assigned a ability'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $event->users()->attach($user->id, ['role' => $validatedAttributes['role']]);
+        $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => $event->roles], Response::HTTP_CREATED);
+        return response()->json(['data' => $event->abilitys], Response::HTTP_CREATED);
     }
 
     /**
@@ -52,7 +52,7 @@ class EventUserController extends Controller
     public function update(Request $request, Event $event, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'role' => ['required', Rule::in(['manager', 'seller'])],
+            'ability' => ['required', Rule::in(['write', 'read'])],
         ]);
 
         if ($validator->fails()) {
@@ -61,13 +61,13 @@ class EventUserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $event->users()->updateExistingPivot($user->id, ['role' => $validatedAttributes['role']]);
+        $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => $event->roles], Response::HTTP_OK);
+        return response()->json(['data' => $event->abilitys], Response::HTTP_OK);
     }
 
     /**
-     * Detaches the role from the user by deleting the record in the pivot table.
+     * Detaches the ability from the user by deleting the record in the pivot table.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response

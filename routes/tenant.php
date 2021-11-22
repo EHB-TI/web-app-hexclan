@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventTokenController;
 use App\Http\Controllers\EventUserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
@@ -57,13 +58,13 @@ Route::prefix(
 ])->group(function () {
     //Route::get('/token/refresh', [TokenController::class, 'refresh']);
 
-    Route::get('users', [UserController::class, 'index'])->middleware('ability:*');
-    Route::get('users/{user}', [UserController::class, 'show'])->middleware('ability:*');
-    Route::put('users/{user}', [UserController::class, 'update'])->middleware('ability:*');
+    Route::get('users', [UserController::class, 'index'])->middleware('ability:*, write');
+    Route::get('users/{user}', [UserController::class, 'show'])->middleware('ability:*, write');
+    Route::put('users/{user}', [UserController::class, 'update'])->middleware('ability:*, write');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('ability:*');
 });
 
-// Tenant API routes - auth - not event specific.
+// Tenant API routes - auth - global actions expect user tokens.
 Route::prefix(
     'api'
 )->middleware([
@@ -73,24 +74,24 @@ Route::prefix(
     'auth:sanctum'
 ])->group(function () {
     // This route is used to sync the user's role tokens between the server and the client.
-    Route::post('/token/sync', [TokenController::class, 'sync']);
+    Route::post('/token/sync', [EventTokenController::class, 'sync']);
 
     // This route is used to seed a new unprivileged user in the database.
-    Route::post('users', [UserController::class, 'seed'])->middleware('ability:*, manager');
+    Route::post('users', [UserController::class, 'seed'])->middleware('ability:*, write');
     // This route is to activate or deactivate a user. The user's tokens are revoked upon deactivation.
-    Route::post('users/{user}', [UserController::class, 'toggleIsActive'])->middleware('ability:*, manager');
+    Route::post('users/{user}', [UserController::class, 'toggleIsActive'])->middleware('ability:*, write');
 
-    Route::get('events', [EventController::class, 'index'])->middleware('ability:*, manager');
-    Route::post('events', [EventController::class, 'store'])->middleware('ability:*, manager');
+    Route::get('events', [EventController::class, 'index'])->middleware('ability:*, write');
+    Route::post('events', [EventController::class, 'store'])->middleware('ability:*, write');
 
-    Route::get('bankaccounts', [BankAccountController::class, 'index']);
-    Route::post('bankaccounts', [BankAccountController::class, 'store']);
-    Route::get('bankaccounts/{bankaccount}', [BankAccountController::class, 'show']);
-    Route::put('bankaccounts/{bankaccount}', [BankAccountController::class, 'update']);
-    Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy']);
+    Route::get('bankaccounts', [BankAccountController::class, 'index'])->middleware('ability:*, write');
+    Route::post('bankaccounts', [BankAccountController::class, 'store'])->middleware('ability:*, write');
+    Route::get('bankaccounts/{bankaccount}', [BankAccountController::class, 'show'])->middleware('ability:*, write');
+    Route::put('bankaccounts/{bankaccount}', [BankAccountController::class, 'update'])->middleware('ability:*, write');
+    Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
 });
 
-// Tenant API routes - auth - event specific.
+// Tenant API routes - auth - event actions expect event tokens.
 Route::prefix(
     'api'
 )->middleware([
@@ -98,14 +99,13 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'auth:sanctum',
-    'member'
 ])->group(function () {
-    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, manager');
-    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, manager');
+    Route::get('events/{event}', [EventController::class, 'show'])->middleware('ability:*, write');
+    Route::put('events/{event}', [EventController::class, 'update'])->middleware('ability:*, write');
     Route::delete('events/{event}', [EventController::class, 'destroy'])->middleware('ability:*');
 
     // There routes are used to attach, update, and detach roles on the pivot table.
-    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
-    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
-    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager');
+    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, write');
+    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, write');
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, write'); // Detach is within scope of write.
 });

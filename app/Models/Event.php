@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory;
 
     // Required because primary key is uuid.
     //public $incrementing = false;
@@ -17,6 +18,12 @@ class Event extends Model
     protected $hidden = [
         'bank_account_id',
     ];
+
+    // The bank account that belongs to the event.
+    public function bankAccount()
+    {
+        return $this->belongsTo(BankAccount::class);
+    }
 
     /**
      * This method returns a collection of pivot model instances.
@@ -32,13 +39,7 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class)
             ->using(EventUser::class)
-            ->withPivot('role');
-    }
-
-    // The bank account that belongs to the event.
-    public function bankAccount()
-    {
-        return $this->belongsTo(BankAccount::class);
+            ->withPivot('ability');
     }
 
     /**
