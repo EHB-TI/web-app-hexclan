@@ -20,7 +20,7 @@ class EventTokenController extends Controller
         return response()->noContent();
     }
 
-    // An event token is created per event to which the user belongs. This route should be accessed after first login.
+    // An event token is created per event to which the user belongs.
     public function sync(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,18 +34,23 @@ class EventTokenController extends Controller
         $validatedAttributes = $validator->validated();
 
         $user = $request->user();
-        $tokens = [];
-        if ($user->events()->exists()) {
-            $user->load('events'); // Lazy eager loading.
-            foreach ($user->events as $event) {
-                $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
-                $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
-                array_push($tokens, $token);
-            }
+        // Event tokens should not be issued before user token.
+        if (!$user->tokens->isEmpty()) {
+            $tokens = [];
+            if ($user->events()->exists()) {
+                $user->load('events'); // Lazy eager loading.
+                foreach ($user->events as $event) {
+                    $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
+                    $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
+                    array_push($tokens, $token);
+                }
 
-            return response()->json(['data' => $tokens], Response::HTTP_OK);
+                return response()->json(['data' => $tokens], Response::HTTP_OK);
+            } else {
+                return response()->json(['error' => 'The user does not belong to any event.'], Response::HTTP_NOT_FOUND);
+            }
         } else {
-            response()->json(['error' => 'The user does not belong to any event.'], Response::HTTP_NOT_FOUND);
+            return reponse()->json(['error' => 'Syncing is unauthorized before first login.'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }
