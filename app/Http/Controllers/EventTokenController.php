@@ -15,9 +15,14 @@ class EventTokenController extends Controller
 
     public function purge(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $currentAccessToken = $request->user()->currentAccessToken();
+        if ($currentAccessToken->tokenable_type === 'App\Models\Event') {
+            $currentAccessToken->delete();
 
-        return response()->noContent();
+            return response()->noContent();
+        } else {
+            return response()->json(['error' => 'This type of token cannot be purged'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
     // An event token is created per event to which the user belongs.
@@ -34,23 +39,18 @@ class EventTokenController extends Controller
         $validatedAttributes = $validator->validated();
 
         $user = $request->user();
-        // Event tokens should not be issued before user token.
-        if (!$user->tokens->isEmpty()) {
-            $tokens = [];
-            if ($user->events()->exists()) {
-                $user->load('events'); // Lazy eager loading.
-                foreach ($user->events as $event) {
-                    $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
-                    $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
-                    array_push($tokens, $token);
-                }
-
-                return response()->json(['data' => $tokens], Response::HTTP_OK);
-            } else {
-                return response()->json(['error' => 'The user does not belong to any event.'], Response::HTTP_NOT_FOUND);
+        $tokens = [];
+        if ($user->events()->exists()) {
+            $user->load('events'); // Lazy eager loading.
+            foreach ($user->events as $event) {
+                $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
+                $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
+                array_push($tokens, $token);
             }
+
+            return response()->json(['data' => $tokens], Response::HTTP_OK);
         } else {
-            return reponse()->json(['error' => 'Syncing is unauthorized before first login.'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The user does not belong to any event.'], Response::HTTP_NOT_FOUND);
         }
     }
 }
