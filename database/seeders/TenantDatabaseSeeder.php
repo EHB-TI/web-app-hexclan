@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 class TenantDatabaseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds on a tenant.
      *
      * @return void
      */

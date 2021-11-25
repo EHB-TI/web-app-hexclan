@@ -21,7 +21,7 @@ class EventUserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
-            'ability' => ['required', Rule::in(['write', 'read'])],
+            'ability' => ['required', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +52,7 @@ class EventUserController extends Controller
     public function update(Request $request, Event $event, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'ability' => ['required', Rule::in(['write', 'read'])],
+            'ability' => ['required', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {

@@ -107,7 +107,7 @@ Route::prefix(
     Route::post('/token/purge', [EventTokenController::class, 'purge']);
 
     // There routes are used to attach, update, and detach roles on the pivot table.
-    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, write');
-    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, write');
-    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, write'); // Detach is within scope of write.
+    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
+    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
 });
