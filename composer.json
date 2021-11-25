@@ -14,6 +14,7 @@
         "stancl/tenancy": "^3.4"
     },
     "require-dev": {
+        "andreaselia/laravel-api-to-postman": "^1.7",
         "barryvdh/laravel-ide-helper": "^2.10",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.16",
