@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware([
     'api',
-    'auth:sanctum',
-    'ability:*'
+    //'auth:sanctum',
+    //'ability:*'
 ])->group(function () {
     Route::apiResource('tenants', TenantController::class);
 });
