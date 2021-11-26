@@ -115,6 +115,4 @@ Route::prefix(
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
-
-
 });
