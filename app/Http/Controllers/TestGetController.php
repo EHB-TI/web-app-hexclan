@@ -22,7 +22,7 @@ class TestGetController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $user = User::where('is_admin', '=', false)->first();
+        $user = User::where('ability', '!=', '*')->first();
         $event = Event::all()->first();
         $events = $user->events;
         $users = $event->users;

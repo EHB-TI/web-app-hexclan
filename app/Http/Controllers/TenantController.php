@@ -29,9 +29,8 @@ class TenantController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:tenants|max: 30',
+            'name' => 'required|unique:tenants|alpha_num|max:30', // alpha_num rule does not accept whitespace.
             'tenancy_admin_email' => 'required|email|max:255',
-            'domain' => 'required|unique:domains|max: 30' //TODO: should be subdomain of hexclan.test
         ]);
 
         if ($validator->fails()) {
@@ -40,11 +39,14 @@ class TenantController extends Controller
 
         $validatedAttributes = $validator->validated();
 
+        $domain = strtolower($validatedAttributes['name']) . '.' . config('tenancy.central_domains.0');
+
         $tenant = Tenant::create([
             'name' => $validatedAttributes['name'],
             'tenancy_admin_email' => $validatedAttributes['tenancy_admin_email']
         ]);
-        $tenant->domains()->create(['domain' => $validatedAttributes['domain']]);
+
+        $tenant->domains()->create(['domain' => $domain]);
 
         return (new TenantResource($tenant))
             ->response()
@@ -63,7 +65,7 @@ class TenantController extends Controller
     }
 
     /**
-     * TODO
+     * TODO - possibly better to avoid update on tenant models.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -72,9 +74,8 @@ class TenantController extends Controller
      */
     public function update(Request $request, Tenant $tenant)
     {
-        $validator = Validator::make($request->all(), [
+        /* $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
-            'domain' => 'required|unique:domains|max: 30' //TODO: regex - should be subdomain of hexclan.test
         ]);
 
         if ($validator->fails()) {
@@ -87,7 +88,7 @@ class TenantController extends Controller
 
         return (new TenantResource($tenant))
             ->response()
-            ->setStatusCode(Response::HTTP_OK);
+            ->setStatusCode(Response::HTTP_OK); */
     }
 
     /**

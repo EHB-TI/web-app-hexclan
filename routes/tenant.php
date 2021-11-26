@@ -92,6 +92,9 @@ Route::prefix(
     Route::get('bankaccounts/{bankaccount}', [BankAccountController::class, 'show'])->middleware('ability:*, write');
     Route::put('bankaccounts/{bankaccount}', [BankAccountController::class, 'update'])->middleware('ability:*, write');
     Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
+
+    // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
+    Route::get('users/{user}/events', [EventUserController::class, 'index'])->middleware('ability:*, write, read');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.
@@ -106,8 +109,12 @@ Route::prefix(
     // This route should be visited prior to a sync with all the event tokens possessed by the client. 
     Route::post('/token/purge', [EventTokenController::class, 'purge']);
 
+    // This route is used to access the event users.
+    Route::get('events/{event}/users', [EventUserController::class, 'index'])->middleware('ability:*, manager');
     // There routes are used to attach, update, and detach roles on the pivot table.
-    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, write');
-    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, write');
-    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, write'); // Detach is within scope of write.
+    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
+    Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
+
+
 });

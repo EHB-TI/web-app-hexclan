@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
             'email' => 'mathieu.developer@protonmail.com',
             'ability' => '*'
         ]);
-        Tenant::factory()->create()->domains()->create(['domain' => 'demo.hexclan.test']);
+
+        $tenant = Tenant::factory()->create();
+        $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
+        $tenant->domains()->create(['domain' => $domain]);
     }
 }
