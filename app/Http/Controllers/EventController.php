@@ -6,6 +6,8 @@ use App\Http\Resources\EventResource;
 use App\Models\BankAccount;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
 {
@@ -41,13 +43,17 @@ class EventController extends Controller
 
         $validatedAttributes = $validator->validated();
 
+        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
+
         $event = Event::create([
             'name' => $validatedAttributes['name'],
-            'date' => $validatedAttributes['name'],
+            'date' => $validatedAttributes['date'],
+            'bank_account_id' => $bankAccount->id
         ]);
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
+
         $event->bankAccount()->associate($bankAccount);
 
+        // Given that the relationship is loaded, the bank account will be returned here with the created event.
         return (new EventResource($event))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
@@ -86,12 +92,13 @@ class EventController extends Controller
 
         $validatedAttributes = $validator->validated();
 
+        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
+
         $event = Event::create([
             'name' => $validatedAttributes['name'],
             'date' => $validatedAttributes['name'],
+            'bank_account_id' => $bankAccount->id
         ]);
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
-        $event->bankAccount()->associate($bankAccount);
 
         return (new EventResource($event))
             ->response()

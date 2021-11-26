@@ -52,13 +52,11 @@ class EventUserController extends Controller
         $user = User::firstWhere('email', $validatedAttributes['email']);
         if ($user == null) {
             abort(Response::HTTP_NOT_FOUND);
-        } else if ($user->ability == '*') {
-            return response()->json(['error' => 'User cannot be assigned an ability'], Response::HTTP_UNAUTHORIZED);
         }
 
         $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => $event->ability], Response::HTTP_CREATED);
+        return response()->json(['data' => "{$user->name} role set on event {$event->name}"], Response::HTTP_CREATED);
     }
 
     /**
@@ -82,7 +80,7 @@ class EventUserController extends Controller
 
         $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => $event->ability], Response::HTTP_OK);
+        return response()->json(['data' => "{$user->name} role updated on event {$event->name}"], Response::HTTP_OK);
     }
 
     /**
