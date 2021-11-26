@@ -1,0 +1,13 @@
+runtime: php74
+
+env_variables:
+
+  APP_DEBUG: false
+  APP_ENV: production
+  APP_KEY: gJxnLRVmw1vbOWuuGJw4B53pdZJ4PNo0Aooc56hIJE8=
+  APP_NAME: hexclan
+  APP_URL: https://hexclan-332109.appspot.com
+  CENTRAL_DOMAIN: hexclan-332109.appspot.com
+
+
+  
