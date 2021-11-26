@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Listeners\InsertAdminInCentralDB;
+use App\Listeners\SendPINCodeNotification;
+use App\Models\Event as ModelsEvent; // Automatically modified to avoid name conflict.
+use App\Observers\EventObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -16,7 +20,8 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendEmailVerificationNotification::class,
+            SendPINCodeNotification::class
+            //SendEmailVerificationNotification::class,
         ],
     ];
 
@@ -27,6 +32,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        ModelsEvent::observe(EventObserver::class);
     }
 }

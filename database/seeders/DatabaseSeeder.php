@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $user = User::create([
+            'id' => (string) Str::uuid(),
+            'email' => 'mathieu.developer@protonmail.com',
+            'ability' => '*'
+        ]);
+
+        $tenant = Tenant::factory()->create();
+        $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
+        $tenant->domains()->create(['domain' => $domain]);
     }
 }
