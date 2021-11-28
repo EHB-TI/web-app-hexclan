@@ -17,7 +17,7 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => [
-        'hexclan-332109.ew.r.appspot.com',
+        'hexclan.test',
     ],
 
     /**
