@@ -42,6 +42,12 @@ class Event extends Model
             ->withPivot('ability');
     }
 
+    // The items sold at the event.
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
+
     /**
      * Accessor method which returns all users that belong to the event.
      * @return array

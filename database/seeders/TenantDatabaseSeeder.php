@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BankAccount;
 use App\Models\Event;
+use App\Models\Item;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -33,9 +34,13 @@ class TenantDatabaseSeeder extends Seeder
         $bankAccount = BankAccount::factory()->create();
 
         // To be commented out in production.
-        Event::factory(2)
+        $event = Event::factory(2)
             ->has(User::factory()->count(1))
             ->for($bankAccount)
+            ->create();
+        
+        Item::factory(5)
+            ->for($event)
             ->create();
     }
 }
