@@ -39,12 +39,15 @@ Route::prefix(
     'universal',
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Route::get('/test', TestGetController::class); // To be used for debugging purposes. 
-    Route::post('/test', TestPostController::class); // To be used for debugging purposes.
+    Route::get('test', TestGetController::class); // To be used for debugging purposes. 
+    Route::post('test', TestPostController::class); // To be used for debugging purposes.
+    Route::get('welcome', function () {
+        return response()->json(['data' => 'welcome'], Response::HTTP_OK);
+    });
 
-    Route::post('/register', RegisterController::class);
-    Route::post('/login', LoginController::class);
-    Route::put('/pincode/{user}', PINCodeController::class); // Route used to update pin code
+    Route::post('register', RegisterController::class);
+    Route::post('login', LoginController::class);
+    Route::put('pincode/{user}', PINCodeController::class); // Route used to update pin code
 });
 
 // Universal API routes - auth.
@@ -74,7 +77,7 @@ Route::prefix(
     'auth:sanctum'
 ])->group(function () {
     // This route is used to sync the user's role tokens between the server and the client.
-    Route::post('/token/sync', [EventTokenController::class, 'sync']);
+    Route::post('token/sync', [EventTokenController::class, 'sync']);
 
     // This route is used to seed a new unprivileged user in the database.
     Route::post('users', [UserController::class, 'seed'])->middleware('ability:*, write');
@@ -107,7 +110,7 @@ Route::prefix(
     'auth:sanctum',
 ])->group(function () {
     // This route should be visited prior to a sync with all the event tokens possessed by the client. 
-    Route::post('/token/purge', [EventTokenController::class, 'purge']);
+    Route::post('token/purge', [EventTokenController::class, 'purge']);
 
     // This route is used to access the event users.
     Route::get('events/{event}/users', [EventUserController::class, 'index'])->middleware('ability:*, manager');
