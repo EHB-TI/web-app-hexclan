@@ -61,7 +61,7 @@ class TenantController extends Controller
      */
     public function show(Tenant $tenant)
     {
-        return new TenantResource(Tenant::findOrFail($tenant->id));
+        return new TenantResource($tenant);
     }
 
     /**

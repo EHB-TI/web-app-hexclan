@@ -67,7 +67,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return new EventResource(Event::findOrFail($event->id));
+        return new EventResource($event);
     }
 
     /**

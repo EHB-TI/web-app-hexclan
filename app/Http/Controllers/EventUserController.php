@@ -56,7 +56,7 @@ class EventUserController extends Controller
 
         $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => "{$user->name} role set on event {$event->name}"], Response::HTTP_CREATED);
+        return response()->json(['data' => "{$user->name} added to event {$event->name} with role {$validatedAttributes['ability']}"], Response::HTTP_CREATED);
     }
 
     /**
@@ -80,7 +80,7 @@ class EventUserController extends Controller
 
         $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => "{$user->name} role updated on event {$event->name}"], Response::HTTP_OK);
+        return response()->json(['data' => "{$user->name}'s role on event {$event->name} updated to {$validatedAttributes['ability']}"], Response::HTTP_OK);
     }
 
     /**
@@ -93,6 +93,6 @@ class EventUserController extends Controller
     {
         $event->users()->detach($user->id);
 
-        return response()->noContent();
+        return response()->json(['data' => "{$user->name} removed from event {$event->name}", Response::HTTP_OK);
     }
 }
