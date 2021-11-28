@@ -29,8 +29,10 @@ class TenantDatabaseSeeder extends Seeder
             'ability' => '*'
         ]);
 
+        // To be commented out in production.
         $bankAccount = BankAccount::factory()->create();
 
+        // To be commented out in production.
         Event::factory(2)
             ->has(User::factory()->count(1))
             ->for($bankAccount)
