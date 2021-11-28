@@ -41,7 +41,6 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-# [START] Set the storage path to the environment variable APP_STORAGE
 /*
 |--------------------------------------------------------------------------
 | Set Storage Path
@@ -54,8 +53,6 @@ $app->singleton(
 */
 
 $app->useStoragePath(env('APP_STORAGE', base_path() . '/storage'));
-# [END]
-
 
 /*
 |--------------------------------------------------------------------------

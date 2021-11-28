@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             'ability' => '*'
         ]);
 
+        // To be commented out in production.
         $tenant = Tenant::factory()->create();
         $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
         $tenant->domains()->create(['domain' => $domain]);
