@@ -269,5 +269,10 @@ instance CRUD
 
 # Deployment
 *minimally, this section contains a public URL of the app. A description of how your software is deployed is a bonus. Do you do this manually, or did you manage to automate? Have you taken into account the security of your deployment process?*
+Please find below the ERD (Entity Relationship Diagram):
+* for the central database
+![CentralDB](https://user-images.githubusercontent.com/61866984/143784853-f8293c0b-6316-464f-b7ae-f2289bf8f01e.png)
+* for the tenant databases
+![TenantDB](https://user-images.githubusercontent.com/61866984/143784870-0cd2c731-1336-4fe4-9144-30501080d883.png)
 
 
