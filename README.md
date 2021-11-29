@@ -12,14 +12,14 @@
 # Acceptance criteria
 *how do we know that the goals have been reached?*
 
-*   We want an API that can be used as an entry point for either a mobile app or a website. The API will deliver a json file.
-*   Admin users can enter the name of the event, beneficiary bank account and products (simple catalogue with 3 or 4 options).
+*   We want an API that can be used as an entry point for either a mobile app. The API will return JSON.
+*   Admin user and managers can enter the name of the event, beneficiary bank account and products.
     Example: 
     *   Name event: Openingsfuif
     *   Bank account (beneficiary): BE15 0016 7783 1431
     *   Purchase: drankkaart van 10 bonnetjes
-*   Admin user can change the product catalogue and the prices (admin should login with credentials, preferably with 2fa) - nice to have: log file of changes applied by the admin.
-*   Guest users can choose their products (entrance fee, drink/food vouchers, ...)
+*   Admin user and managers can change the product catalogue and the prices (users should login with credentials) - nice to have: logging.
+*   Sellers handle transactions and initiate the generation of QR codes (entrance fee, drink/food vouchers, ...)
 *   The frontend mobile app or website will calculate the amount to pay and generates a QR code for payment. The QR code should follow the specs of the [European Payments Council (EPC)](https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC069-12%20v2) for them to be able to be read by bank apps (see also pdf in drive). Although the frontend is not part of the deliverable, the idea is that the output of the API has all data required to generate the QR code.
 - Guest users can in turn scan the QR code with their bank app (ING, KBC, BNP Paribas Fortis, ...), and show proof of payment with their cell phone.
 - Once proof of payment is confirmed, the guests get their vouchers.
@@ -269,10 +269,6 @@ instance CRUD
 
 # Deployment
 *minimally, this section contains a public URL of the app. A description of how your software is deployed is a bonus. Do you do this manually, or did you manage to automate? Have you taken into account the security of your deployment process?*
-Please find below the ERD (Entity Relationship Diagram):
-* for the central database
-![CentralDB](https://user-images.githubusercontent.com/61866984/143784853-f8293c0b-6316-464f-b7ae-f2289bf8f01e.png)
-* for the tenant databases
-![TenantDB](https://user-images.githubusercontent.com/61866984/143784870-0cd2c731-1336-4fe4-9144-30501080d883.png)
+
 
 
