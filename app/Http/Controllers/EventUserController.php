@@ -93,6 +93,6 @@ class EventUserController extends Controller
     {
         $event->users()->detach($user->id);
 
-        return response()->json(['data' => "{$user->name} removed from event {$event->name}", Response::HTTP_OK);
+        return response()->json(['data' => "{$user->name} removed from event {$event->name}"], Response::HTTP_OK);
     }
 }
