@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Notifications\PINCodeNotification;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PINCodeController extends Controller
 {
@@ -16,10 +17,14 @@ class PINCodeController extends Controller
      */
     public function __invoke(User $user)
     {
-        $user->pin_code = random_int(10 ** (6 - 1), (10 ** 6) - 1);
-        $user->save();
-        $user->notify(new PINCodeNotification());
+        if (!is_null($user->pin_code)) {
+            $user->pin_code = random_int(10 ** (6 - 1), (10 ** 6) - 1);
+            $user->save();
+            $user->notify(new PINCodeNotification());
 
-        return response()->noContent();
+            return response()->noContent();
+        } else {
+            return response()->json(['error' => 'A first registration has not yet been performed.'], Response::HTTP_UNAUTHORIZED);
+        }
     }
 }
