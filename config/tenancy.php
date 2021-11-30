@@ -17,9 +17,7 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => [
-        'hexclan.test',
-        '127.0.0.1', //added for testing with sail
-        'localhost', //added for testing with sail
+        env('CENTRAL_DOMAIN'),
     ],
 
     /**

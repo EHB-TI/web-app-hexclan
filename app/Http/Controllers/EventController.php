@@ -29,8 +29,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //Make sure that event name is lowercase when stored in db. Event names should be unique.
-
+        //Make sure that event name is lowercase when stored in db (?). Event names should be unique.
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:events|max: 30',
             'date' => 'required|date',
@@ -67,7 +66,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return new EventResource(Event::findOrFail($event->id));
+        return new EventResource($event);
     }
 
     /**

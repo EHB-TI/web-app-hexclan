@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\TenantResource;
-use App\Models\Tenant;
+use App\Http\Resources\CategoryResource;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class TenantController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +16,7 @@ class TenantController extends Controller
      */
     public function index()
     {
-        return TenantResource::collection(Tenant::all());
+        return CategoryResource::collection(Category::all());
     }
 
     /**
@@ -29,8 +28,7 @@ class TenantController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:tenants|alpha_num|max:30', // alpha_num rule does not accept whitespace.
-            'tenancy_admin_email' => 'required|email|max:255',
+            'name' => 'required|unique:categories|max: 30',
         ]);
 
         if ($validator->fails()) {
@@ -39,16 +37,15 @@ class TenantController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $domain = strtolower($validatedAttributes['name']) . '.' . config('tenancy.central_domains.0');
+        $event = $request->user(); // Identifies the event based on the event token.
 
-        $tenant = Tenant::create([
+        $category = Category::create([
             'name' => $validatedAttributes['name'],
-            'tenancy_admin_email' => $validatedAttributes['tenancy_admin_email']
         ]);
 
-        $tenant->domains()->create(['domain' => $domain]);
+        $category->event()->associate($event);
 
-        return (new TenantResource($tenant))
+        return (new CategoryResource($category))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
     }
@@ -56,26 +53,25 @@ class TenantController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Tenant $tenant)
+    public function show($id)
     {
-        return new TenantResource($tenant);
+        return new CategoryResource($category);
     }
 
     /**
-     * TODO - possibly better to avoid update on tenant models.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tenant $tenant)
+    public function update(Request $request, $id)
     {
-        /* $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:tenants|max: 30',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:categories|max: 30',
         ]);
 
         if ($validator->fails()) {
@@ -84,22 +80,28 @@ class TenantController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $tenant->update($validatedAttributes['name']);
+        $event = $request->user(); // Identifies the event based on the event token.
 
-        return (new TenantResource($tenant))
+        $category = Category::create([
+            'name' => $validatedAttributes['name'],
+        ]);
+
+        $category->event()->associate($event);
+
+        return (new CategoryResource($category))
             ->response()
-            ->setStatusCode(Response::HTTP_OK); */
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tenant $tenant)
+    public function destroy(Category $category)
     {
-        Tenant::destroy($tenant->id);
+        Category::destroy($category->id);
 
         return response()->noContent();
     }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TenantController;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,4 +24,8 @@ Route::middleware([
     'ability:*'
 ])->group(function () {
     Route::apiResource('tenants', TenantController::class);
+});
+
+Route::fallback(function () {
+    return response()->json(['message' => 'This route does not exist.'], Response::HTTP_NOT_FOUND);
 });
