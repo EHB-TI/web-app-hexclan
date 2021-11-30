@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\BankAccount;
+use App\Models\Category;
 use App\Models\Event;
 use App\Models\Tenant;
 use App\Models\User;
@@ -34,8 +35,9 @@ class TenantDatabaseSeeder extends Seeder
 
         // To be commented out in production.
         Event::factory(2)
-            ->has(User::factory()->count(1))
             ->for($bankAccount)
+            ->has(User::factory()->count(1))
+            ->has(Category::factory()->count(2))
             ->create();
     }
 }

@@ -25,6 +25,12 @@ class Event extends Model
         return $this->belongsTo(BankAccount::class);
     }
 
+    // The categories that belong to the event.
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
     /**
      * This method returns a collection of pivot model instances.
      * @return mixed
