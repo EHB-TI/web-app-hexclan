@@ -31,19 +31,20 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-// Universal API routes - no auth.
+// Universal API routes - no auth - throttling.
 Route::prefix(
     'api'
 )->middleware([
     'api',
     'universal',
     InitializeTenancyByDomain::class,
+    'throttle:open'
 ])->group(function () {
-    Route::get('test', TestGetController::class); // To be used for debugging purposes. 
-    Route::post('test', TestPostController::class); // To be used for debugging purposes.
+    Route::get('test', TestGetController::class); // To be commented out in production. 
+    Route::post('test', TestPostController::class); // To be commented out in production.
     Route::get('welcome', function () {
         return response()->json(['data' => 'welcome'], Response::HTTP_OK);
-    });
+    }); // To be commented out in production.
 
     Route::post('register', RegisterController::class);
     Route::post('login', LoginController::class);
@@ -118,4 +119,8 @@ Route::prefix(
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
+});
+
+Route::fallback(function () {
+    return response()->json(['message' => 'This route does not exist.'], Response::HTTP_NOT_FOUND);
 });
