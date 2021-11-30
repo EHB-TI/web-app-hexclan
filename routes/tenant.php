@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventTokenController;
 use App\Http\Controllers\EventUserController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PINCodeController;
 use App\Http\Controllers\RegisterController;
@@ -119,6 +121,22 @@ Route::prefix(
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
+
+    Route::get('events/{event}/categories', [CategoryController::class, 'index'])->middleware('ability:*, manager');
+
+    Route::get('categories', [CategoryController::class, 'index'])->middleware('ability:*, manager');
+    Route::post('events/{event}/categories', [CategoryController::class, 'store'])->middleware('ability:*, manager');
+    Route::get('categories/{category}', [CategoryController::class, 'show'])->middleware('ability:*, manager');
+    Route::put('events/{event}/categories/{category}', [CategoryController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->middleware('ability:*');
+
+    Route::get('categories/{category}/items', [ItemController::class, 'index'])->middleware('ability:*, manager');
+
+    Route::get('items', [ItemController::class, 'index'])->middleware('ability:*, manager');
+    Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware('ability:*, manager');
+    Route::get('items/{item}', [ItemController::class, 'show'])->middleware('ability:*, manager');
+    Route::put('categories/{category}/items/{item}', [ItemController::class, 'update'])->middleware('ability:*, manager');
+    Route::delete('items/{item}', [ItemController::class, 'destroy'])->middleware('ability:*');
 });
 
 Route::fallback(function () {

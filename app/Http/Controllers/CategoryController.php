@@ -25,7 +25,7 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Event $sevent)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:categories|max: 30',
@@ -36,8 +36,6 @@ class CategoryController extends Controller
         }
 
         $validatedAttributes = $validator->validated();
-
-        $event = $request->user(); // Identifies the event based on the event token.
 
         $category = Category::create([
             'name' => $validatedAttributes['name'],
@@ -56,7 +54,7 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Category $category)
     {
         return new CategoryResource($category);
     }
@@ -68,7 +66,7 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:categories|max: 30',
@@ -79,8 +77,6 @@ class CategoryController extends Controller
         }
 
         $validatedAttributes = $validator->validated();
-
-        $event = $request->user(); // Identifies the event based on the event token.
 
         $category = Category::create([
             'name' => $validatedAttributes['name'],
