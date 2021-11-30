@@ -47,15 +47,6 @@ class User extends Authenticatable
         'pin_code_timestamp'
     ];
 
-    /**
-     * This method returns a collection of pivot model instances.
-     * @return mixed
-     */
-    public function roles()
-    {
-        return $this->hasMany(EventUser::class);
-    }
-
     // The events that belong to the user.
     public function events()
     {
@@ -65,20 +56,29 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor method which returns all roles that belong to the user. A role is an ability with respect to an event. Use $event->pivot->ability / $user->pivot->ability to access ability with respect to specific event / user.
-     * @return array
-     */
-    public function getRoles()
-    {
-        return $this->roles()->pluck('ability');
-    }
-
-    /**
      * Accessor method which returns all events that belong to the user.
      * @return array
      */
     public function getEvents()
     {
         return $this->events()->pluck('event_id');
+    }
+
+    /**
+     * This method returns a collection of pivot model instances.
+     * @return mixed
+     */
+    public function roles()
+    {
+        return $this->hasMany(EventUser::class);
+    }
+
+    /**
+     * Accessor method which returns all roles that belong to the user. A role is an ability with respect to an event. Use $event->pivot->ability / $user->pivot->ability to access ability with respect to specific event / user.
+     * @return array
+     */
+    public function getRoles()
+    {
+        return $this->roles()->pluck('ability');
     }
 }

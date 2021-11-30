@@ -9,9 +9,11 @@ class Item extends Model
 {
     use HasFactory;
 
-    // The items sold at the event belong to one event only.
-    public function events()
+    protected $guarded = [];
+
+    // The category to which the item belongs.
+    public function category()
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsTo(Category::class);
     }
 }

@@ -11,9 +11,15 @@ class Category extends Model
 
     protected $guarded = [];
 
-    // The bank account that belongs to the event.
+    // The event to which the category belongs.
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    // The items that belong to the category
+    public function items()
+    {
+        return $this->hasMany(Item::class);
     }
 }

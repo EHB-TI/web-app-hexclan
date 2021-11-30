@@ -15,11 +15,9 @@ class CreateItemsTable extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->unique(['event_id', 'item_id']);
-            $table->foreignId('event_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('name')->unique();
-            $table->description()->unique();
+            $table->string('name');
             $table->decimal('price', 4, 2, true);
+            $table->foreignId('category_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }
