@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\BankAccount;
 use App\Models\Category;
 use App\Models\Event;
+use App\Models\Item;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -30,14 +31,26 @@ class TenantDatabaseSeeder extends Seeder
             'ability' => '*'
         ]);
 
-        // To be commented out in production.
+        // Everything hereunder to be commented out in production.
         $bankAccount = BankAccount::factory()->create();
 
-        // To be commented out in production.
-        Event::factory(2)
+        $events = Event::factory(2)
             ->for($bankAccount)
             ->has(User::factory()->count(1))
-            ->has(Category::factory()->count(2))
             ->create();
+
+        $categories = collect();
+        foreach ($events as $event) {
+            $categories->push(Category::factory(2)
+                ->for($event)
+                ->create());
+        }
+        $flattenedCategories = $categories->flatten();
+
+        foreach ($flattenedCategories as $category) {
+            Item::factory(5)
+                ->for($category)
+                ->create();
+        }
     }
 }

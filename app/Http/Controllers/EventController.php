@@ -50,7 +50,7 @@ class EventController extends Controller
             'bank_account_id' => $bankAccount->id
         ]);
 
-        $event->bankAccount()->associate($bankAccount);
+        $event->bankAccount()->associate($bankAccount)->save();
 
         // Given that the relationship is loaded, the bank account will be returned here with the created event.
         return (new EventResource($event))
@@ -98,6 +98,8 @@ class EventController extends Controller
             'date' => $validatedAttributes['name'],
             'bank_account_id' => $bankAccount->id
         ]);
+
+        $event->bankAccount()->associate($bankAccount)->save();
 
         return (new EventResource($event))
             ->response()

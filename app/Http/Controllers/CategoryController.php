@@ -43,7 +43,7 @@ class CategoryController extends Controller
             'name' => $validatedAttributes['name'],
         ]);
 
-        $category->event()->associate($event);
+        $category->event()->associate($event)->save();
 
         return (new CategoryResource($category))
             ->response()
@@ -86,7 +86,7 @@ class CategoryController extends Controller
             'name' => $validatedAttributes['name'],
         ]);
 
-        $category->event()->associate($event);
+        $category->event()->associate($event)->save();
 
         return (new CategoryResource($category))
             ->response()
