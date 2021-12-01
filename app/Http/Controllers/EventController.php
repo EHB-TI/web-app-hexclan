@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\UserResource;
 use App\Models\BankAccount;
 use App\Models\Event;
 use Illuminate\Http\Request;
@@ -117,5 +119,15 @@ class EventController extends Controller
         Event::destroy($user->id);
 
         return response()->noContent();
+    }
+
+    public function categories(Event $event)
+    {
+        return CategoryResource::collection($event->categories);
+    }
+
+    public function users(Event $event)
+    {
+        return UserResource::collection($event->users);
     }
 }

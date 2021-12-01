@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ItemResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -100,5 +101,10 @@ class CategoryController extends Controller
         Category::destroy($category->id);
 
         return response()->noContent();
+    }
+
+    public function items(Category $category)
+    {
+        return ItemResource::collection($category->items);
     }
 }

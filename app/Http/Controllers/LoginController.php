@@ -65,8 +65,8 @@ class LoginController extends Controller
                 case 'write':
                     $userToken = $user->createToken($validatedAttributes['device_name'], ['write']);
                     break;
-                case 'read':
-                    $userToken = $user->createToken($validatedAttributes['device_name'], ['read']);
+                case 'self':
+                    $userToken = $user->createToken($validatedAttributes['device_name'], ['self']);
                     break;
             }
 

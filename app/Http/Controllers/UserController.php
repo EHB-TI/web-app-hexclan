@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\EventResource;
 use App\Http\Resources\UserResource;
 use App\Models\Event;
 use App\Models\User;
@@ -117,5 +118,16 @@ class UserController extends Controller
 
             return response()->noContent();
         }
+    }
+
+    // Since Eloquent provides "dynamic relationship properties", relationship methods are accessed as if they were defined as properties on the model.
+    public function events(Request $request, User $user)
+    {
+        // Uses object inequality operator.
+        if ($request->user()->tokenCan('self') && $user !== $request->user()) {
+            return response()->json(['error' => 'The user is not authorised to touch this resource'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return EventResource::collection($user->events);
     }
 }

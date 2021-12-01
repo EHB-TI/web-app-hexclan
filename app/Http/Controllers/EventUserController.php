@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\EventResource;
-use App\Http\Resources\UserResource;
 use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,23 +11,6 @@ use Illuminate\Validation\Rule;
 
 class EventUserController extends Controller
 {
-
-    /**
-     * Returns the relationships belonging to the entity. Since Eloquent provides "dynamic relationship properties", relationship methods are accessed as if they were defined as properties on the model.
-     * 
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        if ($request->user()->currentAccessToken()->tokenable_type === 'App\Models\User') {
-            return UserResource::collection($request->user()->events);
-        } else if ($request->user()->currentAccessToken()->tokenable_type === 'App\Models\Event') {
-            return EventResource::collection($request->user()->users);
-        }
-    }
-
     /**
      * Attaches an ability to a user by inserting record in the pivot table.
      *

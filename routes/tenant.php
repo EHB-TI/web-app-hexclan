@@ -100,7 +100,7 @@ Route::prefix(
     Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
 
     // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
-    Route::get('users/{user}/events', [EventUserController::class, 'index'])->middleware('ability:*, write, read');
+    Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.
@@ -116,13 +116,15 @@ Route::prefix(
     Route::post('token/purge', [EventTokenController::class, 'purge']);
 
     // This route is used to access the event users.
-    Route::get('events/{event}/users', [EventUserController::class, 'index'])->middleware('ability:*, manager');
+    Route::get('events/{event}/users', [EventController::class, 'users'])->middleware('ability:*, manager');
+
     // There routes are used to attach, update, and detach roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.
 
-    Route::get('events/{event}/categories', [CategoryController::class, 'index'])->middleware('ability:*, manager');
+    // This route is used to access the event categories.
+    Route::get('events/{event}/categories', [EventController::class, 'categories'])->middleware('ability:*, manager');
 
     Route::get('categories', [CategoryController::class, 'index'])->middleware('ability:*, manager');
     Route::post('events/{event}/categories', [CategoryController::class, 'store'])->middleware('ability:*, manager');
@@ -130,7 +132,8 @@ Route::prefix(
     Route::put('events/{event}/categories/{category}', [CategoryController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->middleware('ability:*');
 
-    Route::get('categories/{category}/items', [ItemController::class, 'index'])->middleware('ability:*, manager');
+    // This route is used to access the category items.
+    Route::get('categories/{category}/items', [ItemController::class, 'items'])->middleware('ability:*, manager');
 
     Route::get('items', [ItemController::class, 'index'])->middleware('ability:*, manager');
     Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware('ability:*, manager');
