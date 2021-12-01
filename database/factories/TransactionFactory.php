@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Item;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TransactionFactory extends Factory
@@ -12,7 +12,7 @@ class TransactionFactory extends Factory
      *
      * @var string
      */
-    protected $model = Item::class;
+    protected $model = Transaction::class;
 
     /**
      * Define the model's default state.
@@ -21,8 +21,6 @@ class TransactionFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'total' => $this->faker->numberBetween(1, 9999)
-        ];
+        return [];
     }
 }

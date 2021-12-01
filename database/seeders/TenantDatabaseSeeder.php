@@ -62,7 +62,7 @@ class TenantDatabaseSeeder extends Seeder
             $randomItems = $flattenedItems->random(5);
             Transaction::factory(2)
                 ->for($user)
-                ->hasAttached($randomItems)
+                ->hasAttached($randomItems, ['quantity' => rand(1, 10)])
                 ->create();
         }
     }
