@@ -29,7 +29,7 @@ class CategoryController extends Controller
     public function store(Request $request, Event $sevent)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories|max: 30',
+            'name' => 'required|unique:categories|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -40,9 +40,8 @@ class CategoryController extends Controller
 
         $category = Category::create([
             'name' => $validatedAttributes['name'],
+            'event_id' => $event->id
         ]);
-
-        $category->event()->associate($event)->save();
 
         return (new CategoryResource($category))
             ->response()
@@ -70,7 +69,7 @@ class CategoryController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories|max: 30',
+            'name' => 'required|unique:categories|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -79,11 +78,11 @@ class CategoryController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $category = Category::create([
+        $item = Item::create([
             'name' => $validatedAttributes['name'],
+            'price' => $validatedAttributes['price'],
+            'event_id' => $event->id
         ]);
-
-        $category->event()->associate($event)->save();
 
         return (new CategoryResource($category))
             ->response()

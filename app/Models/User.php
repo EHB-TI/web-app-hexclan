@@ -81,4 +81,9 @@ class User extends Authenticatable
     {
         return $this->roles()->pluck('ability');
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

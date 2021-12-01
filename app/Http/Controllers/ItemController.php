@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ItemResource;
+use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,8 +30,8 @@ class ItemController extends Controller
     public function store(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:items|max: 30',
-            'price' => 'required' // add validation rules
+            'name' => 'required|unique:items|max:30',
+            'price' => 'required|string|max:30',
         ]);
 
         if ($validator->fails()) {
@@ -41,10 +42,9 @@ class ItemController extends Controller
 
         $item = Item::create([
             'name' => $validatedAttributes['name'],
-            'price' => $validatedAttributes['price']
+            'price' => $validatedAttributes['price'],
+            'category_id' => $category->id
         ]);
-
-        $item->category()->associate($category)->save();
 
         return (new ItemResource($item))
             ->response()
@@ -69,11 +69,11 @@ class ItemController extends Controller
      * @param  \App\Models\Item  $item
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:items|max: 30',
-            'price' => 'required' // add validation rules
+            'name' => 'required|unique:items|max:30',
+            'price' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -84,10 +84,9 @@ class ItemController extends Controller
 
         $item = Item::create([
             'name' => $validatedAttributes['name'],
-            'price' => $validatedAttributes['price']
+            'price' => $validatedAttributes['price'],
+            'category_id' => $category->id
         ]);
-
-        $item->category()->associate($category)->save();
 
         return (new ItemResource($item))
             ->response()

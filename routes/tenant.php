@@ -110,7 +110,7 @@ Route::prefix(
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    'auth:sanctum',
+    //'auth:sanctum',
 ])->group(function () {
     // This route should be visited prior to a sync with all the event tokens possessed by the client. 
     Route::post('token/purge', [EventTokenController::class, 'purge']);
@@ -136,8 +136,8 @@ Route::prefix(
     Route::get('categories/{category}/items', [ItemController::class, 'items'])->middleware('ability:*, manager');
 
     Route::get('items', [ItemController::class, 'index'])->middleware('ability:*, manager');
-    Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware('ability:*, manager');
-    Route::get('items/{item}', [ItemController::class, 'show'])->middleware('ability:*, manager');
+    Route::post('categories/{category}/items', [ItemController::class, 'store']); //->middleware('ability:*, manager');
+    Route::get('items/{item}', [ItemController::class, 'show']); //->middleware('ability:*, manager');
     Route::put('categories/{category}/items/{item}', [ItemController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('items/{item}', [ItemController::class, 'destroy'])->middleware('ability:*');
 });

@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\Item;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ItemFactory extends Factory
+class TransactionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -22,8 +22,7 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word(),
-            'price' => $this->faker->numberBetween(1, 9999)
+            'total' => $this->faker->numberBetween(1, 9999)
         ];
     }
 }

@@ -33,9 +33,9 @@ class EventController extends Controller
     {
         //Make sure that event name is lowercase when stored in db (?). Event names should be unique.
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max: 30',
+            'name' => 'required|unique:events|max:30',
             'date' => 'required|date',
-            'bank_account_id' => 'required'
+            'bank_account_id' => 'required' //TODO: check if bankaccount exists in validation.
         ]);
 
         if ($validator->fails()) {
@@ -51,8 +51,6 @@ class EventController extends Controller
             'date' => $validatedAttributes['date'],
             'bank_account_id' => $bankAccount->id
         ]);
-
-        $event->bankAccount()->associate($bankAccount)->save();
 
         // Given that the relationship is loaded, the bank account will be returned here with the created event.
         return (new EventResource($event))
@@ -82,7 +80,7 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max: 30',
+            'name' => 'required|unique:events|max:30',
             'date' => 'required|date',
             'bank_account_id' => 'required'
         ]);
@@ -100,8 +98,6 @@ class EventController extends Controller
             'date' => $validatedAttributes['name'],
             'bank_account_id' => $bankAccount->id
         ]);
-
-        $event->bankAccount()->associate($bankAccount)->save();
 
         return (new EventResource($event))
             ->response()

@@ -6,20 +6,22 @@ use App\Casts\PriceCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Item extends Model
+class Transaction extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
 
     protected $casts = [
-        'price' => PriceCast::class
+        'total' => PriceCast::class
     ];
 
-    // The category to which the item belongs.
-    public function category()
+    // The items that belong to the transaction.
+    public function items()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Item::class)
+            ->using(ItemTransaction::class)
+            ->withPivot('quantity');
     }
 
     /**
@@ -31,11 +33,9 @@ class Item extends Model
         return $this->hasMany(ItemTransaction::class);
     }
 
-    // The transactions that belong to the item.
-    public function transactions()
+
+    public function user()
     {
-        return $this->belongsToMany(Transaction::class)
-            ->using(ItemTransaction::class)
-            ->withPivot('quantity');
+        return $this->belongsTo(User::class);
     }
 }

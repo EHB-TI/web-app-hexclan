@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Event;
 use App\Models\Item;
 use App\Models\Tenant;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -47,9 +48,21 @@ class TenantDatabaseSeeder extends Seeder
         }
         $flattenedCategories = $categories->flatten();
 
+        $items = collect();
         foreach ($flattenedCategories as $category) {
-            Item::factory(5)
+            $items->push(Item::factory(5)
                 ->for($category)
+                ->create());
+        }
+
+        $flattenedItems = $items->flatten();
+
+        $users = User::where('email', '!=', 'admin@demo.test')->get();
+        foreach ($users as $user) {
+            $randomItems = $flattenedItems->random(5);
+            Transaction::factory(2)
+                ->for($user)
+                ->hasAttached($randomItems)
                 ->create();
         }
     }
