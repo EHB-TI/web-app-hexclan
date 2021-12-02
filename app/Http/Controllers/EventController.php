@@ -31,11 +31,11 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //Make sure that event name is lowercase when stored in db (?). Event names should be unique.
+        // Event names should be unique. Validation is case insensitive because MySQL is case insensitive.
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:events|max:30',
             'date' => 'required|date',
-            'bank_account_id' => 'required' //TODO: check if bankaccount exists in validation.
+            'bank_account_id' => 'required|exists:bank_accounts'
         ]);
 
         if ($validator->fails()) {
@@ -70,7 +70,6 @@ class EventController extends Controller
     }
 
     /**
-     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

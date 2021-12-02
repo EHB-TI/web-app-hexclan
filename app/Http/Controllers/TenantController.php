@@ -65,7 +65,6 @@ class TenantController extends Controller
     }
 
     /**
-     * TODO - possibly better to avoid update on tenant models.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

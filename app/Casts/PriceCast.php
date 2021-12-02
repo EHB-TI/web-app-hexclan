@@ -31,6 +31,6 @@ class PriceCast implements CastsAttributes
      */
     public function set($model, string $key, $value, array $attributes)
     {
-        return (int) str_replace(',', '', $value);
+        return (int) $value;
     }
 }

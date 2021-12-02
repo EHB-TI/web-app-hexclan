@@ -118,7 +118,7 @@ Route::prefix(
     // This route is used to access the event users.
     Route::get('events/{event}/users', [EventController::class, 'users'])->middleware('ability:*, manager');
 
-    // There routes are used to attach, update, and detach roles on the pivot table.
+    // There routes are used to create, update, and delete roles on the pivot table.
     Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*, manager');
     Route::put('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*, manager'); // Detach is within scope of manager.

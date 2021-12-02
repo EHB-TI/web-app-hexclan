@@ -60,7 +60,6 @@ class BankAccountController extends Controller
     }
 
     /**
-     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

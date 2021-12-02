@@ -61,7 +61,5 @@ class TestGetController extends Controller
         // $role = $user->pivot->role;
 
         // return response()->json(['role' => $role]);
-
-        //TODO: Eloquent syntax to retrieve subtotal of a given transaction.
     }
 }

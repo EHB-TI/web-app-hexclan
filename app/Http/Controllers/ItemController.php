@@ -31,7 +31,7 @@ class ItemController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:items|max:30',
-            'price' => 'required|string|max:30',
+            'price' => 'required|numeric|min:0|max:99.99', // Client should use decimal separator '.'. 
         ]);
 
         if ($validator->fails()) {
@@ -40,9 +40,11 @@ class ItemController extends Controller
 
         $validatedAttributes = $validator->validated();
 
+        $price = str_replace('.', '', $validatedAttributes['price']);
+
         $item = Item::create([
             'name' => $validatedAttributes['name'],
-            'price' => $validatedAttributes['price'],
+            'price' => $price,
             'category_id' => $category->id
         ]);
 

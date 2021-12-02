@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 class EventUserController extends Controller
 {
     /**
-     * Attaches an ability to a user by inserting record in the pivot table.
+     * Sets the roles in the pivot table.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -20,8 +20,9 @@ class EventUserController extends Controller
     public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|max:255',
-            'ability' => ['required', Rule::in(['manager', 'seller'])],
+            'roles' => 'required|array:id,ability',
+            'roles.id' => => 'required|uuid|exists:users', // Checks the existence of the users in the db.
+            'roles.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
@@ -30,12 +31,9 @@ class EventUserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $user = User::firstWhere('email', $validatedAttributes['email']);
-        if ($user == null) {
-            abort(Response::HTTP_NOT_FOUND);
+        foreach ($validatedAttributes['roles'] as $) {
+            $event->users()->attach($id, ['ability' => $validatedAttributes['ability']]); // For performance, probably preferable to replace by query builder.
         }
-
-        $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
 
         return response()->json(['data' => "{$user->name} added to event {$event->name} with role {$validatedAttributes['ability']}"], Response::HTTP_CREATED);
     }
@@ -65,7 +63,7 @@ class EventUserController extends Controller
     }
 
     /**
-     * Detaches the ability from the user by deleting the record in the pivot table.
+     * Removes the roles from the pivot table.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
