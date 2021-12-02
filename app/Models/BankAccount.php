@@ -14,12 +14,6 @@ class BankAccount extends Model
 
     protected $guarded = [];
 
-    protected $hidden = [
-        'beneficiary_name',
-        'bic',
-        'iban'
-    ];
-
     public function events()
     {
         return $this->hasMany(Event::class);

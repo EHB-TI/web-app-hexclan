@@ -95,9 +95,9 @@ Route::prefix(
 
     Route::get('bankaccounts', [BankAccountController::class, 'index'])->middleware('ability:*, write');
     Route::post('bankaccounts', [BankAccountController::class, 'store'])->middleware('ability:*, write');
-    Route::get('bankaccounts/{bankaccount}', [BankAccountController::class, 'show'])->middleware('ability:*, write');
-    Route::put('bankaccounts/{bankaccount}', [BankAccountController::class, 'update'])->middleware('ability:*, write');
-    Route::delete('bankaccounts/{bankaccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
+    Route::get('bankaccounts/{bankAccount}', [BankAccountController::class, 'show'])->middleware('ability:*, write');
+    Route::put('bankaccounts/{bankAccount}', [BankAccountController::class, 'update'])->middleware('ability:*, write');
+    Route::delete('bankaccounts/{bankAccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
 
     // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
@@ -110,7 +110,7 @@ Route::prefix(
     'api',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    //'auth:sanctum',
+    'auth:sanctum',
 ])->group(function () {
     // This route should be visited prior to a sync with all the event tokens possessed by the client. 
     Route::post('token/purge', [EventTokenController::class, 'purge']);
@@ -136,8 +136,8 @@ Route::prefix(
     Route::get('categories/{category}/items', [ItemController::class, 'items'])->middleware('ability:*, manager');
 
     Route::get('items', [ItemController::class, 'index'])->middleware('ability:*, manager');
-    Route::post('categories/{category}/items', [ItemController::class, 'store']); //->middleware('ability:*, manager');
-    Route::get('items/{item}', [ItemController::class, 'show']); //->middleware('ability:*, manager');
+    Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware('ability:*, manager');
+    Route::get('items/{item}', [ItemController::class, 'show'])->middleware('ability:*, manager');
     Route::put('categories/{category}/items/{item}', [ItemController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('items/{item}', [ItemController::class, 'destroy'])->middleware('ability:*');
 });
