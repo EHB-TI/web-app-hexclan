@@ -34,7 +34,7 @@ class EventController extends Controller
     {
         // Event names should be unique. Validation is case insensitive because MySQL is case insensitive.
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,data,bank_account_id',
+            'data' => 'required|array:name,date,vat_rate,bank_account_id',
             'data.name' => ['required',  Rule::unique('events', 'name'), 'max:30'],
             'data.date' => 'required|date',
             'data.vat_rate' => 'required|integer|min:0|max:50',
@@ -82,7 +82,7 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,data,bank_account_id',
+            'data' => 'required|array:name,date,vat_rate,bank_account_id',
             'data.name' => ['required',  Rule::unique('events', 'name')->ignore($event->id), 'max:30'],
             'data.date' => 'required|date',
             'data.vat_rate' => 'required|integer|min:0|max:50',

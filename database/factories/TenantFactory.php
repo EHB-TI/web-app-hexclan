@@ -23,7 +23,7 @@ class TenantFactory extends Factory
     {
         return [
             'name' => 'demo',
-            'tenancy_admin_email' => 'admin@demo.test'
+            'tenancy_admin_email' => 'mathieu.developer@protonmail.com' //'admin@demo.test'
         ];
     }
 }
