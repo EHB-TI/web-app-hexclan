@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ItemResource;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -59,5 +60,10 @@ class TransactionController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function items(Request $request, Transaction $transaction)
+    {
+        return ItemResource::collection($transaction->items);
     }
 }

@@ -15,22 +15,20 @@ class RegisterController extends Controller
     public function __invoke(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255',
-            'password' => 'required',
+            'data' => 'required|array:name,email,password',
+            'data.name' => 'required|max:255',
+            'data.email' => 'required|email|exists:users|max:255',
+            'data.password' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $users = User::all();
-        $user = $users->firstWhere('email', $validatedAttributes['email']);
-        if ($user == null) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        $user = User::firstWhere('email', $validatedAttributes['email']);
 
         $user->update([
             'name' => $validatedAttributes['name'],

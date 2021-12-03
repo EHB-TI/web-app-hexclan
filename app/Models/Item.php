@@ -36,6 +36,6 @@ class Item extends Model
     {
         return $this->belongsToMany(Transaction::class)
             ->using(ItemTransaction::class)
-            ->withPivot('quantity');
+            ->withPivot(['quantity', 'extended_price']);
     }
 }

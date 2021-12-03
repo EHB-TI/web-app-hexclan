@@ -15,11 +15,12 @@ class CreateItemTransactionTable extends Migration
     {
         Schema::create('item_transaction', function (Blueprint $table) {
             $table->id();
-            $table->unique(['item_id', 'transaction_id']);
-            $table->foreignId('item_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('transaction_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->unique(['transaction_id', 'item_id']);
+            $table->integer('applied_price'); // Unit is eurocents.
             $table->integer('quantity');
-
+            $table->integer('extended_price')->virtualAs('applied_price*quantity')->index();
             $table->timestamps();
         });
     }

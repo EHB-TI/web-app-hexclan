@@ -60,9 +60,10 @@ class TenantDatabaseSeeder extends Seeder
         $users = User::where('email', '!=', 'admin@demo.test')->get();
         foreach ($users as $user) {
             $randomItems = $flattenedItems->random(5);
+
             Transaction::factory(2)
                 ->for($user)
-                ->hasAttached($randomItems, ['quantity' => rand(1, 10)])
+                ->hasAttached($randomItems, ['quantity' => rand(1, 10), 'applied_price' => rand(1, 9999)])
                 ->create();
         }
     }

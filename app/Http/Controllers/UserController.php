@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\EventResource;
+use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
 use App\Models\Event;
 use App\Models\User;
@@ -33,6 +34,11 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        // Uses object inequality operator.
+        if ($request->user()->tokenCan('self') && $user !== $request->user()) {
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+        }
+        
         return new UserResource($user);
     }
 
@@ -45,10 +51,15 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Uses object inequality operator.
+        if ($request->user()->tokenCan('self') && $user !== $request->user()) {
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+        }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255',
+            'data' => 'required|array:name,email'
+            'data.name' => 'required|max:255',
+            'data.email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id), 'max:255'],
         ]);
 
         if ($validator->fails()) {
@@ -57,7 +68,15 @@ class UserController extends Controller
 
         $validatedAttributes = $validator->validated();
 
-        $user->update($validatedAttributes);
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
+
+        $originalAttributes = collect($user->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
+
+        $user->fill($diff);
+        $user->save();
 
         return (new UserResource($user))
             ->response()
@@ -72,7 +91,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        User::destroy($user->id);
+        $user->delete();
 
         return response()->noContent();
     }
@@ -81,8 +100,9 @@ class UserController extends Controller
     public function seed(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|max:255',
-            'ability' => ['required', Rule::in(['write', 'read'])]
+            'data' => 'data' => 'required|array:email,ability'
+            'data.email' => 'required|email|unique:users|max:255',
+            'data.ability' => ['required', Rule::in(['write', 'self'])]
         ]);
 
         if ($validator->fails()) {
@@ -90,6 +110,9 @@ class UserController extends Controller
         }
 
         $validatedAttributes = $validator->validated();
+
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = User::create([
             'id' => (string) Str::uuid(),
@@ -124,9 +147,19 @@ class UserController extends Controller
     {
         // Uses object inequality operator.
         if ($request->user()->tokenCan('self') && $user !== $request->user()) {
-            return response()->json(['error' => 'The user is not authorised to touch this resource'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 
         return EventResource::collection($user->events);
+    }
+
+    public function transactions(Request $request, User $user)
+    {
+        // Uses object inequality operator.
+        if ($request->user()->tokenCan('self') && $user !== $request->user()) {
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return TransactionResource::collection($user->transactions);
     }
 }

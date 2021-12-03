@@ -6,7 +6,9 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ItemResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -29,14 +31,16 @@ class CategoryController extends Controller
     public function store(Request $request, Event $sevent)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories|max:30',
+            'data' => 'required|array:name'
+            'data.name' => 'required|unique:categories|max:30',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $category = Category::create([
             'name' => $validatedAttributes['name'],
@@ -66,27 +70,31 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Event $event)
+    public function update(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:categories|max:30',
+            'data' => 'required|array:name,event_id',
+            'data.name' => ['required', Rule::unique('categories', 'name')->ignore($bankAccount->id), 'max:30'],
+            'data.event_id' => 'required|exists:events'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $item = Item::create([
-            'name' => $validatedAttributes['name'],
-            'price' => $validatedAttributes['price'],
-            'event_id' => $event->id
-        ]);
+        $originalAttributes = collect($category->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
+
+        $category->fill($diff);
+        $category->save();
 
         return (new CategoryResource($category))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -97,7 +105,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        Category::destroy($category->id);
+        $category->delete();
 
         return response()->noContent();
     }

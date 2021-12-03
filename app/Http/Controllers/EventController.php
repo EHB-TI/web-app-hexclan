@@ -10,6 +10,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
@@ -33,23 +34,23 @@ class EventController extends Controller
     {
         // Event names should be unique. Validation is case insensitive because MySQL is case insensitive.
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max:30',
-            'date' => 'required|date',
-            'bank_account_id' => 'required|exists:bank_accounts'
+            'data' => 'required|array:name,data,bank_account_id'
+            'data.name' => 'required|unique:events|max:30',
+            'data.date' => 'required|date',
+            'data.bank_account_id' => 'required|exists:bank_accounts'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
-
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $event = Event::create([
             'name' => $validatedAttributes['name'],
             'date' => $validatedAttributes['date'],
-            'bank_account_id' => $bankAccount->id
+            'bank_account_id' => $validatedAttributes['bank_account_id']
         ]);
 
         // Given that the relationship is loaded, the bank account will be returned here with the created event.
@@ -79,28 +80,29 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max:30',
-            'date' => 'required|date',
-            'bank_account_id' => 'required'
+            'data' => 'required|array:name,data,bank_account_id'
+            'data.name' => ['required',  Rule::unique('events', 'name')->ignore($event->id), 'max:30'],
+            'data.date' => 'required|date',
+            'data.bank_account_id' => 'required|exists:bank_accounts'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
-
-        $event = Event::create([
-            'name' => $validatedAttributes['name'],
-            'date' => $validatedAttributes['name'],
-            'bank_account_id' => $bankAccount->id
-        ]);
+        $originalAttributes = collect($bankAccount->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
+        
+        $event->fill($diff);
+        $event->save();
 
         return (new EventResource($event))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -111,7 +113,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        Event::destroy($user->id);
+        $event->delete();
 
         return response()->noContent();
     }

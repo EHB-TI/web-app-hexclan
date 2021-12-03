@@ -21,9 +21,9 @@ class EventUserController extends Controller
     public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'data.*' => 'required|array:id,ability',
-            'data.*.id' => 'required|uuid|exists:users', // Checks the existence of the users in the db.
-            'data.*.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
+            'data' => 'required|array:id,ability',
+            'data.user_id' => 'required|uuid|exists:users', // Checks the existence of the users in the db.
+            'data.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
@@ -31,15 +31,15 @@ class EventUserController extends Controller
         }
 
         $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        foreach ($rawValidatedAttributes['data'] as $validatedAttributes) {
-            $event->users()->attach($validatedAttributes['id'], ['ability' => $validatedAttributes['ability']]); // For performance, probably preferable to replace by query builder.
-        }
+        $event->users()->attach($validatedAttributes['user_id'], ['ability' => $validatedAttributes['ability']]); // For performance, possibly preferable to replace by bulk operation via query builder.
 
-        return response()->json(['data' => "User(s) added to event {$event->name}"], Response::HTTP_CREATED);
+        return response()->json(['data' => "User {$validatedAttributes['user_id']} added to event {$event->name} with role {$validatedAttributes['ability']}"], Response::HTTP_CREATED);
     }
 
     /**
+     * Only to be used to change user role.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -62,7 +62,7 @@ class EventUserController extends Controller
 
         $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => "{$user->name}'s role on event {$event->name} updated."], Response::HTTP_OK);
+        return response()->json(['data' => "{$user->name}'s role on event {$event->name} modified to {$validatedAttributes['ability']}."], Response::HTTP_OK);
     }
 
     /**

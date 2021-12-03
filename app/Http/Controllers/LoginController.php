@@ -17,18 +17,20 @@ class LoginController extends Controller
     public function __invoke(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'is_first_login' => 'required|boolean',
-            'email' => 'required|email|max:255',
-            'password' => 'required',
-            'pin_code' => 'exclude_unless:is_first_login,true|required|integer|digits:6', // Pin code is required on first login only.
-            'device_name' => 'required'
+            'data' => 'required|array:is_first_login,email,password,pin_code,device_name',
+            'data.is_first_login' => 'required|boolean',
+            'data.email' => 'required|email|exists:users|max:255',
+            'data.password' => 'required',
+            'data.pin_code' => 'required|integer|digits:6', // Pin code is required everytime but checked only on first login. Set on -111111 afterwards.
+            'data.device_name' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = User::with(['tokens'])->firstWhere('email', $validatedAttributes['email']);
 

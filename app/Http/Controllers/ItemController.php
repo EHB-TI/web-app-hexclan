@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ItemResource;
+use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ItemController extends Controller
 {
@@ -30,15 +32,17 @@ class ItemController extends Controller
     public function store(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:items|max:30',
-            'price' => 'required|numeric|min:0|max:99.99', // Client should use decimal separator '.'. 
+            'data' => 'required|array:name,price',
+            'data.name' => 'required|unique:items|max:30',
+            'data.price' => 'required|numeric|min:0|max:99.99', // Client should use decimal separator '.'. 
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $price = str_replace('.', '', $validatedAttributes['price']);
 
@@ -71,28 +75,32 @@ class ItemController extends Controller
      * @param  \App\Models\Item  $item
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, Item $item)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:items|max:30',
-            'price' => 'required',
+            'data' => 'required|array:name,price',
+            'data.name' => ['required', Rule::unique('items', 'name')->ignore($item->id), 'max:30'],
+            'data.price' => 'required|numeric|min:0|max:99.99',
+            'data.category_id' => 'required|exists:categories'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $item = Item::create([
-            'name' => $validatedAttributes['name'],
-            'price' => $validatedAttributes['price'],
-            'category_id' => $category->id
-        ]);
+        $originalAttributes = collect($item->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
+
+        $item->fill($diff);
+        $item->save();
 
         return (new ItemResource($item))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -103,8 +111,13 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
-        Item::destroy($item->id);
+        $item->delete();
 
         return response()->noContent();
+    }
+
+    public function transactions(Item $item)
+    {
+        return TransactionResource::collection($item->transactions);
     }
 }
