@@ -137,11 +137,15 @@ class TransactionController extends Controller
             $transaction->status = 'paid';
 
             return response()->noContent();
-        } else ($request->user()->tokenCan('*')) {
+        }
+        // Admin and managers should be able to modify status of transaction.
+        else if ($request->user()->tokenCan('*') || $request->user()->tokenCan('write')) {
 
             $transaction->status = 'outstanding';
 
             return reponse()->noContent();
+        } else {
+            return response()->json(['error' => 'The status of the transaction is immutable.'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }
