@@ -22,7 +22,7 @@ class EventUserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:id,ability',
-            'data.user_id' => 'required|uuid|exists:users', // Checks the existence of the users in the db.
+            'data.user_id' => ['required', 'uuid', Rule::exists('users', 'id')], // Checks the existence of the users in the db.
             'data.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
 

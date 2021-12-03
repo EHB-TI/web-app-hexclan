@@ -103,7 +103,9 @@ Route::prefix(
     // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
     // This route is used to access the user transactions.
-    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, manager');
+    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, manager, self');
+    // This route is to mark a transaction as paid.
+    Route::post('transactions/{transaction}', [TransactionController::class, 'markAsPaid'])->middleware('ability:*, write,self');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.
@@ -148,9 +150,8 @@ Route::prefix(
     Route::get('items/{item}/transactions', [ItemController::class, 'transactions'])->middleware('ability:*, manager');
 
     Route::get('transactions', [TransactionController::class, 'index'])->middleware('ability:*, manager');
-    Route::post('users/{user}/transactions', [TransactionController::class, 'store'])->middleware('ability:*, manager'); // This route also inserts the pivot table entries.
+    Route::post('users/{user}/transactions', [TransactionController::class, 'store'])->middleware('ability:*, manager,seller'); // This route also inserts the pivot table entries.
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('ability:*, manager');
-    Route::patch('transactions/{transaction}', [TransactionController::class, 'update'])->middleware('ability:*, manager');
     Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->middleware('ability:*');
 
     // This route is used to access the transaction items.

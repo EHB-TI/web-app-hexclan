@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 // Stateless authentication based on sanctum tokens. 1 token is issued per user per event.
 class LoginController extends Controller
@@ -19,7 +20,7 @@ class LoginController extends Controller
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:is_first_login,email,password,pin_code,device_name',
             'data.is_first_login' => 'required|boolean',
-            'data.email' => 'required|email|exists:users|max:255',
+            'data.email' => ['required', 'email', Rule::exists('users', 'email'), 'max:255'],
             'data.password' => 'required',
             'data.pin_code' => 'required|integer|digits:6', // Pin code is required everytime but checked only on first login. Set on -111111 afterwards.
             'data.device_name' => 'required'

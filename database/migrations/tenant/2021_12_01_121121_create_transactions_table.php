@@ -15,8 +15,9 @@ class CreateTransactionsTable extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->integer('total')->nullable(); // Unit is eurocents. Nullable because updated together with status.
-            $table->enum('status', ['outstanding', 'failed', 'paid'])->default('outstanding');
+            $table->integer('subtotal', false, true)->nullable()->comment('in cents'); // Nullable because updated together with status.
+            $table->integer('total', false, true)->nullable()->comment('in cents');
+            $table->enum('status', ['outstanding', 'paid'])->default('outstanding');
             $table->foreignUuid('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

@@ -29,14 +29,16 @@ class EventTokenController extends Controller
     public function sync(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'device_name' => 'required',
+            'data' => 'required|array:device_name',
+            'data.device_name' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = $request->user();
         $tokens = [];

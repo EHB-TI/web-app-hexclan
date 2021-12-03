@@ -31,8 +31,8 @@ class CategoryController extends Controller
     public function store(Request $request, Event $sevent)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name'
-            'data.name' => 'required|unique:categories|max:30',
+            'data' => 'required|array:name',
+            'data.name' => ['required', Rule::unique('categories', 'name'), 'max:30'],
         ]);
 
         if ($validator->fails()) {
@@ -75,7 +75,7 @@ class CategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:name,event_id',
             'data.name' => ['required', Rule::unique('categories', 'name')->ignore($bankAccount->id), 'max:30'],
-            'data.event_id' => 'required|exists:events'
+            'data.event_id' => ['required', Rule::exists('events', 'id')]
         ]);
 
         if ($validator->fails()) {

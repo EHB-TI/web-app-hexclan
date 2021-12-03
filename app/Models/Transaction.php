@@ -13,6 +13,7 @@ class Transaction extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'subtotal' => PriceCast::class,
         'total' => PriceCast::class
     ];
 

@@ -23,7 +23,7 @@ class ItemFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'price' => $this->faker->numberBetween(1, 9999)
+            'price' => $this->faker->numberBetween(1, 9999),
         ];
     }
 }

@@ -33,7 +33,7 @@ class BankAccountController extends Controller
             'data' => 'required|array:beneficiary_name,bic,iban',
             'data.beneficiary_name' => 'required|max:255',
             'data.bic' => 'required|alpha_num|max:8', //TODO: could be improved with regex.
-            'data.iban' => 'required|alphanum|unique:bank_accounts|max:16' //TODO: could be improved with regex.
+            'data.iban' => ['required', 'alphanum', Rule::unique('bank_accounts', 'iban'), 'max:16'] //TODO: could be improved with regex.
         ]);
 
         if ($validator->fails()) {

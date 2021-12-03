@@ -38,7 +38,7 @@ class UserController extends Controller
         if ($request->user()->tokenCan('self') && $user !== $request->user()) {
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
-        
+
         return new UserResource($user);
     }
 
@@ -56,8 +56,13 @@ class UserController extends Controller
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 
+        // Functionality not yet impletemented. Cf. TenantController.
+        if ($user->ability === '*') {
+            return response()->json(['error' => 'The admin user cannot be updated.'], Response::HTTP_NOT_IMPLEMENTED);
+        }
+
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,email'
+            'data' => 'required|array:name,email',
             'data.name' => 'required|max:255',
             'data.email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id), 'max:255'],
         ]);
@@ -100,8 +105,8 @@ class UserController extends Controller
     public function seed(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'data' => 'required|array:email,ability'
-            'data.email' => 'required|email|unique:users|max:255',
+            'data' => 'required|array:email,ability',
+            'data.email' => ['required', 'email', Rule::unique('users', 'email'), 'max:255'],
             'data.ability' => ['required', Rule::in(['write', 'self'])]
         ]);
 

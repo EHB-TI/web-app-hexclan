@@ -17,6 +17,7 @@ class CreateEventsTable extends Migration
             $table->id();
             $table->string('name');
             $table->date('date');
+            $table->integer('vat_rate', false, true)->default(21)->comment('in percent');
             $table->foreignId('bank_account_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

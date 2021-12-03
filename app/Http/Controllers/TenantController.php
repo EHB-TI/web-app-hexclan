@@ -29,15 +29,17 @@ class TenantController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:tenants|alpha_num|max:30', // alpha_num rule does not accept whitespace.
-            'tenancy_admin_email' => 'required|email|max:255',
+            'data' => 'required|array:name,tenancy_admin_email',
+            'data.name' => ['required', 'alpha_num', Rule::unique('tenants', 'name'), 'max:30'], // alpha_num rule does not accept whitespace.
+            'data.tenancy_admin_email' => 'required|email|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $domain = strtolower($validatedAttributes['name']) . '.' . config('tenancy.central_domains.0');
 
@@ -71,9 +73,9 @@ class TenantController extends Controller
      * @param  \App\Models\Tenant  $tenant
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tenant $tenant)
+    /*     public function update(Request $request, Tenant $tenant)
     {
-        /* $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|unique:tenants|max: 30',
         ]);
 
@@ -87,8 +89,8 @@ class TenantController extends Controller
 
         return (new TenantResource($tenant))
             ->response()
-            ->setStatusCode(Response::HTTP_OK); */
-    }
+            ->setStatusCode(Response::HTTP_OK);
+    } */
 
     /**
      * Remove the specified resource from storage.
@@ -98,7 +100,7 @@ class TenantController extends Controller
      */
     public function destroy(Tenant $tenant)
     {
-        Tenant::destroy($tenant->id);
+        $tenant->delete;
 
         return response()->noContent();
     }

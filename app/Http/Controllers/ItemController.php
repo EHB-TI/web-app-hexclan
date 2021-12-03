@@ -33,7 +33,7 @@ class ItemController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:name,price',
-            'data.name' => 'required|unique:items|max:30',
+            'data.name' => ['required', Rule::unique('items', 'name'), 'max:30'],
             'data.price' => 'required|numeric|min:0|max:99.99', // Client should use decimal separator '.'. 
         ]);
 
@@ -81,7 +81,7 @@ class ItemController extends Controller
             'data' => 'required|array:name,price',
             'data.name' => ['required', Rule::unique('items', 'name')->ignore($item->id), 'max:30'],
             'data.price' => 'required|numeric|min:0|max:99.99',
-            'data.category_id' => 'required|exists:categories'
+            'data.category_id' => ['required', Rule::exists('categories', 'id')]
         ]);
 
         if ($validator->fails()) {
