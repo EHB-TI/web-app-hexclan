@@ -80,7 +80,7 @@ class UserController extends Controller
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes);
 
-        $user->fill($diff);
+        $user->fill($diff->toArray());
         $user->save();
 
         return (new UserResource($user))

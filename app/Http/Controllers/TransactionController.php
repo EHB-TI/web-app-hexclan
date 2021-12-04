@@ -35,9 +35,8 @@ class TransactionController extends Controller
     public function store(Request $request, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'data.*' => 'required|array:item_id,applied_price,quantity',
+            'data.*' => 'required|array:item_id,quantity',
             'data.*.item_id' => ['required', Rule::exists('items', 'id')],
-            'data.*.applied_price' => 'required|numeric|min:0|max:99.99',
             'data.*.quantity' => 'required|integer|min:1' // max restriction?
         ]);
 
@@ -49,32 +48,41 @@ class TransactionController extends Controller
         $validatedAttributes = $rawValidatedAttributes['data'];
 
         // Iteration with value modification.
-        $collection = collect($validatedAttributes);
-        $collection->transform(function ($item, $key) {
-            $item['applied_price'] = str_replace('.', '', $item['applied_price']);
-            return $item;
-        });
+        // $collection = collect($validatedAttributes);
+        // $collection->transform(function ($item, $key) {
+        //     $item['applied_price'] = str_replace('.', '', $item['applied_price']);
+        //     return $item;
+        // });
 
-        $transaction = DB::transaction(function () use ($request, $user, $collection) {
+        $transaction = DB::transaction(function () use ($request, $user, $validatedAttributes) {
             $transaction = Transaction::create([
                 'user_id' => $user->id
             ]);
 
-            foreach ($collection as $line) {
+            foreach ($validatedAttributes as $line) {
                 DB::table('item_transaction')->insert([
-                    ['transaction_id' => $transaction->id, 'item_id' => $line['item_id'], 'applied_price' => $line['applied_price'], 'quantity' => $line['quantity'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+                    ['transaction_id' => $transaction->id, 'item_id' => $line['item_id'], 'quantity' => $line['quantity'], 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
                 ]);
             }
-            //compute subtotal and total 
-            $subtotal = DB::table('item_transaction')
-                ->where('transaction_id', '=', $transaction->id)
-                ->sum('extended_price');
 
-            $total = bcmul($subtotal, ($request->user()->vat_rate / 100) + 1, 0); // Gets the event-wide vat rate from the token.
+            $resultSet = DB::table('item_transaction as it')
+                ->join('items as i', 'i.id', '=', 'it.item_id')
+                ->select(DB::raw('sum((i.price * it.quantity)) as subtotal, round(sum((i.price * (i.vat_rate/100 + 1) * it.quantity))) as total'))
+                ->groupBy('it.transaction_id')
+                ->having('it.transaction_id', '=', $transaction->id)
+                ->get();
+            //compute subtotal and total 
+            // $subtotal = DB::table('item_transaction')
+            //     ->where('transaction_id', '=', $transaction->id)
+            //     ->sum('extended_price');
+
+            // $total = bcmul($subtotal, ($request->user()->vat_rate / 100) + 1, 0); // Gets the event-wide vat rate from the token.
+
+            $resultSetObject = $resultSet->first();
 
             $transaction->update([
-                'subtotal' => $subtotal,
-                'total' => $total
+                'subtotal' => $resultSetObject->subtotal,
+                'total' => $resultSetObject->total
             ]);
 
             return $transaction;
@@ -104,10 +112,10 @@ class TransactionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /*     public function update(Request $request, $id)
-    {
-        //
-    } */
+    // public function update(Request $request)
+    // {
+    //     return response()->json(['error' => 'The transaction cannot be updated.'], Response::HTTP_NOT_IMPLEMENTED);
+    // }
 
     /**
      * Remove the specified resource from storage.
@@ -138,14 +146,14 @@ class TransactionController extends Controller
 
             return response()->noContent();
         }
-        // Admin and managers should be able to modify status of transaction.
+        // Admin and managers are able to modify status of transaction.
         else if ($request->user()->tokenCan('*') || $request->user()->tokenCan('write')) {
 
             $transaction->status = 'outstanding';
 
             return reponse()->noContent();
         } else {
-            return response()->json(['error' => 'The status of the transaction is immutable.'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'This user cannot modify the status of this transaction.'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

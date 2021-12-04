@@ -92,7 +92,7 @@ class BankAccountController extends Controller
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes); // Return the values in the changedAttributes that are not present in the originalAttributes.
 
-        $bankAccount->fill($diff);
+        $bankAccount->fill($diff->toArray());
         $bankAccount->save();
 
         return (new BankAccountResource($bankAccount))

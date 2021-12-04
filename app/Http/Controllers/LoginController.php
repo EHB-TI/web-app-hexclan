@@ -77,7 +77,7 @@ class LoginController extends Controller
 
             return response()->json(['data' => $token], Response::HTTP_OK);
         } else {
-            return response()->json(['data' => 'The user token is set.'], Response::HTTP_OK);
+            return response()->json(['error' => 'The user token is set.'], Response::HTTP_FORBIDDEN);
         }
     }
 }

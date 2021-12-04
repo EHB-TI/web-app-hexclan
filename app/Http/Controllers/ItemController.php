@@ -32,9 +32,10 @@ class ItemController extends Controller
     public function store(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,price',
+            'data' => 'required|array:name,price,vat_rate',
             'data.name' => ['required', Rule::unique('items', 'name'), 'max:30'],
             'data.price' => 'required|numeric|min:0|max:99.99', // Client should use decimal separator '.'. 
+            'data.vat_rate' => 'required|integer|min:0|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -49,6 +50,7 @@ class ItemController extends Controller
         $item = Item::create([
             'name' => $validatedAttributes['name'],
             'price' => $price,
+            'vat_rate' => $validatedAttributes['vat_rate'],
             'category_id' => $category->id
         ]);
 
@@ -78,9 +80,10 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,price',
+            'data' => 'required|array:name,price,vat_rate',
             'data.name' => ['required', Rule::unique('items', 'name')->ignore($item->id), 'max:30'],
             'data.price' => 'required|numeric|min:0|max:99.99',
+            'data.vat_rate' => 'required|integer|min:0|max:50',
             'data.category_id' => ['required', Rule::exists('categories', 'id')]
         ]);
 
@@ -95,7 +98,7 @@ class ItemController extends Controller
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes);
 
-        $item->fill($diff);
+        $item->fill($diff->toArray());
         $item->save();
 
         return (new ItemResource($item))

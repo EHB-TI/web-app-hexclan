@@ -89,7 +89,7 @@ class CategoryController extends Controller
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes);
 
-        $category->fill($diff);
+        $category->fill($diff->toArray());
         $category->save();
 
         return (new CategoryResource($category))

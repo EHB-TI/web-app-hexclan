@@ -18,9 +18,7 @@ class CreateItemTransactionTable extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('item_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->unique(['transaction_id', 'item_id']);
-            $table->integer('applied_price'); // Unit is eurocents.
             $table->integer('quantity');
-            $table->integer('extended_price')->virtualAs('applied_price*quantity')->index();
             $table->timestamps();
         });
     }

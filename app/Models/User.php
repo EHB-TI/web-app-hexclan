@@ -64,6 +64,12 @@ class User extends Authenticatable
         return $this->events()->pluck('event_id');
     }
 
+    // Returns user role on a specific event.
+    public function role(Event $event)
+    {
+        return $this->roles->where('event_id', '=', $event->id)->first()->ability;
+    }
+
     /**
      * This method returns a collection of pivot model instances.
      * @return mixed
@@ -71,15 +77,6 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->hasMany(EventUser::class);
-    }
-
-    /**
-     * Accessor method which returns all roles that belong to the user. A role is an ability with respect to an event. Use $event->pivot->ability / $user->pivot->ability to access ability with respect to specific event / user.
-     * @return array
-     */
-    public function getRoles()
-    {
-        return $this->roles()->pluck('ability');
     }
 
     public function transactions()

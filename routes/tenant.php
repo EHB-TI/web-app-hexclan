@@ -104,8 +104,8 @@ Route::prefix(
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
     // This route is used to access the user transactions.
     Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, manager, self');
-    // This route is to mark a transaction as paid.
-    Route::post('transactions/{transaction}', [TransactionController::class, 'markAsPaid'])->middleware('ability:*, write,self');
+    // This route is used to modify the status of a transaction.
+    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*, write,self');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.

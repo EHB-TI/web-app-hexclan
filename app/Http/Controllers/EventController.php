@@ -34,10 +34,9 @@ class EventController extends Controller
     {
         // Event names should be unique. Validation is case insensitive because MySQL is case insensitive.
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,date,vat_rate,bank_account_id',
+            'data' => 'required|array:name,date,bank_account_id',
             'data.name' => ['required',  Rule::unique('events', 'name'), 'max:30'],
             'data.date' => 'required|date',
-            'data.vat_rate' => 'required|integer|min:0|max:50',
             'data.bank_account_id' => ['required', Rule::exists('bank_accounts', 'id')]
         ]);
 
@@ -51,7 +50,6 @@ class EventController extends Controller
         $event = Event::create([
             'name' => $validatedAttributes['name'],
             'date' => $validatedAttributes['date'],
-            'vat_rate' => $validatedAttributes['vat_rate'],
             'bank_account_id' => $validatedAttributes['bank_account_id']
         ]);
 
@@ -82,10 +80,9 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,date,vat_rate,bank_account_id',
+            'data' => 'required|array:name,date,bank_account_id',
             'data.name' => ['required',  Rule::unique('events', 'name')->ignore($event->id), 'max:30'],
             'data.date' => 'required|date',
-            'data.vat_rate' => 'required|integer|min:0|max:50',
             'data.bank_account_id' => ['required', Rule::exists('bank_accounts', 'id')]
         ]);
 
@@ -100,7 +97,7 @@ class EventController extends Controller
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes);
 
-        $event->fill($diff);
+        $event->fill($diff->toArray());
         $event->save();
 
         return (new EventResource($event))

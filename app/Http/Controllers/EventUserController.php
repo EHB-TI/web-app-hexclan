@@ -21,7 +21,7 @@ class EventUserController extends Controller
     public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:id,ability',
+            'data' => 'required|array:user_id,ability',
             'data.user_id' => ['required', 'uuid', Rule::exists('users', 'id')], // Checks the existence of the users in the db.
             'data.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
@@ -60,9 +60,13 @@ class EventUserController extends Controller
         $rawValidatedAttributes = $validator->validated();
         $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
+        if ($user->role($event) !== $validatedAttributes['ability']) {
+            $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => "{$user->name}'s role on event {$event->name} modified to {$validatedAttributes['ability']}."], Response::HTTP_OK);
+            return response()->json(['data' => "{$user->name}'s role on event {$event->name} modified to {$validatedAttributes['ability']}."], Response::HTTP_OK);
+        } else {
+            return response()->json(['error' => "The role of the user on that event is already set as {$validatedAttributes['ability']}"], Response::HTTP_FORBIDDEN);
+        }
     }
 
     /**
