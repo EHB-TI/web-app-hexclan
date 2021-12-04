@@ -21,7 +21,7 @@ class EventTokenController extends Controller
 
             return response()->noContent();
         } else {
-            return response()->json(['error' => 'This type of token cannot be purged'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['error' => 'This type of token cannot be purged'], Response::HTTP_FORBIDDEN);
         }
     }
 
