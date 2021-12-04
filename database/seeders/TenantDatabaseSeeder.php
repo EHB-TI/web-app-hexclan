@@ -10,6 +10,7 @@ use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class TenantDatabaseSeeder extends Seeder
@@ -63,7 +64,7 @@ class TenantDatabaseSeeder extends Seeder
 
             Transaction::factory(2)
                 ->for($user)
-                ->hasAttached($randomItems, ['quantity' => rand(1, 10)])
+                ->hasAttached($randomItems, ['quantity' => rand(1, 10), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()])
                 ->create();
         }
     }
