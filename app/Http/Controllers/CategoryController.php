@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\TenantResource;
-use App\Models\Tenant;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ItemResource;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class TenantController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +19,7 @@ class TenantController extends Controller
      */
     public function index()
     {
-        return TenantResource::collection(Tenant::all());
+        return CategoryResource::collection(Category::all());
     }
 
     /**
@@ -27,12 +28,11 @@ class TenantController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Event $sevent)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:name,tenancy_admin_email',
-            'data.name' => ['required', 'alpha_num', Rule::unique('tenants', 'name'), 'max:30'], // alpha_num rule does not accept whitespace.
-            'data.tenancy_admin_email' => 'required|email|max:255',
+            'data' => 'required|array:name',
+            'data.name' => ['required', Rule::unique('categories', 'name'), 'max:30'],
         ]);
 
         if ($validator->fails()) {
@@ -42,16 +42,12 @@ class TenantController extends Controller
         $rawValidatedAttributes = $validator->validated();
         $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $domain = strtolower($validatedAttributes['name']) . '.' . config('tenancy.central_domains.0');
-
-        $tenant = Tenant::create([
+        $category = Category::create([
             'name' => $validatedAttributes['name'],
-            'tenancy_admin_email' => $validatedAttributes['tenancy_admin_email']
+            'event_id' => $event->id
         ]);
 
-        $tenant->domains()->create(['domain' => $domain]);
-
-        return (new TenantResource($tenant))
+        return (new CategoryResource($category))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
     }
@@ -59,50 +55,63 @@ class TenantController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Tenant $tenant)
+    public function show(Category $category)
     {
-        return new TenantResource($tenant);
+        return new CategoryResource($category);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /*     public function update(Request $request, Tenant $tenant)
+    public function update(Request $request, Category $category)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:tenants|max: 30',
+            'data' => 'required|array:name,event_id',
+            'data.name' => ['required', Rule::unique('categories', 'name')->ignore($bankAccount->id), 'max:30'],
+            'data.event_id' => ['required', Rule::exists('events', 'id')]
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $tenant->update($validatedAttributes['name']);
+        $originalAttributes = collect($category->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
 
-        return (new TenantResource($tenant))
+        $category->fill($diff->toArray());
+        $category->save();
+
+        return (new CategoryResource($category))
             ->response()
             ->setStatusCode(Response::HTTP_OK);
-    } */
+    }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Tenant  $tenant
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tenant $tenant)
+    public function destroy(Category $category)
     {
-        $tenant->delete;
+        $category->delete();
 
         return response()->noContent();
+    }
+
+    public function items(Category $category)
+    {
+        return ItemResource::collection($category->items);
     }
 }

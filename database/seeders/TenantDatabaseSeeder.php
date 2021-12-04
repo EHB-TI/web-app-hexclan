@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\BankAccount;
+use App\Models\Category;
 use App\Models\Event;
+use App\Models\Item;
 use App\Models\Tenant;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -29,13 +32,39 @@ class TenantDatabaseSeeder extends Seeder
             'ability' => '*'
         ]);
 
-        // To be commented out in production.
+        // Everything hereunder to be commented out in production.
         $bankAccount = BankAccount::factory()->create();
 
-        // To be commented out in production.
-        Event::factory(2)
-            ->has(User::factory()->count(1))
+        $events = Event::factory(2)
             ->for($bankAccount)
+            ->has(User::factory()->count(1))
             ->create();
+
+        $categories = collect();
+        foreach ($events as $event) {
+            $categories->push(Category::factory(2)
+                ->for($event)
+                ->create());
+        }
+        $flattenedCategories = $categories->flatten();
+
+        $items = collect();
+        foreach ($flattenedCategories as $category) {
+            $items->push(Item::factory(5)
+                ->for($category)
+                ->create());
+        }
+
+        $flattenedItems = $items->flatten();
+
+        $users = User::where('email', '!=', 'admin@demo.test')->get();
+        foreach ($users as $user) {
+            $randomItems = $flattenedItems->random(5);
+
+            Transaction::factory(2)
+                ->for($user)
+                ->hasAttached($randomItems, ['quantity' => rand(1, 10)])
+                ->create();
+        }
     }
 }

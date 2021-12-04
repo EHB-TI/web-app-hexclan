@@ -21,4 +21,6 @@ docker-compose.yml
 Homestead.json
 Homestead.yaml
 npm-debug.log
+routes.csv
+todo.md
 yarn-error.log

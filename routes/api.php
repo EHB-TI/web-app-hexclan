@@ -23,7 +23,8 @@ Route::middleware([
     'auth:sanctum',
     'ability:*'
 ])->group(function () {
-    Route::apiResource('tenants', TenantController::class);
+    // Update action is not yet implemented (should be designed carefully).
+    Route::apiResource('tenants', TenantController::class)->except('update');
 });
 
 Route::fallback(function () {

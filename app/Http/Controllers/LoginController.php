@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 // Stateless authentication based on sanctum tokens. 1 token is issued per user per event.
 class LoginController extends Controller
@@ -17,18 +18,20 @@ class LoginController extends Controller
     public function __invoke(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'is_first_login' => 'required|boolean',
-            'email' => 'required|email|max:255',
-            'password' => 'required',
-            'pin_code' => 'exclude_unless:is_first_login,true|required|integer|digits:6', // Pin code is required on first login only.
-            'device_name' => 'required'
+            'data' => 'required|array:is_first_login,email,password,pin_code,device_name',
+            'data.is_first_login' => 'required|boolean',
+            'data.email' => ['required', 'email', Rule::exists('users', 'email'), 'max:255'],
+            'data.password' => 'required',
+            'data.pin_code' => 'required|integer|digits:6', // Pin code is required everytime but checked only on first login. Set on -111111 afterwards.
+            'data.device_name' => 'required'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = User::with(['tokens'])->firstWhere('email', $validatedAttributes['email']);
 
@@ -65,8 +68,8 @@ class LoginController extends Controller
                 case 'write':
                     $userToken = $user->createToken($validatedAttributes['device_name'], ['write']);
                     break;
-                case 'read':
-                    $userToken = $user->createToken($validatedAttributes['device_name'], ['read']);
+                case 'self':
+                    $userToken = $user->createToken($validatedAttributes['device_name'], ['self']);
                     break;
             }
 
@@ -74,7 +77,7 @@ class LoginController extends Controller
 
             return response()->json(['data' => $token], Response::HTTP_OK);
         } else {
-            return response()->json(['data' => 'The user token is set.'], Response::HTTP_OK);
+            return response()->json(['error' => 'The user token is set.'], Response::HTTP_FORBIDDEN);
         }
     }
 }

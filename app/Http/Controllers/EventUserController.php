@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\EventResource;
-use App\Http\Resources\UserResource;
 use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,25 +11,9 @@ use Illuminate\Validation\Rule;
 
 class EventUserController extends Controller
 {
-
     /**
-     * Returns the relationships belonging to the entity. Since Eloquent provides "dynamic relationship properties", relationship methods are accessed as if they were defined as properties on the model.
-     * 
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        if ($request->user()->currentAccessToken()->tokenable_type === 'App\Models\User') {
-            return UserResource::collection($request->user()->events);
-        } else if ($request->user()->currentAccessToken()->tokenable_type === 'App\Models\Event') {
-            return EventResource::collection($request->user()->users);
-        }
-    }
-
-    /**
-     * Attaches an ability to a user by inserting record in the pivot table.
+     * Events can have multiple managers.
+     * Sets the roles in the pivot table.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -39,27 +21,25 @@ class EventUserController extends Controller
     public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|max:255',
-            'ability' => ['required', Rule::in(['manager', 'seller'])],
+            'data' => 'required|array:user_id,ability',
+            'data.user_id' => ['required', 'uuid', Rule::exists('users', 'id')], // Checks the existence of the users in the db.
+            'data.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $user = User::firstWhere('email', $validatedAttributes['email']);
-        if ($user == null) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        $event->users()->attach($validatedAttributes['user_id'], ['ability' => $validatedAttributes['ability']]); // For performance, possibly preferable to replace by bulk operation via query builder.
 
-        $event->users()->attach($user->id, ['ability' => $validatedAttributes['ability']]);
-
-        return response()->json(['data' => "{$user->name} added to event {$event->name} with role {$validatedAttributes['ability']}"], Response::HTTP_CREATED);
+        return response()->json(['data' => "User {$validatedAttributes['user_id']} added to event {$event->name} with role {$validatedAttributes['ability']}"], Response::HTTP_CREATED);
     }
 
     /**
+     * Only to be used to change user role.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -69,22 +49,28 @@ class EventUserController extends Controller
     public function update(Request $request, Event $event, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'ability' => ['required', Rule::in(['manager', 'seller'])],
+            'data' => 'required|array:ability',
+            'data.ability' => ['required', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
+        if ($user->role($event) !== $validatedAttributes['ability']) {
+            $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
-        return response()->json(['data' => "{$user->name}'s role on event {$event->name} updated to {$validatedAttributes['ability']}"], Response::HTTP_OK);
+            return response()->json(['data' => "{$user->name}'s role on event {$event->name} modified to {$validatedAttributes['ability']}."], Response::HTTP_OK);
+        } else {
+            return response()->json(['error' => "The role of the user on that event is already set as {$validatedAttributes['ability']}"], Response::HTTP_FORBIDDEN);
+        }
     }
 
     /**
-     * Detaches the ability from the user by deleting the record in the pivot table.
+     * Removes the roles from the pivot table.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
