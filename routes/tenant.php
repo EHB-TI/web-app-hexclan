@@ -43,12 +43,6 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     'throttle:open'
 ])->group(function () {
-    Route::get('test', TestGetController::class); // To be commented out in production. 
-    Route::post('test', TestPostController::class); // To be commented out in production.
-    Route::get('welcome', function () {
-        return response()->json(['data' => 'welcome'], Response::HTTP_OK);
-    }); // To be commented out in production.
-
     Route::post('register', RegisterController::class);
     Route::post('login', LoginController::class);
     Route::put('pincode/{user}', PINCodeController::class); // Route used to update pin code
