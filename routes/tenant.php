@@ -43,12 +43,6 @@ Route::prefix(
     InitializeTenancyByDomain::class,
     'throttle:open'
 ])->group(function () {
-    Route::get('test', TestGetController::class); // To be commented out in production. 
-    Route::post('test', TestPostController::class); // To be commented out in production.
-    Route::get('welcome', function () {
-        return response()->json(['data' => 'welcome'], Response::HTTP_OK);
-    }); // To be commented out in production.
-
     Route::post('register', RegisterController::class);
     Route::post('login', LoginController::class);
     Route::put('pincode/{user}', PINCodeController::class); // Route used to update pin code
@@ -103,9 +97,7 @@ Route::prefix(
     // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
     // This route is used to access the user transactions.
-    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, manager, self');
-    // This route is used to modify the status of a transaction.
-    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*, write,self');
+    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, write, self');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.
@@ -156,6 +148,9 @@ Route::prefix(
 
     // This route is used to access the transaction items.
     Route::get('transactions/{transaction}/items', [TransactionController::class, 'items'])->middleware('ability:*, manager');
+
+    // This route is used to modify the status of a transaction.
+    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*, manager');
 });
 
 Route::fallback(function () {

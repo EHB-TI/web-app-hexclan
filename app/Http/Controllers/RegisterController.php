@@ -34,7 +34,7 @@ class RegisterController extends Controller
         $user->update([
             'name' => $validatedAttributes['name'],
             'password' => bcrypt($validatedAttributes['password']),
-            'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random 6-digits integer.
+            'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random positive 6-digits integer.
             'pin_code_timestamp' => Carbon::now()
         ]);
 

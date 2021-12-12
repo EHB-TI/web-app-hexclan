@@ -93,7 +93,7 @@ class EventController extends Controller
         $rawValidatedAttributes = $validator->validated();
         $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $originalAttributes = collect($bankAccount->getAttributes())->only(array_keys($validatedAttributes));
+        $originalAttributes = collect($event->getAttributes())->only(array_keys($validatedAttributes));
         $changedAttributes = collect($validatedAttributes);
         $diff = $changedAttributes->diff($originalAttributes);
 

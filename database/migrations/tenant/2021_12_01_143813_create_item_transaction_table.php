@@ -18,7 +18,7 @@ class CreateItemTransactionTable extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('item_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->unique(['transaction_id', 'item_id']);
-            $table->integer('quantity');
+            $table->integer('quantity')->unsigned();
             $table->timestamps();
         });
     }

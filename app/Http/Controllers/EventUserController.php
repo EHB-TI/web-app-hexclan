@@ -60,7 +60,7 @@ class EventUserController extends Controller
         $rawValidatedAttributes = $validator->validated();
         $validatedAttributes = $rawValidatedAttributes['data'];
 
-        if ($user->role($event) !== $validatedAttributes['ability']) {
+        if ($user->getRole($event) !== $validatedAttributes['ability']) {
             $event->users()->updateExistingPivot($user->id, ['ability' => $validatedAttributes['ability']]);
 
             return response()->json(['data' => "{$user->name}'s role on event {$event->name} modified to {$validatedAttributes['ability']}."], Response::HTTP_OK);

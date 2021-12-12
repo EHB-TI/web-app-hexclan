@@ -16,8 +16,8 @@ class CreateItemsTable extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('price', false, true)->comment('in cents');
-            $table->integer('vat_rate', false, true)->default(21)->comment('in percent');
+            $table->integer('price', false, true)->unsigned()->comment('in cents');
+            $table->integer('vat_rate', false, true)->default(21)->unsigned()->comment('in percent');
             $table->foreignId('category_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });

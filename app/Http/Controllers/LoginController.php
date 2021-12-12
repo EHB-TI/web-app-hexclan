@@ -12,17 +12,17 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-// Stateless authentication based on sanctum tokens. 1 token is issued per user per event.
+// Stateless authentication based on sanctum tokens.
 class LoginController extends Controller
 {
+    // Should be called on every app start-up.
     public function __invoke(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:is_first_login,email,password,pin_code,device_name',
-            'data.is_first_login' => 'required|boolean',
+            'data' => 'required|array:email,password,pin_code,device_name',
             'data.email' => ['required', 'email', Rule::exists('users', 'email'), 'max:255'],
             'data.password' => 'required',
-            'data.pin_code' => 'required|integer|digits:6', // Pin code is required everytime but checked only on first login. Set on -111111 afterwards.
+            'data.pin_code' => 'required|integer|digits:6',
             'data.device_name' => 'required'
         ]);
 
@@ -35,18 +35,19 @@ class LoginController extends Controller
 
         $user = User::with(['tokens'])->firstWhere('email', $validatedAttributes['email']);
 
-        if (!$validatedAttributes['is_first_login'] && !$user->is_active && $user->tokens->isEmpty()) {
+        if ($user->pin_code == -1) {
             return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Checking user credentials should be done every time this route is visited.
+        // Checking user credentials.
         if ($user == null) {
             abort(Response::HTTP_NOT_FOUND);
         } else if (!Hash::check($validatedAttributes['password'], $user->password)) {
             return response()->json(['error' => 'The provided credentials are incorrect'], Response::HTTP_UNAUTHORIZED);
         }
 
-        if ($validatedAttributes['is_first_login']) {
+        // Login action always expects a pin code but is only checked if user is not active.
+        if (!$user->is_active) {
             // Rejects login if pin code timestamp is older than 5 minutes.
             $diff = $user->pin_code_timestamp->diff(Carbon::now());
             if (!$user->is_active && ($diff->i > 5 && $diff->s > 0)) {
@@ -77,7 +78,7 @@ class LoginController extends Controller
 
             return response()->json(['data' => $token], Response::HTTP_OK);
         } else {
-            return response()->json(['error' => 'The user token is set.'], Response::HTTP_FORBIDDEN);
+            return response()->json(['data' => 'The user token is set.'], Response::HTTP_OK);
         }
     }
 }
