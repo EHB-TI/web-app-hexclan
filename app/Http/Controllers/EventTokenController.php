@@ -13,6 +13,7 @@ class EventTokenController extends Controller
     // {
     // }
 
+    // Should be called on every app start-up.
     public function purge(Request $request)
     {
         $currentAccessToken = $request->user()->currentAccessToken();
@@ -25,7 +26,7 @@ class EventTokenController extends Controller
         }
     }
 
-    // An event token is created per event to which the user belongs.
+    // An event token is created per event to which the user belongs. Should be called on every app start-up.
     public function sync(Request $request)
     {
         $validator = Validator::make($request->all(), [

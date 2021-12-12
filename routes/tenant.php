@@ -97,9 +97,7 @@ Route::prefix(
     // This route is used to access the user events. Attaching, updating and detaching happen via event token authentication in order to identify the user role.
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*, write, self');
     // This route is used to access the user transactions.
-    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, manager, self');
-    // This route is used to modify the status of a transaction.
-    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*, write,self');
+    Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*, write, self');
 });
 
 // Tenant API routes - auth - actions expecting event tokens.
@@ -150,6 +148,9 @@ Route::prefix(
 
     // This route is used to access the transaction items.
     Route::get('transactions/{transaction}/items', [TransactionController::class, 'items'])->middleware('ability:*, manager');
+
+    // This route is used to modify the status of a transaction.
+    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*, manager');
 });
 
 Route::fallback(function () {

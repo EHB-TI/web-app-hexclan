@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ItemResource;
 use App\Models\Category;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,7 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Event $sevent)
+    public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:name',
@@ -74,7 +75,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:name,event_id',
-            'data.name' => ['required', Rule::unique('categories', 'name')->ignore($bankAccount->id), 'max:30'],
+            'data.name' => ['required', Rule::unique('categories', 'name')->ignore($category->id), 'max:30'],
             'data.event_id' => ['required', Rule::exists('events', 'id')]
         ]);
 

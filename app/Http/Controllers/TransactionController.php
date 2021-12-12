@@ -54,7 +54,7 @@ class TransactionController extends Controller
         //     return $item;
         // });
 
-        $transaction = DB::transaction(function () use ($request, $user, $validatedAttributes) {
+        $transaction = DB::transaction(function () use ($user, $validatedAttributes) {
             $transaction = Transaction::create([
                 'user_id' => $user->id
             ]);
@@ -130,30 +130,21 @@ class TransactionController extends Controller
         return response()->noContent();
     }
 
-    public function items(Request $request, Transaction $transaction)
+    public function items(Transaction $transaction)
     {
         return ItemResource::collection($transaction->items);
     }
 
     public function toggleStatus(Transaction $transaction)
     {
-        if ($request->user()->tokenCan('self') && $transaction->user_id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to modify his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
-        }
-
         if ($transaction->status === 'outstanding') {
             $transaction->status = 'paid';
 
             return response()->noContent();
-        }
-        // Admin and managers are able to modify status of transaction.
-        else if ($request->user()->tokenCan('*') || $request->user()->tokenCan('write')) {
-
+        } else {
             $transaction->status = 'outstanding';
 
-            return reponse()->noContent();
-        } else {
-            return response()->json(['error' => 'This user cannot modify the status of this transaction.'], Response::HTTP_UNAUTHORIZED);
+            return response()->noContent();
         }
     }
 }
