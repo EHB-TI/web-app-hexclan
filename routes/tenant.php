@@ -143,7 +143,7 @@ Route::prefix(
     Route::get('items/{item}/transactions', [ItemController::class, 'transactions'])->middleware(['ability:admin,write', 'member']);
 
     Route::get('transactions', [TransactionController::class, 'index'])->middleware(['ability:admin,write', 'member']);
-    Route::post('events/{event}/transactions', [TransactionController::class, 'store'])->middleware(['ability:admin,write,self', 'member', 'own']); // This route also inserts the pivot table entries.
+    Route::post('events/{event}/transactions', [TransactionController::class, 'store'])->middleware(['ability:admin,write,self', 'member']); // This route also inserts the pivot table entries.
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware(['ability:admin,write', 'member']);
     Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->middleware('ability:admin');
 
