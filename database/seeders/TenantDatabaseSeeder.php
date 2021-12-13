@@ -58,7 +58,7 @@ class TenantDatabaseSeeder extends Seeder
 
         $flattenedItems = $items->flatten();
 
-        $users = User::where('email', '!=', 'admin@demo.test')->get();
+        $users = User::where('email', '!=', 'admin@demo.' . config('tenancy.central_domains.0'))->get();
         foreach ($users as $user) {
             $randomItems = $flattenedItems->random(5);
 
