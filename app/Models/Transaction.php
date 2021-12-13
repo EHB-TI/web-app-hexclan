@@ -17,6 +17,11 @@ class Transaction extends Model
         'total' => PriceCast::class
     ];
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
     // The items that belong to the transaction.
     public function items()
     {

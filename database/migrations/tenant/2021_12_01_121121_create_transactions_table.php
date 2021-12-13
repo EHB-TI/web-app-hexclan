@@ -15,10 +15,11 @@ class CreateTransactionsTable extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('event_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('subtotal', false, true)->unsigned()->nullable()->comment('in cents'); // Nullable because updated together with status.
             $table->integer('total', false, true)->unsigned()->nullable()->comment('in cents');
             $table->enum('status', ['outstanding', 'paid'])->default('outstanding');
-            $table->foreignUuid('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

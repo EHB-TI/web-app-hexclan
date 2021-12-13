@@ -64,6 +64,7 @@ class TenantDatabaseSeeder extends Seeder
 
             Transaction::factory(2)
                 ->for($user)
+                ->for($user->events->random())
                 ->hasAttached($randomItems, ['quantity' => rand(1, 10), 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()])
                 ->create();
         }

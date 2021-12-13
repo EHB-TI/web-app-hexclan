@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
 
 class Event extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasFactory;
 
     // Required because primary key is uuid.
     //public $incrementing = false;
@@ -38,6 +37,12 @@ class Event extends Model
     public function roles()
     {
         return $this->hasMany(EventUser::class);
+    }
+
+    // The transactions that belong to the event.
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     // The users that belong to the event.

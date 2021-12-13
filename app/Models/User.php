@@ -64,12 +64,6 @@ class User extends Authenticatable
         return $this->events()->pluck('event_id');
     }
 
-    // Returns user role on a specific event.
-    public function getRole(Event $event)
-    {
-        return $this->roles->where('event_id', '=', $event->id)->first()->ability;
-    }
-
     /**
      * This method returns a collection of pivot model instances.
      * @return mixed
@@ -77,6 +71,12 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->hasMany(EventUser::class);
+    }
+
+    // Returns user role on a specific event.
+    public function getRole(Event $event)
+    {
+        return $this->roles->where('event_id', '=', $event->id)->first()->ability;
     }
 
     public function transactions()

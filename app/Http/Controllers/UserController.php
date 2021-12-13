@@ -53,7 +53,7 @@ class UserController extends Controller
     {
         // Uses object inequality operator.
         if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The user is only authorised to modify his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 
         // Functionality not yet impletemented. Cf. TenantController.
@@ -137,7 +137,9 @@ class UserController extends Controller
             $user->is_active = false;
             $user->pin_code = -1;
             $user->save();
-            $user->events()->detach();
+            foreach ($user->roles as $role) {
+                $role->tokens()->delete();
+            }
             $user->tokens()->delete();
 
             return response()->noContent();
@@ -152,8 +154,7 @@ class UserController extends Controller
     // Since Eloquent provides "dynamic relationship properties", relationship methods are accessed as if they were defined as properties on the model.
     public function events(Request $request, User $user)
     {
-        // Uses object inequality operator.
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
+        if ($request->user()->tokenCan('self') && $user->id != $request->user()->id) {
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -162,7 +163,7 @@ class UserController extends Controller
 
     public function transactions(Request $request, User $user)
     {
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
+        if ($request->user()->tokenCan('self') && $user->id != $request->user()->id) {
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 

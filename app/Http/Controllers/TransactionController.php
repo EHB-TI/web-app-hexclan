@@ -54,9 +54,10 @@ class TransactionController extends Controller
         //     return $item;
         // });
 
-        $transaction = DB::transaction(function () use ($user, $validatedAttributes) {
+        $transaction = DB::transaction(function () use ($request, $user, $validatedAttributes) {
             $transaction = Transaction::create([
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'event_id' => $request->user()->event_id
             ]);
 
             foreach ($validatedAttributes as $line) {
@@ -71,12 +72,6 @@ class TransactionController extends Controller
                 ->groupBy('it.transaction_id')
                 ->having('it.transaction_id', '=', $transaction->id)
                 ->get();
-            //compute subtotal and total 
-            // $subtotal = DB::table('item_transaction')
-            //     ->where('transaction_id', '=', $transaction->id)
-            //     ->sum('extended_price');
-
-            // $total = bcmul($subtotal, ($request->user()->vat_rate / 100) + 1, 0); // Gets the event-wide vat rate from the token.
 
             $resultSetObject = $resultSet->first();
 

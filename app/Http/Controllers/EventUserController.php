@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TransactionResource;
 use App\Models\Event;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -80,5 +82,18 @@ class EventUserController extends Controller
         $event->users()->detach($user->id);
 
         return response()->json(['data' => "{$user->name} removed from event {$event->name}"], Response::HTTP_OK);
+    }
+
+    public function transactions(Request $request, Event $event, User $user)
+    {
+        if ($request->user()->tokenCan('seller') && $user->id != $request->user()->user_id) {
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $transactions = Transaction::where('user_id', '=', $user->id)
+            ->where('event_id', '=', $event->id)
+            ->get();
+
+        return TransactionResource::collection($transactions);
     }
 }
