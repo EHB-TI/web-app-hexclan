@@ -30,6 +30,11 @@ class Event extends Model
         return $this->hasMany(Category::class);
     }
 
+    public function items()
+    {
+        return $this->hasManyThrough(Item::class, Category::class);
+    }
+
     /**
      * This method returns a collection of pivot model instances.
      * @return mixed
@@ -51,14 +56,5 @@ class Event extends Model
         return $this->belongsToMany(User::class)
             ->using(EventUser::class)
             ->withPivot('ability');
-    }
-
-    /**
-     * Accessor method which returns all users that belong to the event.
-     * @return array
-     */
-    public function getUsers()
-    {
-        return $this->users()->pluck('user_id');
     }
 }

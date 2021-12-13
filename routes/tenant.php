@@ -90,8 +90,11 @@ Route::prefix(
     Route::patch('bankaccounts/{bankAccount}', [BankAccountController::class, 'update'])->middleware('ability:*,write');
     Route::delete('bankaccounts/{bankAccount}', [BankAccountController::class, 'destroy'])->middleware('ability:*');
 
-    // This route is used to access the user events. Attaching, updating and detaching happen via role token authentication.
+    // This route is used to access the user events. Attaching, updating and detaching are subject to role token authentication.
     Route::get('users/{user}/events', [UserController::class, 'events'])->middleware('ability:*,write,self');
+
+    // This route is used to access the user transactions.
+    // Route::get('users/{user}/transactions', [UserController::class, 'transactions'])->middleware('ability:*,manager,seller');
 });
 
 // Tenant API routes - auth - actions expecting role tokens.
@@ -107,47 +110,50 @@ Route::prefix(
     Route::post('token/purge', [EventUserTokenController::class, 'purge']);
 
     // This route is used to access the event users.
-    Route::get('events/{event}/users', [EventController::class, 'users'])->middleware('ability:*,manager');
+    Route::get('events/{event}/users', [EventController::class, 'users'])->middleware(['ability:*,manager', 'member']);
 
     // There routes are used to create, update, and delete roles on the pivot table.
-    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware('ability:*,manager');
-    Route::patch('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware('ability:*,manager');
-    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware('ability:*,manager'); // Detach is within scope of manager.
+    Route::post('events/{event}/users', [EventUserController::class, 'store'])->middleware(['ability:*,manager', 'member']);
+    Route::patch('events/{event}/users/{user}', [EventUserController::class, 'update'])->middleware(['ability:*,manager', 'member']);
+    Route::delete('events/{event}/users/{user}', [EventUserController::class, 'destroy'])->middleware(['ability:*,manager', 'member']); // Detach is within scope of manager.
 
-    // This route is used to access the user transactions done in an event.
-    Route::get('events/{event}/users/{user}/transactions', [EventUserController::class, 'transactions'])->middleware('ability:*,manager,seller');
+    // This route is used to access the user transactions executed during an event.
+    Route::get('events/{event}/users/{user}/transactions', [EventUserController::class, 'transactions'])->middleware(['ability:*,manager,seller', 'member']);
 
     // This route is used to access the event categories.
-    Route::get('events/{event}/categories', [EventController::class, 'categories'])->middleware('ability:*,manager');
+    Route::get('events/{event}/categories', [EventController::class, 'categories'])->middleware(['ability:*,manager', 'member']);
 
-    Route::get('categories', [CategoryController::class, 'index'])->middleware('ability:*,manager');
-    Route::post('events/{event}/categories', [CategoryController::class, 'store'])->middleware('ability:*,manager');
-    Route::get('categories/{category}', [CategoryController::class, 'show'])->middleware('ability:*,manager');
-    Route::patch('categories/{category}', [CategoryController::class, 'update'])->middleware('ability:*,manager');
+    Route::get('categories', [CategoryController::class, 'index'])->middleware(['ability:*,manager', 'member']);
+    Route::post('events/{event}/categories', [CategoryController::class, 'store'])->middleware(['ability:*,manager', 'member']);
+    Route::get('categories/{category}', [CategoryController::class, 'show'])->middleware(['ability:*,manager', 'member']);
+    Route::patch('categories/{category}', [CategoryController::class, 'update'])->middleware(['ability:*,manager', 'member']);
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->middleware('ability:*');
 
     // This route is used to access the category items.
-    Route::get('categories/{category}/items', [CategoryController::class, 'items'])->middleware('ability:*,manager');
+    Route::get('categories/{category}/items', [CategoryController::class, 'items'])->middleware(['ability:*,manager', 'member']);
 
-    Route::get('items', [ItemController::class, 'index'])->middleware('ability:*,manager');
-    Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware('ability:*,manager');
-    Route::get('items/{item}', [ItemController::class, 'show'])->middleware('ability:*,manager');
-    Route::patch('items/{item}', [ItemController::class, 'update'])->middleware('ability:*,manager');
+    Route::get('items', [ItemController::class, 'index'])->middleware(['ability:*,manager', 'member']);
+    Route::post('categories/{category}/items', [ItemController::class, 'store'])->middleware(['ability:*,manager', 'member']);
+    Route::get('items/{item}', [ItemController::class, 'show'])->middleware(['ability:*,manager', 'member']);
+    Route::patch('items/{item}', [ItemController::class, 'update'])->middleware(['ability:*,manager', 'member']);
     Route::delete('items/{item}', [ItemController::class, 'destroy'])->middleware('ability:*');
 
-    // This route is used to access the item transactions.
-    Route::get('items/{item}/transactions', [ItemController::class, 'transactions'])->middleware('ability:*,manager');
 
-    Route::get('transactions', [TransactionController::class, 'index'])->middleware('ability:*,manager');
-    Route::post('users/{user}/transactions', [TransactionController::class, 'store'])->middleware('ability:*,manager,seller'); // This route also inserts the pivot table entries.
-    Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware('ability:*,manager');
+    // This route is used to access the event transactions.
+    Route::get('events/{event}/transactions', [EventController::class, 'transactions'])->middleware(['ability:*,manager', 'member']);
+    // This route is used to access the item transactions.
+    Route::get('items/{item}/transactions', [ItemController::class, 'transactions'])->middleware(['ability:*,manager', 'member']);
+
+    Route::get('transactions', [TransactionController::class, 'index'])->middleware(['ability:*,manager', 'member']);
+    Route::post('events/{event}/transactions', [TransactionController::class, 'store'])->middleware(['ability:*,manager,seller', 'member']); // This route also inserts the pivot table entries.
+    Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->middleware(['ability:*,manager', 'member']);
     Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->middleware('ability:*');
 
     // This route is used to access the transaction items.
-    Route::get('transactions/{transaction}/items', [TransactionController::class, 'items'])->middleware('ability:*,manager');
+    Route::get('transactions/{transaction}/items', [TransactionController::class, 'items'])->middleware(['ability:*,manager', 'member']);
 
     // This route is used to modify the status of a transaction.
-    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware('ability:*,manager');
+    Route::post('transactions/{transaction}', [TransactionController::class, 'toggleStatus'])->middleware(['ability:*,manager', 'member']);
 });
 
 Route::fallback(function () {

@@ -56,15 +56,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor method which returns all events that belong to the user.
-     * @return array
-     */
-    public function getEvents()
-    {
-        return $this->events()->pluck('event_id');
-    }
-
-    /**
      * This method returns a collection of pivot model instances.
      * @return mixed
      */
@@ -74,9 +65,9 @@ class User extends Authenticatable
     }
 
     // Returns user role on a specific event.
-    public function getRole(Event $event)
+    public function getRole($eventId)
     {
-        return $this->roles->where('event_id', '=', $event->id)->first()->ability;
+        return $this->roles->where('event_id', '=', $eventId)->first()->ability;
     }
 
     public function transactions()

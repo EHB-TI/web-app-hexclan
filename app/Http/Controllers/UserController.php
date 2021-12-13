@@ -161,12 +161,13 @@ class UserController extends Controller
         return EventResource::collection($user->events);
     }
 
-    public function transactions(Request $request, User $user)
+    // TODO.
+    /* public function transactions(Request $request, User $user)
     {
         if ($request->user()->tokenCan('self') && $user->id != $request->user()->id) {
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
         }
 
         return TransactionResource::collection($user->transactions);
-    }
+    } */
 }

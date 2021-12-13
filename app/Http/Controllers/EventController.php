@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
 use App\Models\BankAccount;
 use App\Models\Event;
@@ -121,6 +122,11 @@ class EventController extends Controller
     public function categories(Event $event)
     {
         return CategoryResource::collection($event->categories);
+    }
+
+    public function transactions(Event $event)
+    {
+        return TransactionResource::collection($event->transactions);
     }
 
     public function users(Event $event)
