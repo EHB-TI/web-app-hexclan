@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
 
 class Event extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasFactory;
 
     // Required because primary key is uuid.
     //public $incrementing = false;
@@ -31,6 +30,11 @@ class Event extends Model
         return $this->hasMany(Category::class);
     }
 
+    public function items()
+    {
+        return $this->hasManyThrough(Item::class, Category::class);
+    }
+
     /**
      * This method returns a collection of pivot model instances.
      * @return mixed
@@ -40,20 +44,17 @@ class Event extends Model
         return $this->hasMany(EventUser::class);
     }
 
+    // The transactions that belong to the event.
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     // The users that belong to the event.
     public function users()
     {
         return $this->belongsToMany(User::class)
             ->using(EventUser::class)
             ->withPivot('ability');
-    }
-
-    /**
-     * Accessor method which returns all users that belong to the event.
-     * @return array
-     */
-    public function getUsers()
-    {
-        return $this->users()->pluck('user_id');
     }
 }

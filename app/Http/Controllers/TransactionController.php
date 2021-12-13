@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ItemResource;
 use App\Http\Resources\TransactionResource;
+use App\Models\Event;
 use App\Models\Transaction;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -32,7 +32,7 @@ class TransactionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, User $user)
+    public function store(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
             'data.*' => 'required|array:item_id,quantity',
@@ -54,9 +54,10 @@ class TransactionController extends Controller
         //     return $item;
         // });
 
-        $transaction = DB::transaction(function () use ($user, $validatedAttributes) {
+        $transaction = DB::transaction(function () use ($request, $validatedAttributes) {
             $transaction = Transaction::create([
-                'user_id' => $user->id
+                'user_id' => $request->user()->user_id,
+                'event_id' => $request->user()->event_id
             ]);
 
             foreach ($validatedAttributes as $line) {
@@ -71,12 +72,6 @@ class TransactionController extends Controller
                 ->groupBy('it.transaction_id')
                 ->having('it.transaction_id', '=', $transaction->id)
                 ->get();
-            //compute subtotal and total 
-            // $subtotal = DB::table('item_transaction')
-            //     ->where('transaction_id', '=', $transaction->id)
-            //     ->sum('extended_price');
-
-            // $total = bcmul($subtotal, ($request->user()->vat_rate / 100) + 1, 0); // Gets the event-wide vat rate from the token.
 
             $resultSetObject = $resultSet->first();
 
@@ -137,7 +132,7 @@ class TransactionController extends Controller
 
     public function toggleStatus(Transaction $transaction)
     {
-        if ($transaction->status === 'outstanding') {
+        if ($transaction->status == 'outstanding') {
             $transaction->status = 'paid';
 
             return response()->noContent();

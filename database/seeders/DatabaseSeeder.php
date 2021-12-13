@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         $user = User::create([
             'id' => (string) Str::uuid(),
             'email' => 'mathieu.developer@protonmail.com',
-            'ability' => '*'
+            'ability' => 'admin'
         ]);
 
         // To be commented out in production.

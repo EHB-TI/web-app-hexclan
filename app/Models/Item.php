@@ -17,10 +17,17 @@ class Item extends Model
         'price' => PriceCast::class
     ];
 
+    protected $appends = ['event_id'];
+
     // The category to which the item belongs.
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function getEventIdAttribute()
+    {
+        return $this->category()->pluck('event_id')->first();
     }
 
     /**

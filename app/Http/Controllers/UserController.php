@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\EventResource;
-use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
-use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -32,13 +30,8 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, User $user)
+    public function show(User $user)
     {
-        // Uses object inequality operator.
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
-        }
-
         return new UserResource($user);
     }
 
@@ -51,13 +44,8 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Uses object inequality operator.
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
-        }
-
         // Functionality not yet impletemented. Cf. TenantController.
-        if ($user->ability === '*') {
+        if ($user->ability == 'admin') {
             return response()->json(['error' => 'The admin user cannot be updated.'], Response::HTTP_NOT_IMPLEMENTED);
         }
 
@@ -133,11 +121,13 @@ class UserController extends Controller
     public function toggleIsActive(User $user)
     {
         // Only managers and sellers can be deactivated.
-        if ($user->is_active && $user->ability !== '*') {
+        if ($user->is_active && $user->ability != 'admin') {
             $user->is_active = false;
             $user->pin_code = -1;
             $user->save();
-            $user->events()->detach();
+            foreach ($user->roles as $role) {
+                $role->tokens()->delete();
+            }
             $user->tokens()->delete();
 
             return response()->noContent();
@@ -150,22 +140,14 @@ class UserController extends Controller
     }
 
     // Since Eloquent provides "dynamic relationship properties", relationship methods are accessed as if they were defined as properties on the model.
-    public function events(Request $request, User $user)
+    public function events(User $user)
     {
-        // Uses object inequality operator.
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
-        }
-
         return EventResource::collection($user->events);
     }
 
-    public function transactions(Request $request, User $user)
+    // TODO.
+    /* public function transactions(User $user)
     {
-        if ($request->user()->tokenCan('self') && $user->id !== $request->user()->id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
-        }
-
         return TransactionResource::collection($user->transactions);
-    }
+    } */
 }
