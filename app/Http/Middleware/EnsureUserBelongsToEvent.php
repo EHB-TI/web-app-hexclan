@@ -18,10 +18,11 @@ class EnsureUserBelongsToEvent
     public function handle(Request $request, Closure $next)
     {
         $model = current($request->route()->parameters());
-
-        if (!$request->user()->ability !== '*' && $model->event_id != $request->user()->event_id) {
+        $eventId =  $model->event_id ?? $model->id;
+        if (!$request->user()->ability != 'admin' && $eventId != $request->user()->event_id) {
             return response()->json(['error' => 'The user does not belong to this event.'], Response::HTTP_UNAUTHORIZED);
         }
+
 
         return $next($request);
     }

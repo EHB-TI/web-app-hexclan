@@ -40,7 +40,7 @@ class LoginController extends Controller
         }
 
         // Checking user credentials.
-        if ($user == null) {
+        if (!isset($user)) {
             abort(Response::HTTP_NOT_FOUND);
         } else if (!Hash::check($validatedAttributes['password'], $user->password)) {
             return response()->json(['error' => 'The provided credentials are incorrect'], Response::HTTP_UNAUTHORIZED);
@@ -63,8 +63,8 @@ class LoginController extends Controller
         // User is active. The user token for the user is created. The ability for global actions (create event, create bank account,...) is set.
         if ($user->is_active && $user->tokens->isEmpty()) {
             switch ($user->ability) {
-                case '*':
-                    $userToken = $user->createToken($validatedAttributes['device_name'], ['*']);
+                case 'admin':
+                    $userToken = $user->createToken($validatedAttributes['device_name'], ['admin']);
                     break;
                 case 'write':
                     $userToken = $user->createToken($validatedAttributes['device_name'], ['write']);

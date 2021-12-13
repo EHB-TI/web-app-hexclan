@@ -17,7 +17,7 @@ class EventUserTokenController extends Controller
     public function purge(Request $request)
     {
         $currentAccessToken = $request->user()->currentAccessToken();
-        if ($currentAccessToken->tokenable_type === 'App\Models\EventUser') {
+        if ($currentAccessToken->tokenable_type == 'App\Models\EventUser') {
             $currentAccessToken->delete();
 
             return response()->noContent();

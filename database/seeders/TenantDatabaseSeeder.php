@@ -30,7 +30,7 @@ class TenantDatabaseSeeder extends Seeder
         User::create([
             'id' => (string) Str::uuid(),
             'email' => $adminEmail,
-            'ability' => '*'
+            'ability' => 'admin'
         ]);
 
         // Everything hereunder to be commented out in production.

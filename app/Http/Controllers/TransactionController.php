@@ -132,7 +132,7 @@ class TransactionController extends Controller
 
     public function toggleStatus(Transaction $transaction)
     {
-        if ($transaction->status === 'outstanding') {
+        if ($transaction->status == 'outstanding') {
             $transaction->status = 'paid';
 
             return response()->noContent();

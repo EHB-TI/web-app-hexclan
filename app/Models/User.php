@@ -67,7 +67,7 @@ class User extends Authenticatable
     // Returns user role on a specific event.
     public function getRole($eventId)
     {
-        return $this->roles->where('event_id', '=', $eventId)->first()->ability;
+        return $this->roles->where('event_id', '=', $eventId)->first();
     }
 
     public function transactions()
