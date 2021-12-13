@@ -6,7 +6,6 @@ use App\Http\Resources\ItemResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\Event;
 use App\Models\Transaction;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;

@@ -6,7 +6,6 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
-use App\Models\BankAccount;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

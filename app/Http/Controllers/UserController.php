@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\EventResource;
-use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
-use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
