@@ -22,11 +22,13 @@ class TenantDatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $collection = Tenant::select('tenancy_admin_email')
+        $resultSet = Tenant::select('name', 'tenancy_admin_email')
             ->where('id', tenant('id'))
             ->get();
-        $array = $collection->pluck('tenancy_admin_email');
-        $adminEmail = $array[0];
+        $resultSetObject = $resultSet->first();
+        $tenantName = $resultSetObject->name;
+        $adminEmail = $resultSetObject->tenancy_admin_email;
+
         User::create([
             'id' => (string) Str::uuid(),
             'email' => $adminEmail,
@@ -58,7 +60,7 @@ class TenantDatabaseSeeder extends Seeder
 
         $flattenedItems = $items->flatten();
 
-        $users = User::where('email', '!=', 'admin@demo.' . config('tenancy.central_domains.0'))->get();
+        $users = User::where('email', '!=', 'admin@' . "{$tenantName}" . '.' . config('tenancy.central_domains.0'))->get();
         foreach ($users as $user) {
             $randomItems = $flattenedItems->random(5);
 
