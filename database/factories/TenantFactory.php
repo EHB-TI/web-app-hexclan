@@ -21,9 +21,11 @@ class TenantFactory extends Factory
      */
     public function definition()
     {
+        $centralDomain = config('tenancy.central_domains.0');
+        $subdomain = $this->faker->domainWord();
         return [
-            'name' => 'demo',
-            'tenancy_admin_email' => 'admin@demo.' . config('tenancy.central_domains.0')
+            'name' => $subdomain,
+            'tenancy_admin_email' => "admin@{$subdomain}.{$centralDomain}"
         ];
     }
 }

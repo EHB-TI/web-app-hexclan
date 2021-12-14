@@ -3,6 +3,7 @@ _ide_helper.php
 .env
 .env.backup
 .env.gae
+.env.testing
 .gcloudignore
 .phpunit.result.cache
 /.idea
