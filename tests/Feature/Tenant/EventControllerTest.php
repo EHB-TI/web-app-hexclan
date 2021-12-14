@@ -23,17 +23,7 @@ class EventControllerTest extends TenantTestCase
         $domain = static::$domain;
         $response = $this->json('GET', "{$domain}/api/events");
 
-        if ($ability == 'admin') {
-            $response->assertJson(
-                fn (AssertableJson $json) =>
-                $json->has(
-                    'data.0',
-                    fn ($json) =>
-                    $json->hasAll('id', 'name', 'date')
-                        ->etc()
-                )
-            );
-        } else if ($ability == 'write') {
+        if ($ability == 'admin' || $ability == 'write') {
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
