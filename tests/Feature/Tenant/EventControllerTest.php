@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Tenant;
 
+use App\Models\BankAccount;
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
@@ -9,6 +11,15 @@ use Tests\TenantTestCase;
 
 class EventControllerTest extends TenantTestCase
 {
+    public function getAbilities()
+    {
+        return [
+            'admin' => ['admin'],
+            'write' => ['write'],
+            'self' => ['self']
+        ];
+    }
+
     /**
      * @dataProvider getAbilities
      * @test
@@ -38,12 +49,32 @@ class EventControllerTest extends TenantTestCase
         }
     }
 
-    public function getAbilities()
+    /**
+     * @dataProvider getAbilities
+     * @test
+     */
+    public function postEvent($ability)
     {
-        return [
-            'admin' => ['admin'],
-            'write' => ['write'],
-            'self' => ['self'/*, $expected*/]
-        ];
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ["{$ability}"]
+        );
+
+        $event = Event::factory()->make();
+        $bankAccountId = BankAccount::first(['id']);
+        $domain = static::$domain;
+        $response = $this->json('POST', "{$domain}/api/events", []);
+
+        if ($ability == 'admin' || $ability == 'write') {
+            $response->assertJson(
+                fn (AssertableJson $json) =>
+                $json->has(
+                    'data.0',
+                    fn ($json) =>
+                    $json->hasAll('id', 'name', 'date')
+                        ->etc()
+                )
+            )->assertCreated();
+        }
     }
 }
