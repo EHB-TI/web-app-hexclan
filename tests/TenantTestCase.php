@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 
 abstract class TenantTestCase extends BaseTestCase
 {
@@ -12,7 +13,7 @@ abstract class TenantTestCase extends BaseTestCase
 
     protected static $setUpHasRunOnce = false;
     protected $domainWithScheme;
-
+    protected $connectionsToTransact = [];
 
     public function setUp(): void
     {
@@ -20,17 +21,20 @@ abstract class TenantTestCase extends BaseTestCase
         if (!static::$setUpHasRunOnce) {
             $this->artisan('custom:drop');
             $this->artisan('migrate:fresh');
+
             $tenant = Tenant::factory()->create();
             $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
-            $tenant->domains()->create(['domain' => $domain]);
-            $this->domainWithScheme = 'https://' . $domain;
-            tenancy()->initialize($tenant);
+            $persistedDomain = $tenant->domains()->create(['domain' => $domain])->domain;
+            $this->domainWithScheme = 'https://' . $persistedDomain;
             $this->artisan('tenants:seed');
+
+            tenancy()->initialize($tenant);
 
             static::$setUpHasRunOnce = true;
         } else {
             $tenant = Tenant::with('domains')->first();
             $this->domainWithScheme = 'https://' . $tenant->domains->first()->domain;
+
             tenancy()->initialize($tenant);
         }
     }

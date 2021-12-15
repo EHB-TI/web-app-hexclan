@@ -22,14 +22,8 @@ class BankAccountFactory extends Factory
      */
     public function definition()
     {
-        $collection = DB::connection(config('tenancy.database.central_connection'))
-            ->table('tenants')
-            ->select('name')
-            ->where('id', tenant('id'))
-            ->get();
+        $name = tenant()->name;
 
-        $array = $collection->pluck('name');
-        $name = $array[0];
         return [
             //'id' => $this->faker->uuid(),
             'beneficiary_name' => $name,

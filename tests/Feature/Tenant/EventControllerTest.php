@@ -5,6 +5,7 @@ namespace Tests\Feature\Tenant;
 use App\Models\BankAccount;
 use App\Models\Event;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TenantTestCase;
@@ -63,6 +64,7 @@ class EventControllerTest extends TenantTestCase
             ->for(BankAccount::first(['id']))
             ->make();
 
+        DB::beginTransaction();
         $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
             'data' => [
                 'name' => $event->name,
@@ -70,6 +72,7 @@ class EventControllerTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
+        DB::rollback();
 
         if ($ability == 'admin' || $ability == 'write') {
             $response->assertJson(
