@@ -50,7 +50,7 @@ class LoginController extends Controller
             // Rejects login if pin code timestamp is older than 5 minutes.
             $diff = $user->pin_code_timestamp->diff(Carbon::now());
             if (!$user->is_active && ($diff->i > 5 && $diff->s > 0)) {
-                return response()->json(['error' => 'The pin code has expired. Please request a new one.'], Response::HTTP_UNAUTHORIZED);
+                return response()->json(['error' => 'The pin code has expired. Please request a new one.'], Response::HTTP_FORBIDDEN);
             } else if ($user->pin_code != $validatedAttributes['pin_code']) {
                 return response()->json(['error' => 'The provided pin code is incorrect'], Response::HTTP_UNAUTHORIZED);
             } else {

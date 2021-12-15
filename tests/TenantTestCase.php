@@ -5,7 +5,6 @@ namespace Tests;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Support\Facades\DB;
 
 abstract class TenantTestCase extends BaseTestCase
 {
@@ -13,7 +12,6 @@ abstract class TenantTestCase extends BaseTestCase
 
     protected static $setUpHasRunOnce = false;
     protected $domainWithScheme;
-    protected $connectionsToTransact = [];
 
     public function setUp(): void
     {

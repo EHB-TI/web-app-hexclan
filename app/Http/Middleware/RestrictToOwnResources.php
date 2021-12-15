@@ -21,7 +21,7 @@ class RestrictToOwnResources
         $userId = $request->user()->user_id ?? $request->user()->id; // Order is important.
         $self = $request->user()->tokenCan('self');
         if ($self && $paramUserId != $userId) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_FORBIDDEN);
         }
 
         return $next($request);

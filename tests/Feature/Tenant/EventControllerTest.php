@@ -5,8 +5,12 @@ namespace Tests\Feature\Tenant;
 use App\Models\BankAccount;
 use App\Models\Event;
 use App\Models\User;
+use App\Http\Middleware\Authenticate;
+use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Laravel\Sanctum\Sanctum;
 use Tests\TenantTestCase;
 
@@ -21,9 +25,20 @@ class EventControllerTest extends TenantTestCase
         ];
     }
 
+    public function getInvalidData()
+    {
+        return [
+
+            'invalid name - name not unique' => ['placeholder', '1997-07-10', 1],
+            'invalid date - wrong type' => ['test_event_1', 'invalid_date', 1],
+            'invalid bank_account_id - does not exist' => ['test_event_1', '1997-07-10', 'placeholder']
+        ];
+    }
+
     /**
      * @dataProvider getAbilities
      * @test
+     * @covers \App\Http\Controllers\EventController
      */
     public function getEvents($ability)
     {
@@ -43,7 +58,7 @@ class EventControllerTest extends TenantTestCase
                     $json->hasAll('id', 'name', 'date')
                         ->etc()
                 )
-            );
+            )->assertOk();
         } else if ($ability == 'self') {
             $response->assertForbidden();
         }
@@ -52,8 +67,9 @@ class EventControllerTest extends TenantTestCase
     /**
      * @dataProvider getAbilities
      * @test
+     * @covers \App\Http\Controllers\EventController
      */
-    public function postEvent($ability)
+    public function postEvent_WithPassingValidation_Returns201($ability)
     {
         Sanctum::actingAs(
             User::factory()->create(),
@@ -65,7 +81,7 @@ class EventControllerTest extends TenantTestCase
             ->make();
 
         DB::beginTransaction();
-        $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
+        $response = $this->postJson("{$this->domainWithScheme}/api/events", [
             'data' => [
                 'name' => $event->name,
                 'date' => $event->date,
@@ -84,6 +100,131 @@ class EventControllerTest extends TenantTestCase
                         ->etc()
                 )
             )->assertCreated();
+        } else if ($ability == 'self') {
+            $response->assertForbidden();
+        }
+    }
+
+    /**
+     * @dataProvider getInvalidData
+     * @test
+     * @covers \App\Http\Controllers\EventController
+     */
+    public function postEvent_WithFailingValidation_Returns422($name, $date, $bank_account_id)
+    {
+        $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
+
+        $args = collect(get_defined_vars());
+        $arg = $args->search('placeholder');
+
+        if ($arg != false) {
+            switch ($arg) {
+                case 'name':
+                    $name = Event::first()->name;
+                    break;
+                case 'bank_account_id':
+                    $bank_account_id = 2;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
+            'data' => [
+                'name' => $name,
+                'date' => $date,
+                'bank_account_id' => $bank_account_id
+            ]
+        ]);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertDatabaseCount('events', 2); // Assumes that only 2 events are seeded during testing.
+    }
+
+    /**
+     * @test
+     * @covers \App\Http\Controllers\EventController
+     */
+    public function getEvent_Returns200()
+    {
+        $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
+
+        $firstEvent = Event::first();
+        $response = $this->json('GET', "{$this->domainWithScheme}/api/events/{$firstEvent->id}");
+
+        $response->assertJson(
+            fn (AssertableJson $json) =>
+            $json->has(
+                'data',
+                fn ($json) =>
+                $json->where('id', $firstEvent->id)
+                    ->where('name', $firstEvent->name)
+                    ->where('date', $firstEvent->date)
+                    ->where('bank_account_id', $firstEvent->bank_account_id)
+                    ->etc()
+            )
+        )->assertOk();
+    }
+
+    /**
+     * bank_account_id unchanged.
+     * @test
+     * @covers \App\Http\Controllers\EventController
+     */
+    public function patchEvent_WithPassingValidation_Returns200()
+    {
+        $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
+
+        $firstEvent = Event::first();
+        $tenantName = tenant('name');
+        $updatedName = "{$tenantName}_event_3";
+        $updatedDate = Carbon::now()->toDateString();
+        DB::beginTransaction();
+        $response = $this->patchJson("{$this->domainWithScheme}/api/events/{$firstEvent->id}", [
+            'data' => [
+                'name' => $updatedName,
+                'date' => $updatedDate,
+                'bank_account_id' => $firstEvent->bank_account_id
+            ]
+        ]);
+        DB::rollback();
+
+        $response->assertJson(
+            fn (AssertableJson $json) =>
+            $json->has(
+                'data',
+                fn ($json) =>
+                $json->where('id', $firstEvent->id)
+                    ->where('name', $updatedName)
+                    ->where('date', $updatedDate)
+                    ->where('bank_account_id', $firstEvent->bank_account_id)
+                    ->etc()
+            )
+        )->assertOk();
+    }
+
+    /**
+     * @dataProvider getAbilities
+     * @test
+     * @covers \App\Http\Controllers\EventController
+     */
+    public function deleteEvent($ability)
+    {
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ["{$ability}"]
+        );
+
+        $firstEvent = Event::first();
+        DB::beginTransaction();
+        $response = $this->deleteJson("{$this->domainWithScheme}/api/events/{$firstEvent->id}");
+        DB::rollback();
+
+        if ($ability == 'admin') {
+            $response->assertNoContent();
+        } else if ($ability == 'write') {
+            $response->assertForbidden();
         } else if ($ability == 'self') {
             $response->assertForbidden();
         }

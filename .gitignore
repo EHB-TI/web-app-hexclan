@@ -8,6 +8,7 @@ _ide_helper.php
 .phpunit.result.cache
 /.idea
 /.vscode
+/html-coverage
 /node_modules
 /public/css/app.css
 /public/hot

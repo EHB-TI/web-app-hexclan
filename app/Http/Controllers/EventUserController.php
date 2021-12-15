@@ -59,7 +59,7 @@ class EventUserController extends Controller
     public function transactions(Request $request, Event $event, User $user)
     {
         if ($request->user()->tokenCan('self') && $user->id != $request->user()->user_id) {
-            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_FORBIDDEN);
         }
 
         $transactions = Transaction::where('user_id', '=', $user->id)
