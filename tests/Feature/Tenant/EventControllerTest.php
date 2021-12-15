@@ -36,9 +36,9 @@ class EventControllerTest extends TenantTestCase
     }
 
     /**
-     * @dataProvider getAbilities
      * @test
      * @covers \App\Http\Controllers\EventController
+     * @dataProvider getAbilities
      */
     public function getEvents($ability)
     {
@@ -65,9 +65,9 @@ class EventControllerTest extends TenantTestCase
     }
 
     /**
-     * @dataProvider getAbilities
      * @test
      * @covers \App\Http\Controllers\EventController
+     * @dataProvider getAbilities
      */
     public function postEvent_WithPassingValidation_Returns201($ability)
     {
@@ -106,9 +106,9 @@ class EventControllerTest extends TenantTestCase
     }
 
     /**
-     * @dataProvider getInvalidData
      * @test
      * @covers \App\Http\Controllers\EventController
+     * @dataProvider getInvalidData
      */
     public function postEvent_WithFailingValidation_Returns422($name, $date, $bank_account_id)
     {
@@ -205,9 +205,9 @@ class EventControllerTest extends TenantTestCase
     }
 
     /**
-     * @dataProvider getAbilities
      * @test
      * @covers \App\Http\Controllers\EventController
+     * @dataProvider getAbilities
      */
     public function deleteEvent($ability)
     {
