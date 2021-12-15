@@ -60,8 +60,11 @@ class EventControllerTest extends TenantTestCase
             ["{$ability}"]
         );
 
-        $event = Event::factory()->make();
-        $bankAccountId = BankAccount::first(['id']);
+        $tenant = tenant();
+
+        $event = Event::factory()
+            ->for(BankAccount::first(['id']))
+            ->make();
         $domain = static::$domain;
         $response = $this->json('POST', "{$domain}/api/events", []);
 

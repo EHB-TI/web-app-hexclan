@@ -30,19 +30,26 @@ class RegisterController extends Controller
         $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = User::firstWhere('email', $validatedAttributes['email']);
+        $pinCode = $user->pin_code;
+        // Refuses request if user already registered. No check on pin code validity.
+        if (!isset($pinCode)) {
+            $user->update([
+                'name' => $validatedAttributes['name'],
+                'password' => bcrypt($validatedAttributes['password']),
+                'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random positive 6-digits integer.
+                'pin_code_timestamp' => Carbon::now()
+            ]);
 
-        $user->update([
-            'name' => $validatedAttributes['name'],
-            'password' => bcrypt($validatedAttributes['password']),
-            'pin_code' => random_int(10 ** (6 - 1), (10 ** 6) - 1), // Generates random positive 6-digits integer.
-            'pin_code_timestamp' => Carbon::now()
-        ]);
+            // Dispatches Registered event upon succesful registration.
+            event(new Registered($user));
 
-        // Dispatches Registered event upon succesful registration.
-        event(new Registered($user));
-
-        return (new UserResource($user))
-            ->response()
-            ->setStatusCode(Response::HTTP_OK);
+            return (new UserResource($user))
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
+        } else if ($pinCode != -1) {
+            return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_FORBIDDEN);
+        } else {
+            return response()->json(['error' => 'The user is already registered.'], Response::HTTP_FORBIDDEN);
+        }
     }
 }

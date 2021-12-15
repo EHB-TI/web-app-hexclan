@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TenantTestCase extends BaseTestCase
 {
-    use CreatesApplication, DatabaseTransactions;
+    use CreatesApplication/*, DatabaseTransactions*/;
 
     protected static $setUpHasRunOnce = false;
     protected static $domain;
@@ -20,7 +20,7 @@ abstract class TenantTestCase extends BaseTestCase
         if (!static::$setUpHasRunOnce) {
             $this->artisan('custom:drop');
             $this->artisan('migrate:fresh');
-            $this->initializeTenancy();
+            $this->initializeTenancy(); // TODO
             $this->seed(TenantDatabaseSeeder::class);
             static::$setUpHasRunOnce = true;
         }

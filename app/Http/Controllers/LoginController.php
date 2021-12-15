@@ -35,7 +35,7 @@ class LoginController extends Controller
         $user = User::with(['tokens'])->firstWhere('email', $validatedAttributes['email']);
 
         if ($user->pin_code == -1) {
-            return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['error' => 'The account is deactivated.'], Response::HTTP_FORBIDDEN);
         }
 
         // Checking user credentials.
@@ -77,7 +77,7 @@ class LoginController extends Controller
 
             return response()->json(['data' => $token], Response::HTTP_OK);
         } else {
-            return response()->json(['data' => 'The user token is set.'], Response::HTTP_OK);
+            return response()->noContent(); // The user token is already set. Not an error code given that the login action is performed on every app startup.
         }
     }
 }
