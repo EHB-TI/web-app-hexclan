@@ -14,10 +14,6 @@ class Event extends Model
 
     protected $guarded = [];
 
-    protected $hidden = [
-        'bank_account_id',
-    ];
-
     // The bank account that belongs to the event.
     public function bankAccount()
     {

@@ -3,16 +3,16 @@
 namespace Tests;
 
 use App\Models\Tenant;
-use Database\Seeders\TenantDatabaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TenantTestCase extends BaseTestCase
 {
-    use CreatesApplication/*, DatabaseTransactions*/;
+    use CreatesApplication, DatabaseTransactions;
 
     protected static $setUpHasRunOnce = false;
-    protected static $domain;
+    protected $domainWithScheme;
+
 
     public function setUp(): void
     {
@@ -20,18 +20,18 @@ abstract class TenantTestCase extends BaseTestCase
         if (!static::$setUpHasRunOnce) {
             $this->artisan('custom:drop');
             $this->artisan('migrate:fresh');
-            $this->initializeTenancy(); // TODO
-            $this->seed(TenantDatabaseSeeder::class);
-            static::$setUpHasRunOnce = true;
-        }
-    }
+            $tenant = Tenant::factory()->create();
+            $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
+            $tenant->domains()->create(['domain' => $domain]);
+            $this->domainWithScheme = 'https://' . $domain;
+            tenancy()->initialize($tenant);
+            $this->artisan('tenants:seed');
 
-    public function initializeTenancy()
-    {
-        $tenant = Tenant::factory()->create();
-        static::$domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
-        $tenant->domains()->create(['domain' => static::$domain]);
-        static::$domain = 'https://' . static::$domain;
-        tenancy()->initialize($tenant);
+            static::$setUpHasRunOnce = true;
+        } else {
+            $tenant = Tenant::with('domains')->first();
+            $this->domainWithScheme = 'https://' . $tenant->domains->first()->domain;
+            tenancy()->initialize($tenant);
+        }
     }
 }

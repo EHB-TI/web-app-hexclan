@@ -31,8 +31,7 @@ class EventControllerTest extends TenantTestCase
             ["{$ability}"]
         );
 
-        $domain = static::$domain;
-        $response = $this->json('GET', "{$domain}/api/events");
+        $response = $this->json('GET', "{$this->domainWithScheme}/api/events");
 
         if ($ability == 'admin' || $ability == 'write') {
             $response->assertJson(
@@ -60,24 +59,30 @@ class EventControllerTest extends TenantTestCase
             ["{$ability}"]
         );
 
-        $tenant = tenant();
-
         $event = Event::factory()
             ->for(BankAccount::first(['id']))
             ->make();
-        $domain = static::$domain;
-        $response = $this->json('POST', "{$domain}/api/events", []);
+
+        $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
+            'data' => [
+                'name' => $event->name,
+                'date' => $event->date,
+                'bank_account_id' => $event->bank_account_id
+            ]
+        ]);
 
         if ($ability == 'admin' || $ability == 'write') {
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
-                    'data.0',
+                    'data',
                     fn ($json) =>
-                    $json->hasAll('id', 'name', 'date')
+                    $json->hasAll('id', 'name', 'date', 'bank_account_id')
                         ->etc()
                 )
             )->assertCreated();
+        } else if ($ability == 'self') {
+            $response->assertForbidden();
         }
     }
 }

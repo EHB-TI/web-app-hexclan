@@ -22,9 +22,21 @@ class EventFactory extends Factory
      */
     public function definition()
     {
+        static $count = 1;
+        $collection = DB::connection(config('tenancy.database.central_connection'))
+            ->table('tenants')
+            ->select('name')
+            ->where('id', tenant('id'))
+            ->get();
+
+        $array = $collection->pluck('name');
+        $pluckedName = $array[0];
+        $name = "{$pluckedName}_event_{$count}";
+        $count++;
+
         return [
             //'id' => $this->faker->uuid(),
-            'name' => $this->faker->word(),
+            'name' => $name,
             'date' => $this->faker->date('Y-m-d'),
         ];
     }
