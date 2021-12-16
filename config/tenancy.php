@@ -50,7 +50,7 @@ return [
          * prefix + tenant_id + suffix.
          */
         'prefix' => 'tenant_',
-        'suffix' => '',
+        'suffix' => env('TENANT_DB_SUFFIX', ''),
 
         /**
          * TenantDatabaseManagers are classes that handle the creation & deletion of tenant databases.
