@@ -14,7 +14,7 @@ use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Laravel\Sanctum\Sanctum;
 use Tests\TenantTestCase;
 
-class EventControllerTest extends TenantTestCase
+class EventActionsTest extends TenantTestCase
 {
     public function getAbilities()
     {
@@ -30,7 +30,7 @@ class EventControllerTest extends TenantTestCase
         return [
 
             'invalid name - name not unique' => ['placeholder', '1997-07-10', 1],
-            'invalid date - wrong type' => ['test_event_1', 'invalid_date', 1],
+            'invalid date - wrong type' => ['test_event_1', 'placeholder', 1],
             'invalid bank_account_id - does not exist' => ['test_event_1', '1997-07-10', 'placeholder']
         ];
     }
@@ -40,7 +40,7 @@ class EventControllerTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function getEvents($ability)
+    public function getEvents_WhenAdminOrWrite_Returns200($ability)
     {
         Sanctum::actingAs(
             User::factory()->create(),
@@ -114,20 +114,25 @@ class EventControllerTest extends TenantTestCase
     {
         $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
 
+        // Hack is required because dataproviders are run before setup.
         $args = collect(get_defined_vars());
         $arg = $args->search('placeholder');
 
-        if ($arg != false) {
-            switch ($arg) {
-                case 'name':
-                    $name = Event::first()->name;
-                    break;
-                case 'bank_account_id':
-                    $bank_account_id = 2;
-                    break;
-                default:
-                    break;
-            }
+        $invalidName = Event::first()->name;
+        $invalidBankAccountId = 2;
+
+        switch ($arg) {
+            case 'name':
+                $name = $invalidName;
+                break;
+            case 'date':
+                $date = 'invalid date';
+                break;
+            case 'bank_account_id':
+                $bank_account_id = $invalidBankAccountId;
+                break;
+            default:
+                break;
         }
 
         $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
@@ -209,7 +214,7 @@ class EventControllerTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function deleteEvent($ability)
+    public function deleteEvent_WhenAdmin_Returns204($ability)
     {
         Sanctum::actingAs(
             User::factory()->create(),
