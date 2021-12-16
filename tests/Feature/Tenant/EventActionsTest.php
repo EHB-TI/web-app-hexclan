@@ -25,7 +25,7 @@ class EventActionsTest extends TenantTestCase
         ];
     }
 
-    public function getInvalidData()
+    public function getData()
     {
         return [
 
@@ -108,7 +108,7 @@ class EventActionsTest extends TenantTestCase
     /**
      * @test
      * @covers \App\Http\Controllers\EventController
-     * @dataProvider getInvalidData
+     * @dataProvider getData
      */
     public function postEvent_WithFailingValidation_Returns422($name, $date, $bank_account_id)
     {
