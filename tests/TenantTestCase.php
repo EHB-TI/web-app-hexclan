@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 
 abstract class TenantTestCase extends BaseTestCase
 {
@@ -18,6 +19,10 @@ abstract class TenantTestCase extends BaseTestCase
         parent::setUp();
         if (!static::$setUpHasRunOnce) {
             $this->artisan('custom:drop');
+            DB::statement('CREATE DATABASE hexclan_test');
+            config(['database.connections.mysql.database' => 'hexclan_test']);
+            DB::connection('mysql')->setDatabaseName('hexclan_test');
+            DB::reconnect();
             $this->artisan('migrate:fresh');
 
             $tenant = Tenant::factory()->create();

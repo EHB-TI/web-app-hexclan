@@ -39,18 +39,26 @@ class DropTenantsDB extends Command
      */
     public function handle()
     {
-        if (App::environment() == 'local') {
+        $env = App::environment();
+        if ($env == 'testing') {
+            $config = DB::connection('mysql');
+            config(['database.connections.mysql.database' => 'hexclan']);
+            DB::connection('mysql')->setDatabaseName('hexclan');
+            $dbs = DB::select('SHOW DATABASES LIKE "%_test"');
+        } else if ($env == 'local') {
             $dbs = DB::select('SHOW DATABASES LIKE "tenant_%_local"');
-        } else if (App::environment() == 'testing') {
-            $dbs = DB::select('SHOW DATABASES LIKE "tenant_%_test"');
         }
 
-        foreach ($dbs as $db) {
-            $db = array_values((array) $db)[0];
+        if (!empty($dbs)) {
+            foreach ($dbs as $db) {
+                $db = array_values((array) $db)[0];
 
-            DB::select("DROP DATABASE `$db`");
+                DB::statement("DROP DATABASE `{$db}`");
+            }
+
+            $this->info('Dropped tenant(s) database(s) succesfully');
+        } else {
+            $this->info('No database(s) to drop.');
         }
-
-        $this->info('Dropped tenant(s) database(s) succesfully'); // TODO return different message if no dbs to drop.
     }
 }
