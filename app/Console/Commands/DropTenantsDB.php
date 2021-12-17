@@ -41,7 +41,6 @@ class DropTenantsDB extends Command
     {
         $env = App::environment();
         if ($env == 'testing') {
-            $config = DB::connection('mysql');
             config(['database.connections.mysql.database' => 'hexclan']);
             DB::connection('mysql')->setDatabaseName('hexclan');
             $dbs = DB::select('SHOW DATABASES LIKE "%_test"');

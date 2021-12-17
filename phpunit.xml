@@ -4,12 +4,18 @@
          bootstrap="vendor/autoload.php"
          colors="true"
 >
+    <extensions>
+        <extension class="Tests\Extensions\Teardown"/>
+    </extensions>
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Tenant">
+            <directory suffix="Test.php">./tests/Feature/Tenant</directory>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">
