@@ -13,6 +13,10 @@ De registratieprocudere is niet met succes voltooid geworden.
 > De Access-Control-Allow-Methods response header bevat op correcte wijze de verzameling van ondersteunde methoden 
 en enkel de ondersteunde methoden.
 
+![HSTS](https://github.com/dmtwood/pizzeria/blob/main/hexcan_hsts.jpg)
+
+![DNS](https://github.com/dmtwood/pizzeria/blob/main/hexclan_dns.jpg)
 # Conclusie
  Door de registratiemoeilijkheden is de test-scope eerder beperkt. 
+ 
  Wat wel getest kon worden, mag als conform en veilig beschouwd worden.
