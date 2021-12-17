@@ -5,7 +5,7 @@
          colors="true"
 >
     <extensions>
-        <extension class="Tests\Extensions\Teardown"/>
+        <extension class="Tests\Extensions\RunnerExtension"/>
     </extensions>
     <testsuites>
         <testsuite name="Unit">
