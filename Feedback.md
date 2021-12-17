@@ -16,6 +16,8 @@ en enkel de ondersteunde methoden.
 ![HSTS](https://github.com/dmtwood/pizzeria/blob/main/hexcan_hsts.jpg)
 
 ![DNS](https://github.com/dmtwood/pizzeria/blob/main/hexclan_dns.jpg)
+
+![SSL](https://github.com/dmtwood/pizzeria/blob/main/hexclan_ssl.jpg)
 # Conclusie
  Door de registratiemoeilijkheden is de test-scope eerder beperkt. 
  
