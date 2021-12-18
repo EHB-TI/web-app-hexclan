@@ -29,17 +29,21 @@ class EventActionsTest extends TenantTestCase
         ];
     }
 
-    public function getData()
+    public function getInvalidData()
     {
-        $this->createApplication();
         //$this->setUpFaker();
         tenancy()->initialize($GLOBALS['tenant']);
         $event = Event::first();
+        $invalidBankAccountId = 2;
+        $validName = "{$GLOBALS['tenant']['name']}_event_3";
+        $validDate = $event->date;
+        $validBankAccountId = $event->bank_account_id;
+
         return [
 
-            'invalid name - name not unique' => ['placeholder', $event->date, $event->bank_account_id],
-            'invalid date - wrong type' => [$event->name, 'placeholder', 1],
-            'invalid bank_account_id - does not exist' => [$event->name, $event->date, $event->bank_account_id]
+            'invalid name - name not unique' => [$event->name, $validDate, $validBankAccountId],
+            'invalid date - wrong type' => [$validName, 'invalid date', $validBankAccountId],
+            'invalid bank_account_id - does not exist' => [$validName, $validDate, $invalidBankAccountId]
         ];
     }
 
@@ -116,32 +120,11 @@ class EventActionsTest extends TenantTestCase
     /**
      * @test
      * @covers \App\Http\Controllers\EventController
-     * @dataProvider getData
+     * @dataProvider getInvalidData
      */
     public function postEvent_WithFailingValidation_Returns422($name, $date, $bank_account_id)
     {
         $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
-
-        // Hack is required because dataproviders are run before setup.
-        $args = collect(get_defined_vars());
-        $arg = $args->search('placeholder');
-
-        $invalidName = Event::first()->name;
-        $invalidBankAccountId = 2;
-
-        switch ($arg) {
-            case 'name':
-                $name = $invalidName;
-                break;
-            case 'date':
-                $date = 'invalid date';
-                break;
-            case 'bank_account_id':
-                $bank_account_id = $invalidBankAccountId;
-                break;
-            default:
-                break;
-        }
 
         $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
             'data' => [
