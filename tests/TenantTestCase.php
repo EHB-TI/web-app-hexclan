@@ -13,13 +13,13 @@ abstract class TenantTestCase extends BaseTestCase
 
     protected $domainWithScheme;
 
+    // Preferable to initialize tenant here rather than in bootstrap or extension because abstract class is different from central app tests.
     public function setUp(): void
     {
         parent::setUp();
 
-        $tenant = Tenant::with('domains')->first();
-        $this->domainWithScheme = 'https://' . $tenant->domains->first()->domain;
+        $this->domainWithScheme = 'https://' . $GLOBALS['domain'];
 
-        tenancy()->initialize($tenant);
+        tenancy()->initialize($GLOBALS['tenant']);
     }
 }

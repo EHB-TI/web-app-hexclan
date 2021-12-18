@@ -6,6 +6,8 @@ use App\Models\BankAccount;
 use App\Models\Event;
 use App\Models\User;
 use App\Http\Middleware\Authenticate;
+use App\Models\Tenant;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +18,8 @@ use Tests\TenantTestCase;
 
 class EventActionsTest extends TenantTestCase
 {
+    use WithFaker;
+
     public function getAbilities()
     {
         return [
@@ -27,11 +31,15 @@ class EventActionsTest extends TenantTestCase
 
     public function getData()
     {
+        $this->createApplication();
+        //$this->setUpFaker();
+        tenancy()->initialize($GLOBALS['tenant']);
+        $event = Event::first();
         return [
 
-            'invalid name - name not unique' => ['placeholder', '1997-07-10', 1],
-            'invalid date - wrong type' => ['test_event_1', 'placeholder', 1],
-            'invalid bank_account_id - does not exist' => ['test_event_1', '1997-07-10', 'placeholder']
+            'invalid name - name not unique' => ['placeholder', $event->date, $event->bank_account_id],
+            'invalid date - wrong type' => [$event->name, 'placeholder', 1],
+            'invalid bank_account_id - does not exist' => [$event->name, $event->date, $event->bank_account_id]
         ];
     }
 
