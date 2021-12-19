@@ -12,14 +12,11 @@ use Tests\CreatesApplication;
     use CreatesApplication;
 })->createApplication();
 
-Artisan::call('custom:drop');
+Artisan::call('custom:drop'); // This call is required because app erroneously determines that db hexclan_test already exists.
 DB::statement('CREATE DATABASE hexclan_test');
-config(['database.connections.mysql.database' => 'hexclan_test']);
+config(['database.connections.mysql.database' => 'hexclan_test']); // This call + 2 following are required because .env.testing seems to be ignored. This issue is linked to config caching.
 DB::connection('mysql')->setDatabaseName('hexclan_test');
 DB::reconnect();
-Artisan::call('migrate:fresh');
-
-$tenant = Tenant::factory()->create();
-$domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
-$tenant->domains()->create(['domain' => $domain])->domain;
+Artisan::call('migrate:fresh --seed');
 Artisan::call('tenants:seed');
+$tenant = Tenant::with('domains')->first();

@@ -18,8 +18,7 @@ abstract class TenantTestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $this->domainWithScheme = 'https://' . $GLOBALS['domain'];
-
         tenancy()->initialize($GLOBALS['tenant']);
+        $this->domainWithScheme = 'https://' . $GLOBALS['tenant']->domains->first()->domain;
     }
 }

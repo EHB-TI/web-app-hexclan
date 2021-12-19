@@ -32,15 +32,14 @@ class EventActionsTest extends TenantTestCase
     public function getInvalidData()
     {
         //$this->setUpFaker();
-        tenancy()->initialize($GLOBALS['tenant']);
+        tenancy()->initialize($GLOBALS['tenant']); // Cannot use tenant field given order of execution.
         $event = Event::first();
         $invalidBankAccountId = 2;
-        $validName = "{$GLOBALS['tenant']['name']}_event_3";
+        $validName = Event::factory()->makeOne()->name;
         $validDate = $event->date;
         $validBankAccountId = $event->bank_account_id;
 
         return [
-
             'invalid name - name not unique' => [$event->name, $validDate, $validBankAccountId],
             'invalid date - wrong type' => [$validName, 'invalid date', $validBankAccountId],
             'invalid bank_account_id - does not exist' => [$validName, $validDate, $invalidBankAccountId]
@@ -55,7 +54,7 @@ class EventActionsTest extends TenantTestCase
     public function getEvents_WhenAdminOrWrite_Returns200($ability)
     {
         Sanctum::actingAs(
-            User::factory()->create(),
+            User::factory()->makeOne(),
             ["{$ability}"]
         );
 
@@ -81,10 +80,10 @@ class EventActionsTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function postEvent_WithPassingValidation_Returns201($ability)
+    public function postEvent_WithValidInput_Returns201($ability)
     {
         Sanctum::actingAs(
-            User::factory()->create(),
+            User::factory()->makeOne(),
             ["{$ability}"]
         );
 
@@ -122,11 +121,12 @@ class EventActionsTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getInvalidData
      */
-    public function postEvent_WithFailingValidation_Returns422($name, $date, $bank_account_id)
+    public function postEvent_WithInvalidInput_Returns422($name, $date, $bank_account_id)
     {
         $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
 
-        $response = $this->json('POST', "{$this->domainWithScheme}/api/events", [
+        DB::beginTransaction();
+        $response = $this->postJson("{$this->domainWithScheme}/api/events", [
             'data' => [
                 'name' => $name,
                 'date' => $date,
@@ -136,6 +136,7 @@ class EventActionsTest extends TenantTestCase
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
         $this->assertDatabaseCount('events', 2); // Assumes that only 2 events are seeded during testing.
+        DB::rollback();
     }
 
     /**
@@ -208,7 +209,7 @@ class EventActionsTest extends TenantTestCase
     public function deleteEvent_WhenAdmin_Returns204($ability)
     {
         Sanctum::actingAs(
-            User::factory()->create(),
+            User::factory()->makeOne(),
             ["{$ability}"]
         );
 
