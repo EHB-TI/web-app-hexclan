@@ -86,7 +86,6 @@ class EventActionsTest extends TenantTestCase
             User::factory()->makeOne(),
             ["{$ability}"]
         );
-
         $event = Event::factory()
             ->for(BankAccount::first(['id']))
             ->make();
@@ -99,9 +98,9 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
-        DB::rollback();
 
         if ($ability == 'admin' || $ability == 'write') {
+            $createdEvent = Event::firstWhere('name', '=', $event->name);
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
@@ -111,9 +110,13 @@ class EventActionsTest extends TenantTestCase
                         ->etc()
                 )
             )->assertCreated();
+            $this->assertEquals($event->name, $createdEvent->name); // Tests database write.
         } else if ($ability == 'self') {
             $response->assertForbidden();
-        }
+            $this->assertDatabaseMissing('events', ['name' => $event->name]);
+        } // Tests JSON response
+
+        DB::rollback();
     }
 
     /**
@@ -136,7 +139,8 @@ class EventActionsTest extends TenantTestCase
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
         $this->assertDatabaseCount('events', 2); // Assumes that only 2 events are seeded during testing.
-        DB::rollback();
+
+        DB::rollBack();
     }
 
     /**
@@ -147,10 +151,10 @@ class EventActionsTest extends TenantTestCase
     public function patchEvent_WithPassingValidation_Returns200()
     {
         $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
-
         $event = Event::inRandomOrder()->first();
         $updatedName = Event::factory()->makeOne()->name;
         $updatedDate = Carbon::now()->toDateString();
+
         DB::beginTransaction();
         $response = $this->patchJson("{$this->domainWithScheme}/api/events/{$event->id}", [
             'data' => [
@@ -159,8 +163,8 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
-        DB::rollback();
 
+        $updatedEvent = Event::firstWhere('name', '=', $updatedName);
         $response->assertJson(
             fn (AssertableJson $json) =>
             $json->has(
@@ -173,6 +177,9 @@ class EventActionsTest extends TenantTestCase
                     ->etc()
             )
         )->assertOk();
+        $this->assertEquals($updatedName, $updatedEvent->name);
+
+        DB::rollBack();
     }
 
     /**
@@ -186,18 +193,22 @@ class EventActionsTest extends TenantTestCase
             User::factory()->makeOne(),
             ["{$ability}"]
         );
-
         $event = Event::inRandomOrder()->first();
+
         DB::beginTransaction();
         $response = $this->deleteJson("{$this->domainWithScheme}/api/events/{$event->id}");
-        DB::rollback();
 
         if ($ability == 'admin') {
             $response->assertNoContent();
+            $this->assertDeleted($event);
         } else if ($ability == 'write') {
             $response->assertForbidden();
+            $this->assertDatabaseHas('events', ['id' => $event->id]);
         } else if ($ability == 'self') {
             $response->assertForbidden();
+            $this->assertDatabaseHas('events', ['id' => $event->id]);
         }
+
+        DB::rollBack();
     }
 }
