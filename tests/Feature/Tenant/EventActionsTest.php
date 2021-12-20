@@ -33,7 +33,7 @@ class EventActionsTest extends TenantTestCase
     {
         //$this->setUpFaker();
         tenancy()->initialize($GLOBALS['tenant']); // Cannot use tenant field given order of execution.
-        $event = Event::first();
+        $event = Event::inRandomOrder()->first();
         $invalidBankAccountId = 2;
         $validName = Event::factory()->makeOne()->name;
         $validDate = $event->date;
@@ -140,31 +140,6 @@ class EventActionsTest extends TenantTestCase
     }
 
     /**
-     * @test
-     * @covers \App\Http\Controllers\EventController
-     */
-    public function getEvent_Returns200()
-    {
-        $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
-
-        $firstEvent = Event::first();
-        $response = $this->json('GET', "{$this->domainWithScheme}/api/events/{$firstEvent->id}");
-
-        $response->assertJson(
-            fn (AssertableJson $json) =>
-            $json->has(
-                'data',
-                fn ($json) =>
-                $json->where('id', $firstEvent->id)
-                    ->where('name', $firstEvent->name)
-                    ->where('date', $firstEvent->date)
-                    ->where('bank_account_id', $firstEvent->bank_account_id)
-                    ->etc()
-            )
-        )->assertOk();
-    }
-
-    /**
      * bank_account_id unchanged.
      * @test
      * @covers \App\Http\Controllers\EventController
@@ -173,16 +148,15 @@ class EventActionsTest extends TenantTestCase
     {
         $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
 
-        $firstEvent = Event::first();
-        $tenantName = tenant('name');
-        $updatedName = "{$tenantName}_event_3";
+        $event = Event::inRandomOrder()->first();
+        $updatedName = Event::factory()->makeOne()->name;
         $updatedDate = Carbon::now()->toDateString();
         DB::beginTransaction();
-        $response = $this->patchJson("{$this->domainWithScheme}/api/events/{$firstEvent->id}", [
+        $response = $this->patchJson("{$this->domainWithScheme}/api/events/{$event->id}", [
             'data' => [
                 'name' => $updatedName,
                 'date' => $updatedDate,
-                'bank_account_id' => $firstEvent->bank_account_id
+                'bank_account_id' => $event->bank_account_id
             ]
         ]);
         DB::rollback();
@@ -192,10 +166,10 @@ class EventActionsTest extends TenantTestCase
             $json->has(
                 'data',
                 fn ($json) =>
-                $json->where('id', $firstEvent->id)
+                $json->where('id', $event->id)
                     ->where('name', $updatedName)
                     ->where('date', $updatedDate)
-                    ->where('bank_account_id', $firstEvent->bank_account_id)
+                    ->where('bank_account_id', $event->bank_account_id)
                     ->etc()
             )
         )->assertOk();
@@ -213,9 +187,9 @@ class EventActionsTest extends TenantTestCase
             ["{$ability}"]
         );
 
-        $firstEvent = Event::first();
+        $event = Event::inRandomOrder()->first();
         DB::beginTransaction();
-        $response = $this->deleteJson("{$this->domainWithScheme}/api/events/{$firstEvent->id}");
+        $response = $this->deleteJson("{$this->domainWithScheme}/api/events/{$event->id}");
         DB::rollback();
 
         if ($ability == 'admin') {

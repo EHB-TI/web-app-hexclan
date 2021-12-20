@@ -26,7 +26,7 @@ class UserActionsTest extends TenantTestCase
     public function getUsers_WhenAdminOrWrite_Returns200($ability)
     {
         Sanctum::actingAs(
-            User::factory()->create(),
+            User::factory()->makeOne(),
             ["{$ability}"]
         );
 
