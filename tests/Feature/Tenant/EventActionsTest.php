@@ -99,6 +99,7 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
+
         DB::rollback();
 
         if ($ability == 'admin' || $ability == 'write') {
@@ -133,9 +134,11 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $bank_account_id
             ]
         ]);
+        DB::commit();
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
         $this->assertDatabaseCount('events', 2); // Assumes that only 2 events are seeded during testing.
+
         DB::rollback();
     }
 
@@ -159,6 +162,7 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
+
         DB::rollback();
 
         $response->assertJson(
@@ -188,8 +192,10 @@ class EventActionsTest extends TenantTestCase
         );
 
         $event = Event::inRandomOrder()->first();
+
         DB::beginTransaction();
         $response = $this->deleteJson("{$this->domainWithScheme}/api/events/{$event->id}");
+
         DB::rollback();
 
         if ($ability == 'admin') {

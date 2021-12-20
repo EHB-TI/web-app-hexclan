@@ -29,14 +29,13 @@ class RegisterActionTest extends TenantTestCase
             ]
         ]);
         DB::commit();
-        $user = User::find($user->id); // Necessary to retrieve the model again after transaction is committed.
+        $user = User::find($user->id); // Necessary to retrieve the model again after transaction has been committed.
 
         $response->assertStatus(Response::HTTP_NO_CONTENT);
-
         Event::assertDispatched(Registered::class);
-
         $this->assertTrue(isset($user->pin_code));
         $this->assertTrue(isset($user->pin_code_timestamp));
+
         DB::rollBack();
     }
 }
