@@ -116,7 +116,7 @@ class EventActionsTest extends TenantTestCase
             $this->assertDatabaseMissing('events', ['name' => $event->name]);
         } // Tests JSON response
 
-        DB::rollback();
+        DB::rollBack();
     }
 
     /**
