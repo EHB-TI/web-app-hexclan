@@ -53,7 +53,7 @@ class EventActionsTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function getEvents_WhenAdminOrWrite_Returns200($ability)
+    public function getEvents_WhenAdminOrManager_Returns200($ability)
     {
         Sanctum::actingAs(
             User::factory()->makeOne(),
@@ -149,14 +149,14 @@ class EventActionsTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function getEvent_WhenAdminOrWrite_Returns200($ability)
+    public function getEvent_WhenAdminOrManager_Returns200($ability)
     {
+        $event = Event::inRandomOrder()->first();
+
         Sanctum::actingAs(
-            User::factory()->makeOne(),
+            User::firstWhere('id', '=', $event->created_by),
             ["{$ability}"]
         );
-        $this->withoutMiddleware([RestrictToAccountableUser::class]);
-        $event = Event::inRandomOrder()->first();
 
         $response = $this->json('GET', "{$this->domainWithScheme}/api/events/{$event->id}");
 
@@ -182,13 +182,13 @@ class EventActionsTest extends TenantTestCase
      */
     public function patchEvent_WithPassingValidation_Returns200()
     {
+        $event = Event::inRandomOrder()->first();
+
         Sanctum::actingAs(
-            User::inRandomOrder()->first(),
+            User::firstWhere('id', '=', $event->created_by),
             ['manager']
         );
-        $this->withoutMiddleware([RestrictToAccountableUser::class]);
 
-        $event = Event::inRandomOrder()->first();
         $updatedName = Event::factory()->makeOne()->name;
         $updatedDate = Carbon::now()->toDateString();
 

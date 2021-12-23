@@ -24,15 +24,14 @@ class BankAccountActionsTest extends TenantTestCase
      * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function getEvent_WhenAdminOrWrite_Returns200($ability)
+    public function getBankAccount_WhenAdminOrManager_Returns200($ability)
     {
+        $bankAccount = BankAccount::inRandomOrder()->first();
+
         Sanctum::actingAs(
-            User::inRandomOrder()->first(),
+            User::firstWhere('id', '=', $bankAccount->created_by),
             ["{$ability}"]
         );
-        $this->withoutMiddleware([RestrictToAccountableUser::class]);
-
-        $bankAccount = BankAccount::inRandomOrder()->first();
 
         $response = $this->json('GET', "{$this->domainWithScheme}/api/bankaccounts/{$bankAccount->id}");
 
