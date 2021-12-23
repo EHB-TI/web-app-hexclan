@@ -22,7 +22,7 @@ class PINCodeController extends Controller
             $diff = $user->pin_code_timestamp->diff(Carbon::now());
             if ($diff->i > 5 && $diff->s > 0) {
                 $user->pin_code = random_int(10 ** (6 - 1), (10 ** 6) - 1);
-                $user->save();
+                $user->saveQuietly();
                 $user->notify(new PINCodeNotification());
 
                 return response()->noContent();

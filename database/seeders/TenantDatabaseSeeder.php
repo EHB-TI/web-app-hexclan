@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class TenantDatabaseSeeder extends Seeder
@@ -29,10 +30,15 @@ class TenantDatabaseSeeder extends Seeder
         $tenantName = $resultSetObject->name;
         $adminEmail = $resultSetObject->tenancy_admin_email;
 
+        $centralAdmin = DB::connection(config('tenancy.database.central_connection'))
+            ->table('users')
+            ->first();
         User::create([
             'id' => (string) Str::uuid(),
             'email' => $adminEmail,
-            'ability' => 'admin'
+            'ability' => 'admin',
+            'created_by' => $centralAdmin->id,
+            'updated_by' => $centralAdmin->id
         ]);
 
         // Everything hereunder to be commented out in production.

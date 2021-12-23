@@ -36,6 +36,7 @@ class UserController extends Controller
     }
 
     /**
+     * Only possible to update name and email.
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -44,7 +45,6 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Functionality not yet impletemented. Cf. TenantController.
         if ($user->ability == 'admin') {
             return response()->json(['error' => 'The admin user cannot be updated.'], Response::HTTP_NOT_IMPLEMENTED);
         }
@@ -95,7 +95,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'data' => 'required|array:email,ability',
             'data.email' => ['required', 'email', Rule::unique('users', 'email'), 'max:255'],
-            'data.ability' => ['required', Rule::in(['write', 'self'])]
+            'data.ability' => ['required', Rule::in(['manager', 'seller'])]
         ]);
 
         if ($validator->fails()) {

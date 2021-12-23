@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Tenant;
 
+use App\Models\BankAccount;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TenantTestCase;
 
-class UserActionsTest extends TenantTestCase
+class BankAccountActionsTest extends TenantTestCase
 {
     public function getAbilities()
     {
@@ -20,25 +21,28 @@ class UserActionsTest extends TenantTestCase
 
     /**
      * @test
-     * @covers \App\Http\Controllers\UserController
+     * @covers \App\Http\Controllers\EventController
      * @dataProvider getAbilities
      */
-    public function getUsers_WhenAdminOrWrite_Returns200($ability)
+    public function getEvent_WhenAdminOrWrite_Returns200($ability)
     {
         Sanctum::actingAs(
-            User::factory()->makeOne(),
+            User::inRandomOrder()->first(),
             ["{$ability}"]
         );
+        $this->withoutMiddleware([RestrictToAccountableUser::class]);
 
-        $response = $this->json('GET', "{$this->domainWithScheme}/api/users");
+        $bankAccount = BankAccount::inRandomOrder()->first();
+
+        $response = $this->json('GET', "{$this->domainWithScheme}/api/bankaccounts/{$bankAccount->id}");
 
         if ($ability == 'admin' || $ability == 'manager') {
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
-                    'data.0',
+                    'data',
                     fn ($json) =>
-                    $json->hasAll('id', 'name', 'email')
+                    $json->hasAll('id', 'beneficiary_name', 'bic', 'iban')
                         ->etc()
                 )
             )->assertOk();

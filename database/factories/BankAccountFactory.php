@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\BankAccount;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 
@@ -23,12 +24,15 @@ class BankAccountFactory extends Factory
     public function definition()
     {
         $name = tenant()->name;
+        $userId = User::firstWhere('ability', '=', 'admin');
 
         return [
             //'id' => $this->faker->uuid(),
             'beneficiary_name' => $name,
             'bic' => $this->faker->swiftBicNumber(),
-            'iban' => $this->faker->iban('BE', '', 16)
+            'iban' => $this->faker->iban('BE', '', 16),
+            'created_by' => $userId,
+            'updated_by' => $userId
         ];
     }
 }

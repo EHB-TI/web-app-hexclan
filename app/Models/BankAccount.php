@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Accountable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BankAccount extends Model
 {
-    use HasFactory;
+    use HasFactory, Accountable;
 
     // Required because primary key is uuid.
     //public $incrementing = false;

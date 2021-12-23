@@ -37,7 +37,7 @@ class RegisterController extends Controller
             $user->password = bcrypt($validatedAttributes['password']);
             $user->pin_code = random_int(10 ** (6 - 1), (10 ** 6) - 1); // Generates random positive 6-digits integer.
             $user->pin_code_timestamp = Carbon::now();
-            $user->save();
+            $user->saveQuietly();
 
             // Dispatches Registered event upon succesful registration.
             event(new Registered($user));

@@ -24,8 +24,8 @@ class EventUserController extends Controller
     public function upsert(Request $request, Event $event, User $user)
     {
         $validator = Validator::make($request->all(), [
-            'data' => 'required|array:user_id,ability',
-            'data.ability' => ['required', 'string', Rule::in(['write', 'self'])],
+            'data' => 'required|array:ability',
+            'data.ability' => ['required', 'string', Rule::in(['manager', 'seller'])],
         ]);
 
         if ($validator->fails()) {
@@ -34,6 +34,12 @@ class EventUserController extends Controller
 
         $rawValidatedAttributes = $validator->validated();
         $validatedAttributes = $rawValidatedAttributes['data'];
+
+        // Only 1 manager per event.
+        $manager = $event->getManager();
+        if (isset($manager) && $validatedAttributes['ability'] == 'manager') {
+            return response()->json(['error' => 'The event manager is already set'], Response::HTTP_FORBIDDEN);
+        }
 
         EventUser::updateOrCreate(
             ['event_id' => $event->id, 'user_id' => $user->id],
@@ -58,7 +64,7 @@ class EventUserController extends Controller
 
     public function transactions(Request $request, Event $event, User $user)
     {
-        if ($request->user()->tokenCan('self') && $user->id != $request->user()->user_id) {
+        if ($request->user()->tokenCan('seller') && $user->id != $request->user()->user_id) {
             return response()->json(['error' => 'The user is only authorised to access his/her own record(s)'], Response::HTTP_FORBIDDEN);
         }
 

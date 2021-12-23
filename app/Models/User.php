@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Accountable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +12,7 @@ use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Accountable;
 
     // Required because primary key is uuid.
     public $incrementing = false;
@@ -64,14 +65,14 @@ class User extends Authenticatable
         return $this->hasMany(EventUser::class);
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     // Returns user role on a specific event.
     public function getRole($eventId)
     {
         return $this->roles->where('event_id', '=', $eventId)->first();
-    }
-
-    public function transactions()
-    {
-        return $this->hasMany(Transaction::class);
     }
 }

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Accountable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasFactory, Accountable;
 
     // Required because primary key is uuid.
     //public $incrementing = false;
@@ -52,5 +53,11 @@ class Event extends Model
         return $this->belongsToMany(User::class)
             ->using(EventUser::class)
             ->withPivot('ability');
+    }
+
+    // Returns user role on a specific event.
+    public function getManager()
+    {
+        return $this->roles->firstWhere('ability', '=', 'manager');
     }
 }

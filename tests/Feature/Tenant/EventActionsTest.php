@@ -6,6 +6,8 @@ use App\Models\BankAccount;
 use App\Models\Event;
 use App\Models\User;
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\EnsureUserBelongsToEvent;
+use App\Http\Middleware\RestrictToAccountableUser;
 use App\Models\Tenant;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
@@ -24,8 +26,8 @@ class EventActionsTest extends TenantTestCase
     {
         return [
             'admin' => ['admin'],
-            'write' => ['write'],
-            'self' => ['self']
+            'manager' => ['manager'],
+            'seller' => ['seller']
         ];
     }
 
@@ -60,7 +62,7 @@ class EventActionsTest extends TenantTestCase
 
         $response = $this->json('GET', "{$this->domainWithScheme}/api/events");
 
-        if ($ability == 'admin' || $ability == 'write') {
+        if ($ability == 'admin' || $ability == 'manager') {
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
@@ -70,7 +72,7 @@ class EventActionsTest extends TenantTestCase
                         ->etc()
                 )
             )->assertOk();
-        } else if ($ability == 'self') {
+        } else if ($ability == 'seller') {
             $response->assertForbidden();
         }
     }
@@ -83,7 +85,7 @@ class EventActionsTest extends TenantTestCase
     public function postEvent_WithValidInput_Returns201($ability)
     {
         Sanctum::actingAs(
-            User::factory()->makeOne(),
+            User::inRandomOrder()->first(),
             ["{$ability}"]
         );
         $event = Event::factory()
@@ -95,12 +97,11 @@ class EventActionsTest extends TenantTestCase
             'data' => [
                 'name' => $event->name,
                 'date' => $event->date,
-                'bank_account_id' => $event->bank_account_id
+                'bank_account_id' => $event->bank_account_id,
             ]
         ]);
 
-        if ($ability == 'admin' || $ability == 'write') {
-            $createdEvent = Event::firstWhere('name', '=', $event->name);
+        if ($ability == 'admin' || $ability == 'manager') {
             $response->assertJson(
                 fn (AssertableJson $json) =>
                 $json->has(
@@ -109,12 +110,12 @@ class EventActionsTest extends TenantTestCase
                     $json->hasAll('id', 'name', 'date', 'bank_account_id')
                         ->etc()
                 )
-            )->assertCreated();
-            $this->assertEquals($event->name, $createdEvent->name); // Tests database write.
-        } else if ($ability == 'self') {
+            )->assertCreated(); // Tests JSON response
+            $this->assertDatabaseHas('events', ['name' => $event->name]); // Tests database write.
+        } else if ($ability == 'seller') {
             $response->assertForbidden();
             $this->assertDatabaseMissing('events', ['name' => $event->name]);
-        } // Tests JSON response
+        }
 
         DB::rollBack();
     }
@@ -144,13 +145,49 @@ class EventActionsTest extends TenantTestCase
     }
 
     /**
-     * bank_account_id unchanged.
+     * @test
+     * @covers \App\Http\Controllers\EventController
+     * @dataProvider getAbilities
+     */
+    public function getEvent_WhenAdminOrWrite_Returns200($ability)
+    {
+        Sanctum::actingAs(
+            User::factory()->makeOne(),
+            ["{$ability}"]
+        );
+        $this->withoutMiddleware([RestrictToAccountableUser::class]);
+        $event = Event::inRandomOrder()->first();
+
+        $response = $this->json('GET', "{$this->domainWithScheme}/api/events/{$event->id}");
+
+        if ($ability == 'admin' || $ability == 'manager') {
+            $response->assertJson(
+                fn (AssertableJson $json) =>
+                $json->has(
+                    'data',
+                    fn ($json) =>
+                    $json->hasAll('id', 'name', 'date')
+                        ->etc()
+                )
+            )->assertOk();
+        } else if ($ability == 'seller') {
+            $response->assertForbidden();
+        }
+    }
+
+    /**
+     * Test with user with ability manager.
      * @test
      * @covers \App\Http\Controllers\EventController
      */
     public function patchEvent_WithPassingValidation_Returns200()
     {
-        $this->withoutMiddleware([Authenticate::class, CheckForAnyAbility::class]);
+        Sanctum::actingAs(
+            User::inRandomOrder()->first(),
+            ['manager']
+        );
+        $this->withoutMiddleware([RestrictToAccountableUser::class]);
+
         $event = Event::inRandomOrder()->first();
         $updatedName = Event::factory()->makeOne()->name;
         $updatedDate = Carbon::now()->toDateString();
@@ -163,8 +200,8 @@ class EventActionsTest extends TenantTestCase
                 'bank_account_id' => $event->bank_account_id
             ]
         ]);
-
         $updatedEvent = Event::firstWhere('name', '=', $updatedName);
+
         $response->assertJson(
             fn (AssertableJson $json) =>
             $json->has(
@@ -173,7 +210,6 @@ class EventActionsTest extends TenantTestCase
                 $json->where('id', $event->id)
                     ->where('name', $updatedName)
                     ->where('date', $updatedDate)
-                    ->where('bank_account_id', $event->bank_account_id)
                     ->etc()
             )
         )->assertOk();
@@ -201,10 +237,10 @@ class EventActionsTest extends TenantTestCase
         if ($ability == 'admin') {
             $response->assertNoContent();
             $this->assertDeleted($event);
-        } else if ($ability == 'write') {
+        } else if ($ability == 'manager') {
             $response->assertForbidden();
             $this->assertDatabaseHas('events', ['id' => $event->id]);
-        } else if ($ability == 'self') {
+        } else if ($ability == 'seller') {
             $response->assertForbidden();
             $this->assertDatabaseHas('events', ['id' => $event->id]);
         }

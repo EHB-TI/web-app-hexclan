@@ -55,7 +55,7 @@ class LoginController extends Controller
                 return response()->json(['error' => 'The provided pin code is incorrect'], Response::HTTP_UNAUTHORIZED);
             } else {
                 $user->is_active = true;
-                $user->save();
+                $user->saveQuietly();
             }
         }
 
@@ -65,11 +65,11 @@ class LoginController extends Controller
                 case 'admin':
                     $userToken = $user->createToken($validatedAttributes['device_name'], ['admin']);
                     break;
-                case 'write':
-                    $userToken = $user->createToken($validatedAttributes['device_name'], ['write']);
+                case 'manager':
+                    $userToken = $user->createToken($validatedAttributes['device_name'], ['manager']);
                     break;
-                case 'self':
-                    $userToken = $user->createToken($validatedAttributes['device_name'], ['self']);
+                case 'seller':
+                    $userToken = $user->createToken($validatedAttributes['device_name'], ['seller']);
                     break;
             }
 

@@ -16,12 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $dispatcher = User::getEventDispatcher();
+        User::unsetEventDispatcher();
         $user = User::create([
             'id' => (string) Str::uuid(),
             'email' => 'mathieu.developer@protonmail.com',
             'ability' => 'admin'
         ]);
 
+        User::setEventDispatcher($dispatcher);
         // To be commented out in production.
         $tenant = Tenant::factory()->create();
         $domain = strtolower($tenant->name) . '.' . config('tenancy.central_domains.0');
