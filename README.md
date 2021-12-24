@@ -270,5 +270,8 @@ instance CRUD
 # Deployment
 *minimally, this section contains a public URL of the app. A description of how your software is deployed is a bonus. Do you do this manually, or did you manage to automate? Have you taken into account the security of your deployment process?*
 
+public url central app: https://hexclan.be
+public url demo tenant app: https://demo.hexclan.be
 
+The deployment process on google app engine (standard env) does not involve a ci/cd pipeline. Feature tests are run manually before each release. Under current release, the total test coverage is 12,85%. 
 
