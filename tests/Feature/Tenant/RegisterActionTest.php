@@ -47,6 +47,7 @@ class RegisterActionTest extends TenantTestCase
 
     /**
      * Fails unless saveQuietly is used. Because this route is not subject to auth:sanctum.
+     * @covers \App\Http\Controllers\RegisterController
      * @test
      */
     public function register_WithValidInput_SendsPINCodeNotification()
