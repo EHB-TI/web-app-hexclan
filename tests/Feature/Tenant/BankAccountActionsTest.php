@@ -21,7 +21,7 @@ class BankAccountActionsTest extends TenantTestCase
 
     /**
      * @test
-     * @covers \App\Http\Controllers\EventController
+     * @covers \App\Http\Controllers\BankAccountController
      * @dataProvider getAbilities
      */
     public function getBankAccount_WhenAdminOrManager_Returns200($ability)

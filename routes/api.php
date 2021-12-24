@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware([
     'api',
-    'accept',
     'auth:sanctum',
     'ability:admin'
 ])->group(function () {

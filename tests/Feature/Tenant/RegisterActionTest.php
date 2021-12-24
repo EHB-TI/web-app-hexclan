@@ -16,6 +16,7 @@ class RegisterActionTest extends TenantTestCase
 {
     use WithFaker;
     /**
+     * @covers \App\Http\Controllers\RegisterController
      * @test
      */
     public function register_WithValidInput_Returns200()

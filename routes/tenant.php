@@ -34,10 +34,9 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 Route::prefix(
     'api'
 )->middleware([
-    'api',
-    'accept',
     'universal',
     InitializeTenancyByDomain::class,
+    'api',
     'throttle:open',
 ])->group(function () {
     Route::post('register', RegisterController::class);
@@ -49,14 +48,12 @@ Route::prefix(
 Route::prefix(
     'api'
 )->middleware([
-    'api',
-    'accept',
     'universal',
     InitializeTenancyByDomain::class,
+    'api',
     'auth:sanctum',
 ])->group(function () {
     //Route::get('/token/refresh', [TokenController::class, 'refresh']);
-
     Route::get('users', [UserController::class, 'index'])->middleware('ability:admin,manager');
     Route::get('users/{user}', [UserController::class, 'show'])->middleware(['ability:admin,manager,seller', 'accountable', 'own']);
     Route::patch('users/{user}', [UserController::class, 'update'])->middleware(['ability:admin,manager,seller', 'accountable', 'own']);
@@ -67,10 +64,9 @@ Route::prefix(
 Route::prefix(
     'api'
 )->middleware([
-    'api',
-    'accept',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    'api',
     'auth:sanctum'
 ])->group(function () {
     // This route is used to sync the user's role tokens between the server and the client.
@@ -104,10 +100,9 @@ Route::prefix(
 Route::prefix(
     'api'
 )->middleware([
-    'api',
-    'accept',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    'api',
     'auth:sanctum',
 ])->group(function () {
     // This route should be visited prior to a sync with all the role tokens possessed by the client. 
