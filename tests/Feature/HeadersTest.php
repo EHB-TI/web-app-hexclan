@@ -16,7 +16,7 @@ class HeadersTest extends TestCase
      * @covers App\Http\Middleware\AcceptableTypeIsJson
      * @test
      */
-    public function acceptableTypeIsJson_WithUnacceptableAcceptHeaderType_Returns406()
+    public function anyRequestWithUnacceptableAcceptHeaderType_Returns406()
     {
         $response = $this->withHeaders([
             'Accept' => 'text/html'
@@ -33,7 +33,7 @@ class HeadersTest extends TestCase
      * @covers \App\Http\Middleware\SecureResponseHeaders
      * @test
      */
-    public function secureResponseHeaders_AnyRequest_ReturnsResponseWithSecureHeaders()
+    public function anyRequest_ReturnsResponseWithSecureHeaders()
     {
         $response = $this->postJson('/api/register', [
             'data' => [
