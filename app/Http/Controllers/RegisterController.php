@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
@@ -19,7 +20,7 @@ class RegisterController extends Controller
             'data' => 'required|array:name,email,password',
             'data.name' => 'required|max:255',
             'data.email' => ['required', 'email', Rule::exists('users', 'email'), 'max:255'],
-            'data.password' => 'required',
+            'data.password' => ['required', Password::min(8)->letters()->mixedCase()->numbers()->symbols()]
         ]);
 
         if ($validator->fails()) {

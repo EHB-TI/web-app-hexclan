@@ -31,7 +31,7 @@ class RegisterActionTest extends TenantTestCase
             'data' => [
                 'name' => $this->faker->name(),
                 'email' => $user->email,
-                'password' => 'password'
+                'password' => '5<4LpdPn'
             ]
         ]);
 
@@ -59,7 +59,7 @@ class RegisterActionTest extends TenantTestCase
             'data' => [
                 'name' => $this->faker->name(),
                 'email' => $user->email,
-                'password' => 'password'
+                'password' => '5<4LpdPn'
             ]
         ]);
 
