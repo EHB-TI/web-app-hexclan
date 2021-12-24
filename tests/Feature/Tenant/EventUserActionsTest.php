@@ -22,6 +22,7 @@ class EventUserActionsTest extends TenantTestCase
     /**
      * Test with manager ability.
      * @test
+     * @covers \App\Http\Controllers\EventUserController
      * @dataProvider getAbilities
      */
     public function upsert_WithValidInput_Returns201($ability)
