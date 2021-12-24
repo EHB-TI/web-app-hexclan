@@ -35,9 +35,10 @@ Route::prefix(
     'api'
 )->middleware([
     'api',
+    'accept',
     'universal',
     InitializeTenancyByDomain::class,
-    'throttle:open'
+    'throttle:open',
 ])->group(function () {
     Route::post('register', RegisterController::class);
     Route::post('login', LoginController::class);
@@ -49,9 +50,10 @@ Route::prefix(
     'api'
 )->middleware([
     'api',
+    'accept',
     'universal',
     InitializeTenancyByDomain::class,
-    'auth:sanctum'
+    'auth:sanctum',
 ])->group(function () {
     //Route::get('/token/refresh', [TokenController::class, 'refresh']);
 
@@ -66,6 +68,7 @@ Route::prefix(
     'api'
 )->middleware([
     'api',
+    'accept',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'auth:sanctum'
@@ -102,6 +105,7 @@ Route::prefix(
     'api'
 )->middleware([
     'api',
+    'accept',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'auth:sanctum',

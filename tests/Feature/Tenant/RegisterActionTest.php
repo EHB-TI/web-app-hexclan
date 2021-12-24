@@ -33,11 +33,11 @@ class RegisterActionTest extends TenantTestCase
                 'password' => 'password'
             ]
         ]);
-        $user = User::find($user->id); // Necessary to retrieve the model again after transaction has been committed.
 
         // then
         $response->assertStatus(Response::HTTP_NO_CONTENT);
         Event::assertDispatched(Registered::class);
+        $user = User::find($user->id); // Necessary to retrieve the model again.
         $this->assertTrue(isset($user->pin_code));
         $this->assertTrue(isset($user->pin_code_timestamp));
 
