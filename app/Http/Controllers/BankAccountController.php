@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BankAccountResource;
 use App\Models\BankAccount;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BankAccountController extends Controller
 {
@@ -26,16 +30,18 @@ class BankAccountController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'beneficiary_name' => 'required|max: 255',
-            'bic' => 'required|alpha_num|max: 8', // Could be improved with regex.
-            'iban' => 'required|alphanum|max: 16' // Could be improved with regex.
+            'data' => 'required|array:beneficiary_name,bic,iban',
+            'data.beneficiary_name' => 'required|max:255',
+            'data.bic' => 'required|alpha_num|max:8', //TODO: could be improved with regex.
+            'data.iban' => ['required', 'alphanum', Rule::unique('bank_accounts', 'iban'), 'max:16'] //TODO: could be improved with regex.
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $bankAccount = BankAccount::create([
             'beneficiary_name' => $validatedAttributes['beneficiary_name'],
@@ -56,11 +62,10 @@ class BankAccountController extends Controller
      */
     public function show(BankAccount $bankAccount)
     {
-        return new BankAccountResource(BankAccount::findOrFail($bankAccount->id));
+        return new BankAccountResource($bankAccount);
     }
 
     /**
-     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -70,26 +75,29 @@ class BankAccountController extends Controller
     public function update(Request $request, BankAccount $bankAccount)
     {
         $validator = Validator::make($request->all(), [
-            'beneficiary_name' => 'required|max: 255',
-            'bic' => 'required|alpha_num|max: 8', // Could be improved with regex.
-            'iban' => 'required|alphanum|max: 16' // Could be improved with regex.
+            'data' => 'required|array:beneficiary_name,bic,iban',
+            'data.beneficiary_name' => 'required|max:255',
+            'data.bic' => 'required|alpha_num|max:8', //TODO: could be improved with regex.
+            'data.iban' => ['required', 'alphanum', Rule::unique('bank_accounts', 'iban')->ignore($bankAccount->id), 'max:16'] //TODO: could be improved with regex.
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $bankAccount = BankAccount::update([
-            'beneficiary_name' => $validatedAttributes['beneficiary_name'],
-            'bic' => $validatedAttributes['bic'],
-            'iban' => $validatedAttributes['iban'],
-        ]);
+        $originalAttributes = collect($bankAccount->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes); // Return the values in the changedAttributes that are not present in the originalAttributes.
+
+        $bankAccount->fill($diff->toArray());
+        $bankAccount->save();
 
         return (new BankAccountResource($bankAccount))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -100,8 +108,38 @@ class BankAccountController extends Controller
      */
     public function destroy(BankAccount $bankAccount)
     {
-        BankAccount::destroy($bankAccount->id);
+        $bankAccount->delete();
 
         return response()->noContent();
     }
 }
+
+// Bulk entity creation
+/* public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'data.*' => 'required|array:beneficiary_name,bic,iban',
+        'data.*.beneficiary_name' => 'required|max:255',
+        'data.*.bic' => 'required|alpha_num|max:8', //TODO: could be improved with regex.
+        'data.*.iban' => 'required|alphanum|unique:bank_accounts|max:16' //TODO: could be improved with regex.
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    $rawValidatedAttributes = $validator->validated();
+
+    $collection = collect();
+    foreach ($rawValidatedAttributes['data'] as $validatedAttributes) {
+        $collection->push(BankAccount::create([
+            'beneficiary_name' => $validatedAttributes['beneficiary_name'],
+            'bic' => $validatedAttributes['bic'],
+            'iban' => $validatedAttributes['iban'],
+        ]));
+    }
+
+    return (BankAccountResource::collection($collection))
+        ->response()
+        ->setStatusCode(Response::HTTP_CREATED);
+} */

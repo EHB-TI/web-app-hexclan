@@ -22,13 +22,13 @@ class TestGetController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $user = User::where('ability', '!=', '*')->first();
-        $event = Event::all()->first();
-        $events = $user->events;
-        $users = $event->users;
+        // $user = User::where('ability', '!=', '*')->first();
+        // $event = Event::all()->first();
+        // $events = $user->events;
+        // $users = $event->users;
 
 
-        return response()->json($users);
+        // return response()->json($users);
         // Test UserResource collections.
         //return UserResource::collection(User::all());
 

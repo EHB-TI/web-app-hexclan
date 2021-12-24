@@ -7,44 +7,47 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class EventTokenController extends Controller
+class EventUserTokenController extends Controller
 {
     // public function refresh()
     // {
     // }
 
+    // Should be called on every app start-up.
     public function purge(Request $request)
     {
         $currentAccessToken = $request->user()->currentAccessToken();
-        if ($currentAccessToken->tokenable_type === 'App\Models\Event') {
+        if ($currentAccessToken->tokenable_type == 'App\Models\EventUser') {
             $currentAccessToken->delete();
 
             return response()->noContent();
         } else {
-            return response()->json(['error' => 'This type of token cannot be purged'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['error' => 'This type of token cannot be purged'], Response::HTTP_FORBIDDEN);
         }
     }
 
-    // An event token is created per event to which the user belongs.
+    // An role (eventuser) token is created per event to which the user belongs. Should be called on every app start-up.
     public function sync(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'device_name' => 'required',
+            'data' => 'required|array:device_name',
+            'data.device_name' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $user = $request->user();
         $tokens = [];
-        if ($user->events()->exists()) {
-            $user->load('events'); // Lazy eager loading.
-            foreach ($user->events as $event) {
-                $eventToken = $event->createToken($validatedAttributes['device_name'], ["{$event->pivot->ability}"]);
-                $token = new Token("event_token", $event->id, $eventToken->plainTextToken);
+        if ($user->roles()->exists()) {
+            $user->load('roles'); // Lazy eager loading.
+            foreach ($user->roles as $role) {
+                $roleToken = $role->createToken($validatedAttributes['device_name'], ["{$role->ability}"]);
+                $token = new Token("role_token", $role->id, $roleToken->plainTextToken);
                 array_push($tokens, $token);
             }
 

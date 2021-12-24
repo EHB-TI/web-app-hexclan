@@ -8,7 +8,7 @@ use App\Models\User;
 class EventObserver
 {
     /**
-     * Attaches an * ability to the admin user by inserting record in the pivot table.
+     * Attaches an admin ability to the admin user by inserting record in the pivot table.
      * Handle the Event "created" event.
      *
      * @param  \App\Models\Event  $event
@@ -16,8 +16,8 @@ class EventObserver
      */
     public function created(Event $event)
     {
-        $user = User::firstWhere('ability', '=', '*');
-        $event->users()->attach($user->id, ['ability' => '*']);
+        $user = User::firstWhere('ability', '=', 'admin');
+        $event->users()->attach($user->id, ['ability' => 'admin']);
     }
 
     /**

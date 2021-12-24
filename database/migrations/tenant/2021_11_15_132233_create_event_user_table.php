@@ -15,10 +15,11 @@ class CreateEventUserTable extends Migration
     {
         Schema::create('event_user', function (Blueprint $table) {
             $table->id();
-            $table->unique(['event_id', 'user_id']);
             $table->foreignId('event_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->enum('ability', ['*', 'manager', 'seller'])->default('seller');
+            $table->unique(['event_id', 'user_id']);
+            $table->enum('ability', ['admin', 'manager', 'seller'])->default('seller');
+            $table->timestamps();
         });
     }
 

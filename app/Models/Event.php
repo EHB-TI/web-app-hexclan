@@ -2,27 +2,34 @@
 
 namespace App\Models;
 
+use App\Traits\Accountable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
 
 class Event extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasFactory, Accountable;
 
     // Required because primary key is uuid.
     //public $incrementing = false;
 
     protected $guarded = [];
 
-    protected $hidden = [
-        'bank_account_id',
-    ];
-
     // The bank account that belongs to the event.
     public function bankAccount()
     {
         return $this->belongsTo(BankAccount::class);
+    }
+
+    // The categories that belong to the event.
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function items()
+    {
+        return $this->hasManyThrough(Item::class, Category::class);
     }
 
     /**
@@ -34,6 +41,12 @@ class Event extends Model
         return $this->hasMany(EventUser::class);
     }
 
+    // The transactions that belong to the event.
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     // The users that belong to the event.
     public function users()
     {
@@ -42,12 +55,9 @@ class Event extends Model
             ->withPivot('ability');
     }
 
-    /**
-     * Accessor method which returns all users that belong to the event.
-     * @return array
-     */
-    public function getUsers()
+    // Returns user role on a specific event.
+    public function getManager()
     {
-        return $this->users()->pluck('user_id');
+        return $this->roles->firstWhere('ability', '=', 'manager');
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TenantController;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +20,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware([
     'api',
-    //'auth:sanctum',
-    //'ability:*'
+    'auth:sanctum',
+    'ability:admin'
 ])->group(function () {
-    Route::apiResource('tenants', TenantController::class);
+    // Update action is not yet implemented (should be designed carefully).
+    Route::apiResource('tenants', TenantController::class)->except('update');
+});
+
+Route::fallback(function () {
+    return response()->json(['message' => 'This route does not exist.'], Response::HTTP_NOT_FOUND);
 });

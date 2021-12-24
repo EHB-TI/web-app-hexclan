@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class DropTenantsDB extends Command
@@ -38,12 +39,25 @@ class DropTenantsDB extends Command
      */
     public function handle()
     {
-        foreach (DB::select('SHOW DATABASES LIKE "tenant_%"') as $db) {
-            $db = array_values((array) $db)[0];
-
-            DB::select("DROP DATABASE `$db`");
+        $env = App::environment();
+        if ($env == 'testing') {
+            config(['database.connections.mysql.database' => 'hexclan']);
+            DB::connection('mysql')->setDatabaseName('hexclan');
+            $dbs = DB::select('SHOW DATABASES LIKE "%_test"');
+        } else if ($env == 'local') {
+            $dbs = DB::select('SHOW DATABASES LIKE "tenant_%_local"');
         }
 
-        $this->info('Dropped tenant(s) database(s) succesfully');
+        if (!empty($dbs)) {
+            foreach ($dbs as $db) {
+                $db = array_values((array) $db)[0];
+
+                DB::statement("DROP DATABASE `{$db}`");
+            }
+
+            $this->info('Dropped tenant(s) database(s) succesfully');
+        } else {
+            $this->info('No database(s) to drop.');
+        }
     }
 }

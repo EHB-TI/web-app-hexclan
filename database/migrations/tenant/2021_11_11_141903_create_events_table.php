@@ -15,9 +15,11 @@ class CreateEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('bank_account_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('name');
             $table->date('date');
-            $table->foreignId('bank_account_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignUuid('created_by')->constrained('users', 'id');
+            $table->foreignUuid('updated_by')->constrained('users', 'id');
             $table->timestamps();
         });
     }

@@ -1,8 +1,14 @@
+_ide_helper_models.php
+_ide_helper.php
 .env
 .env.backup
+.env.gae
+.env.testing
+.gcloudignore
 .phpunit.result.cache
 /.idea
 /.vscode
+/html-coverage
 /node_modules
 /public/css/app.css
 /public/hot
@@ -17,10 +23,6 @@ docker-compose.yml
 Homestead.json
 Homestead.yaml
 npm-debug.log
+routes.csv
+todo.md
 yarn-error.log
-<<<<<<< HEAD
-=======
-docker-compose.yml
-_ide_helper_models.php
-_ide_helper.php
->>>>>>> dfdebbdde94e31a8c052e09ae4730b603501ccaf

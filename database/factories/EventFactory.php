@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\DB;
 
@@ -23,21 +24,17 @@ class EventFactory extends Factory
     public function definition()
     {
         static $count = 1;
-        $collection = DB::connection(config('tenancy.database.central_connection'))
-            ->table('tenants')
-            ->select('name')
-            ->where('id', tenant('id'))
-            ->get();
-
-        $array = $collection->pluck('name');
-        $pluckedName = $array[0];
-        $name = "{$pluckedName}_event_{$count}";
+        $tenantName = tenant()->name;
+        $name = "{$tenantName}_event_{$count}";
         $count++;
+        $userId = User::firstWhere('ability', '=', 'admin');
 
         return [
             //'id' => $this->faker->uuid(),
             'name' => $name,
             'date' => $this->faker->date('Y-m-d'),
+            'created_by' => $userId,
+            'updated_by' => $userId
         ];
     }
 }

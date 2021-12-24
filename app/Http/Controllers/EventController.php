@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\EventResource;
-use App\Models\BankAccount;
+use App\Http\Resources\TransactionResource;
+use App\Http\Resources\UserResource;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
@@ -27,27 +32,28 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //Make sure that event name is lowercase when stored in db. Event names should be unique.
-
+        // Event names should be unique. Validation is case insensitive because MySQL is case insensitive.
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max: 30',
-            'date' => 'required|date',
-            'bank_account_id' => 'required'
+            'data' => 'required|array:name,date,bank_account_id',
+            'data.name' => ['required',  Rule::unique('events', 'name'), 'max:30'],
+            'data.date' => 'required|date',
+            'data.bank_account_id' => ['required', Rule::exists('bank_accounts', 'id')]
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
         $event = Event::create([
             'name' => $validatedAttributes['name'],
-            'date' => $validatedAttributes['name'],
+            'date' => $validatedAttributes['date'],
+            'bank_account_id' => $validatedAttributes['bank_account_id']
         ]);
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
-        $event->bankAccount()->associate($bankAccount);
 
+        // Given that the relationship is loaded, the bank account will be returned here with the created event.
         return (new EventResource($event))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
@@ -61,11 +67,10 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return new EventResource(Event::findOrFail($event->id));
+        return new EventResource($event);
     }
 
     /**
-     * TODO
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -75,27 +80,29 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:events|max: 30',
-            'date' => 'required|date',
-            'bank_account_id' => 'required'
+            'data' => 'required|array:name,date,bank_account_id',
+            'data.name' => ['required',  Rule::unique('events', 'name')->ignore($event->id), 'max:30'],
+            'data.date' => 'required|date',
+            'data.bank_account_id' => ['required', Rule::exists('bank_accounts', 'id')]
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Validation failed.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $validatedAttributes = $validator->validated();
+        $rawValidatedAttributes = $validator->validated();
+        $validatedAttributes = $rawValidatedAttributes['data'];
 
-        $event = Event::create([
-            'name' => $validatedAttributes['name'],
-            'date' => $validatedAttributes['name'],
-        ]);
-        $bankAccount = BankAccount::findOrFail($validatedAttributes['bank_account_id']);
-        $event->bankAccount()->associate($bankAccount);
+        $originalAttributes = collect($event->getAttributes())->only(array_keys($validatedAttributes));
+        $changedAttributes = collect($validatedAttributes);
+        $diff = $changedAttributes->diff($originalAttributes);
+
+        $event->fill($diff->toArray());
+        $event->save();
 
         return (new EventResource($event))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -106,8 +113,23 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        Event::destroy($user->id);
+        $event->delete();
 
         return response()->noContent();
+    }
+
+    public function categories(Event $event)
+    {
+        return CategoryResource::collection($event->categories);
+    }
+
+    public function transactions(Event $event)
+    {
+        return TransactionResource::collection($event->transactions);
+    }
+
+    public function users(Event $event)
+    {
+        return UserResource::collection($event->users);
     }
 }

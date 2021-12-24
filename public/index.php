@@ -7,6 +7,36 @@ define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
+| GCP App Engine Writable Directories
+|--------------------------------------------------------------------------
+|
+| Before we start up Laravel, let's check if we are running in GCP App Engine,
+| and, if so, make sure that the Laravel's storage directory structure is
+| present.
+|
+*/
+
+if (
+    getenv('GCP_APP_ENGINE_LARAVEL')
+    && !file_exists('/tmp/.dirs_created')
+) {
+    foreach ([
+        '/tmp/app/public',
+        '/tmp/framework/cache/data',
+        '/tmp/framework/sessions',
+        '/tmp/framework/testing',
+        '/tmp/framework/views',
+        '/tmp/logs'
+    ] as $tmpdir) {
+        if (!file_exists($tmpdir)) {
+            mkdir($tmpdir, 0755, true);
+        }
+    }
+    touch('/tmp/.dirs_created');
+}
+
+/*
+|--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
 |--------------------------------------------------------------------------
 |
@@ -16,8 +46,8 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-if (file_exists(__DIR__.'/../storage/framework/maintenance.php')) {
-    require __DIR__.'/../storage/framework/maintenance.php';
+if (file_exists(__DIR__ . '/../storage/framework/maintenance.php')) {
+    require __DIR__ . '/../storage/framework/maintenance.php';
 }
 
 /*
@@ -31,7 +61,7 @@ if (file_exists(__DIR__.'/../storage/framework/maintenance.php')) {
 |
 */
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +74,7 @@ require __DIR__.'/../vendor/autoload.php';
 |
 */
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
 
